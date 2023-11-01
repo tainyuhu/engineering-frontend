@@ -8,12 +8,15 @@ const { defineConfig } = require('@vue/cli-service');
 // 【修改後】
 module.exports = defineConfig({
   lintOnSave: false,
+
   // transpileDependencies: [
   //   'vuetify'
   // ],
   outputDir: 'dist',
-  assetsDir: 'static', // 指定build時，在靜態文件上一層添加static目錄
-  
+
+  // 指定build時，在靜態文件上一層添加static目錄
+  assetsDir: 'static',
+
   devServer: {
     historyApiFallback: true, // 路由設定History Mode(開發模式下而已，生產模式還要再去後端設定)
 
@@ -32,4 +35,10 @@ module.exports = defineConfig({
         
       }
     },
+
+  pluginOptions: {
+    vuetify: {
+			// https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vuetify-loader
+		}
+  }
 })
