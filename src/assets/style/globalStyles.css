@@ -1,0 +1,117 @@
+/* 全域樣式定義
+
+.background-card {
+    background-color: #fcfcfc;
+    height: 100vh;
+    width: 100%;
+}
+
+.title {
+    margin: 15px;
+}
+
+.flex-container {
+    margin: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.content {
+    justify-content: center;
+    align-items: center;
+    margin: 15px;
+}
+
+.blue-rectangle {
+    background-color: #0984e3;
+    width: 10px;
+    height: 30px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.orange-rectangle {
+    background-color: #FF6F00;
+    width: 10px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+.span_title {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
+    font-size: 16pt;
+    font-weight: bold;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.span_label {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 16pt;
+    font-weight: bold;
+    margin: 10px;
+}
+
+.span_btn {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 12pt;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+}
+
+.rounded-btn {
+    width: 60px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    margin-left: 10px;
+    background-color: #FFFFFF;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.25);
+}
+
+.card-radius {
+    border-radius: 16px;
+}
+
+.spacer {
+    height: 50px;
+    width: 250px
+}
+
+.spacer1 {
+    width: 250px
+}
+
+.spacer_case {
+    height: 15px;
+    width: 250px
+}
+
+:deep(.v-btn),
+:deep(.v-col),
+:deep(.v-select) {
+    font-size: 12pt;
+}
+
+:deep(.v-expansion-panel-text) {
+    font-size: 12pt;
+}
+
+:deep(.v-label.v-field-label) {
+    font-size: 12pt;
+}
+
+:deep(.model-value) {
+    background-color: gray;
+} */

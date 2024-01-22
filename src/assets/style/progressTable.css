@@ -1,0 +1,26 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12pt;
+}
+
+.table th,
+.table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    /* 水平居中 */
+    vertical-align: middle;
+    /* 垂直居中 */
+    white-space: nowrap;
+    /* 防止内容换行 */
+}
+
+.th_title {
+    background: #5ac7b0;
+    color: white;
+}
+
+.td_expected {
+    background: #FFFEE1;
+}
