@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="login-background">
     <div class="login-container">
       <form @submit.prevent="login" class="login-form">
@@ -21,10 +21,10 @@ import http from '@/http'; // 导入 Axios 实例
 export default {
   data() {
     return {
-      username: 'pp',
-      password: 'mirdcUC',
-      // username: '',
-      // password: '',
+      //username: 'pp',
+      //password: 'mirdcUC',
+      username: '',
+      password: '',
     };
   },
   methods: {

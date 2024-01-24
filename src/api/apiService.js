@@ -1,8 +1,9 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 // 創建 Axios 實例
 const apiClient = axios.create({
-    baseURL: process.env.VUE_APP_API_BASE_URL, // 設置所有 Axios 請求的基本 URL。
+	baseURL: '/',
+    // baseURL: process.env.VUE_APP_API_BASE_URL, // 設置所有 Axios 請求的基本 URL。
     headers: {
         'Content-Type': 'application/json',
     },
