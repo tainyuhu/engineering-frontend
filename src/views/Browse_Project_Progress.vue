@@ -89,7 +89,7 @@
         <loader :isLoading="isLoading" :elapsedSeconds="elapsedSeconds"></loader>
         <v-skeleton-loader v-if="isLoading" type="table"></v-skeleton-loader>
         <div v-else>
-          <week-progress-table :tableData="this.tableData" :tableBankData="tableBankData" :isBankMode="isBankMode"></week-progress-table>
+          <week-progress-table :tableData="tableData" :tableBankData="tableBankData" :isBankMode="isBankMode"></week-progress-table>
         </div>
       </div>
       <!-- 引用 SeasonProgressTable 組件 -->
