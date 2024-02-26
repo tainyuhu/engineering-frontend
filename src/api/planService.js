@@ -1,7 +1,7 @@
 import apiClient from './apiService';
 
 const fetchPlans = () => {
-    return apiClient.get('/api/plans/');
+    return apiClient.get('/api/v1/plans/');
 };
 
 const fetchProjects = () => {

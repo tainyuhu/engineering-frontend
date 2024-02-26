@@ -23,16 +23,100 @@ const routes = [
     name: 'Login',
     component: loadView("Login"),
   },
-  { // 工程進度瀏覽
-    path: '/Browse_Project_Progress',
-    name: 'Browse_Project_Progress',
-    component: loadView("Browse_Project_Progress"),
+  { // 填寫計畫進度
+    path: '/Fillin_Progress',
+    name: 'Fillin_Progress',
+    component: loadView("Fillin_Progress"),
     meta: { requiresAuth: true },
   },
-  { // 工程進度填寫
-    path: '/Fillin_Project_Progress',
-    name: 'Fillin_Project_Progress',
-    component: loadView("Fillin_Project_Progress"),
+  { // 瀏覽計畫進度
+    path: '/Browse_Progress',
+    name: 'Browse_Progress',
+    component: loadView("Browse_Progress"),
+    meta: { requiresAuth: true },
+  },
+  { // 瀏覽總體進度
+    path: '/Browse_Master_Progress',
+    name: 'Browse_Master_Progress',
+    component: loadView("Browse_Master_Progress"),
+    meta: { requiresAuth: true },
+  },
+  { // 上傳紀錄
+    path: '/Upload_Meeting_Record',
+    name: 'Upload_Meeting_Record',
+    component: loadView("Upload_Meeting_Record"),
+    meta: { requiresAuth: true },
+  },
+  { // 查詢紀錄
+    path: '/Search_Meeting_Record',
+    name: 'Search_Meeting_Record',
+    component: loadView("Search_Meeting_Record"),
+    meta: { requiresAuth: true },
+  },
+  { // 計畫列表
+    path: '/Plan_List',
+    name: 'Plan_List',
+    component: loadView("Plan_List"),
+    meta: { requiresAuth: true },
+  },
+  { // 新增計畫
+    path: '/Add_New_Plan',
+    name: 'Add_New_Plan',
+    component: loadView("Add_New_Plan"),
+    meta: { requiresAuth: true },
+  },
+  { // 修改計畫
+    path: '/Edit_Plan',
+    name: 'Edit_Plan',
+    component: loadView("Edit_Plan"),
+    meta: { requiresAuth: true },
+  },
+  { // 總體計畫列表
+    path: '/Master_Plan_List',
+    name: 'Master_Plan_List',
+    component: loadView("Master_Plan_List"),
+    meta: { requiresAuth: true },
+  },
+  { // 新增計畫組合
+    path: '/Add_Master_Plan',
+    name: 'Add_Master_Plan',
+    component: loadView("Add_Master_Plan"),
+    meta: { requiresAuth: true },
+  },
+  { // 修改計畫組合
+    path: '/Edit_Master_Plan',
+    name: 'Edit_Master_Plan',
+    component: loadView("Edit_Master_Plan"),
+    meta: { requiresAuth: true },
+  },
+  { // 通知設定
+    path: '/Notification_Settings',
+    name: 'Notification_Settings',
+    component: loadView("Notification_Settings"),
+    meta: { requiresAuth: true },
+  },
+  { // 帳戶管理
+    path: '/Account_Management',
+    name: 'Account_Management',
+    component: loadView("Account_Management"),
+    meta: { requiresAuth: true },
+  },
+  { // 使用指南
+    path: '/User_Guide',
+    name: 'User_Guide',
+    component: loadView("User_Guide"),
+    meta: { requiresAuth: true },
+  },
+  { // 常見問題
+    path: '/FAQ',
+    name: 'FAQ',
+    component: loadView("FAQ"),
+    meta: { requiresAuth: true },
+  },
+  { // 聯繫支持
+    path: '/Contact_Support',
+    name: 'Contact_Support',
+    component: loadView("Contact_Support"),
     meta: { requiresAuth: true },
   },
 
@@ -79,7 +163,7 @@ router.beforeEach((to, from, next) => {
       }).then(response => {
         console.log("response:", response.data.permission);
         if (response.data.permission) {
-          next({ path: to.path });
+          next();
         } else {
           next({ name: 'Login' }) // 權限檢查未通過
         }
