@@ -41,7 +41,7 @@ export default {
         // 更新 Vuex Store 的登录状态
         this.$store.commit('auth/setToken', response.data.access);
         // 跳转到受保护的页面
-        this.$router.push({ name: 'Fillin_Project_Progress' });
+        this.$router.push({ name: 'home' });
       } catch (error) {
         console.error(error);
       }
