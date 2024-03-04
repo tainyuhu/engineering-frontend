@@ -1,27 +1,24 @@
 import apiClient from './apiService';
 
+const fetchFile = () => {
+    return apiClient.get('/api/v1/fileprogress/');
+};
+
 const fetchPlans = () => {
     return apiClient.get('/api/v1/plans/');
 };
 
 const fetchProjects = () => {
-    return apiClient.get('/api/projects/');
+    return apiClient.get('/api/v1/projects/');
 };
 
-const fetchCases = () => {
-    return apiClient.get('/api/project-cases/');
+const fetchCasesByLoop = (loopid) => {
+    return apiClient.get(`/api/v1/project-cases/${loopid}/`);
 };
 
-const fetchLoops = () => {
-    return apiClient.get('/api/project-loop/');
+const fetchLoopsByProject = (projectid) => {
+    return apiClient.get(`/api/v1/project-loops-by-project/${projectid}/`);
 };
 
-const fetchLoopByPlan = (planid) => {
-    return apiClient.get(`/api/project-loop-by-plan/${planid}/`, {
-        headers: {
-            Accept: 'application/json',
-        },
-    });
-};
 
-export { fetchPlans, fetchProjects, fetchCases, fetchLoopByPlan, fetchLoops };
+export { fetchPlans, fetchProjects, fetchCasesByLoop, fetchLoopsByProject, fetchFile };

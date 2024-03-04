@@ -8,17 +8,23 @@ function loadView(view) {
   return () => import(`@/views/${view}.vue`);
 }
 
+function loadBrowseProgressView(view) {
+  return () => import(`@/views/Browseprogress/${view}.vue`);
+}
 
+function loadViewFileProgressView(view) {
+  return () => import(`@/views/Viewfileprogress/${view}.vue`);
+}
 
 const routes = [
-
+  // 主要頁面
   { // 首頁
     path: '/',
     name: 'home',
     component: loadView("Home"),
     meta: { requiresAuth: true },
   },
-  {
+  { // 登入
     path: '/login',
     name: 'Login',
     component: loadView("Login"),
@@ -33,6 +39,12 @@ const routes = [
     path: '/Browse_Progress',
     name: 'Browse_Progress',
     component: loadView("Browse_Progress"),
+    meta: { requiresAuth: true },
+  },
+  { // 瀏覽文件進度
+    path: '/View_File_Progress',
+    name: 'View_File_Progress',
+    component: loadView("View_File_Progress"),
     meta: { requiresAuth: true },
   },
   { // 瀏覽總體進度
@@ -119,7 +131,56 @@ const routes = [
     component: loadView("Contact_Support"),
     meta: { requiresAuth: true },
   },
-
+  // 瀏覽計畫進度子頁面 loadBrowseProgressView
+  { // 案場
+    path: '/Project_Site_Overview',
+    name: 'Project_Site_Overview',
+    component: loadBrowseProgressView("Project_Site_Overview"),
+    meta: { requiresAuth: true },
+  },
+  { // PV
+    path: '/Project_PV',
+    name: 'Project_PV',
+    component: loadBrowseProgressView("Project_PV"),
+    meta: { requiresAuth: true },
+  },
+  { // 養殖
+    path: '/Project_Breeding',
+    name: 'Project_Breeding',
+    component: loadBrowseProgressView("Project_Breeding"),
+    meta: { requiresAuth: true },
+  },
+  { // 22.8KV
+    path: '/Powerline_228KV_Details',
+    name: 'Powerline_228KV_Details',
+    component: loadBrowseProgressView("Powerline_228KV_Details"),
+    meta: { requiresAuth: true },
+  },
+  { // 電業申辦
+    path: '/Electricity_Application_Process',
+    name: 'Electricity_Application_Process',
+    component: loadBrowseProgressView("Electricity_Application_Process"),
+    meta: { requiresAuth: true },
+  },
+  { // 161KV
+    path: '/High-Voltage-161KV-Info',
+    name: 'High-Voltage-161KV-Info',
+    component: loadBrowseProgressView("High-Voltage-161KV-Info"),
+    meta: { requiresAuth: true },
+  },
+  { // 升壓站
+    path: '/Booster_Station_Progress',
+    name: 'Booster_Station_Progress',
+    component: loadBrowseProgressView("Booster_Station_Progress"),
+    meta: { requiresAuth: true },
+  },
+  // 瀏覽文件進度子頁面 loadViewFileProgressView
+  { // Re-financing
+    path: '/File_Progress',
+    name: 'File_Progress',
+    component: loadViewFileProgressView("File_Progress"),
+    meta: { requiresAuth: true },
+  },
 
   // 404 Not Found
   // /:pathMatch(.*)*: 最終都會指向該Component，上面路由條件都沒達到時
@@ -170,7 +231,6 @@ router.beforeEach((to, from, next) => {
       });
     }
   }
-
   next() // 最終要加
 });
 

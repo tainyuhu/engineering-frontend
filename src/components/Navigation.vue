@@ -30,6 +30,23 @@
               ></v-list-item>
             </v-list-group>
 
+            <!--文件管理-->
+            <v-list-group no-action sub-group>
+              <template v-slot:activator="{ props }">
+                <v-list-item prepend-icon="mdi-file-clock-outline" v-bind="props" title="文件管理" ></v-list-item>
+              </template>
+
+              <!-- 文件管理子項目 -->
+              <v-list-item
+                v-for="([title, icon, routeName], i) in file"
+                :key="i"
+                :title="title"
+                :prepend-icon="icon"
+                :to="{ name: routeName }"
+                active-class="selected-item"
+              ></v-list-item>
+            </v-list-group>
+
             <!--會議記錄-->
             <v-list-group no-action sub-group>
               <template v-slot:activator="{ props }">
@@ -154,6 +171,11 @@
         ['使用指南', 'mdi-book-open-page-variant', 'User_Guide'], 
         ['常見問題', 'mdi-help-circle', 'FAQ'],
         ['聯繫支持', 'mdi-lifebuoy', 'Contact_Support'],
+      ],
+      file: [
+        ['瀏覽文件進度', 'mdi-file-eye-outline', 'View_File_Progress'], 
+        // ['上傳文件', 'mdi-help-circle', 'FAQ'],
+        // ['更新文件', 'mdi-lifebuoy', 'Contact_Support'],
       ],
     }),
     methods: {
