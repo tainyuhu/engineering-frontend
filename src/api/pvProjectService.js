@@ -1,16 +1,17 @@
 import apiClient from './apiService';
 
-const fetchWeekTableData = (loopId) => {
-    return apiClient.get(`/api/v1/get_pv_progress_and_expected/${loopId}/`, {
+const fetchWeekTableData = (loopId, currentPage, itemsPerPage, project_type) => {
+    return apiClient.get(`/api/v1/get_pv_progress/${loopId}/${currentPage}/${itemsPerPage}/${project_type}/`, {
         headers: {
             Accept: 'application/json',
         },
     });
 };
 
+
 // const fetchPVProjects = () => {
 //     return apiClient.get('/api/pv-project/');
-// };
+// };this.currentPage, this.itemsPerPage
 
 // const fetchPVExpectedProgress = () => {
 //     return apiClient.get('/api/pv-expected-progress/');

@@ -1,5 +1,9 @@
 import apiClient from './apiService';
 
+const fetchMeeting = () => {
+    return apiClient.get('/api/v1/meetingrecord/');
+};
+
 const fetchFile = () => {
     return apiClient.get('/api/v1/fileprogress/');
 };
@@ -21,4 +25,4 @@ const fetchLoopsByProject = (projectid) => {
 };
 
 
-export { fetchPlans, fetchProjects, fetchCasesByLoop, fetchLoopsByProject, fetchFile };
+export { fetchPlans, fetchProjects, fetchCasesByLoop, fetchLoopsByProject, fetchFile, fetchMeeting };
