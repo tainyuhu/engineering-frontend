@@ -26,13 +26,13 @@
         <!-- 功能列 -->
         <div class="function-row">
             <!-- 第一個區塊 -->
-            <div v-if="selectedLoopId" class="status-section">
+            <div v-if="selectedLoopId" class="status-and-page-size-selector">
                 <span>狀態：</span>
                 <v-btn :class="displayMode === 'table' ? 'report-btn' : 'table-btn'" @click="toggleDisplayMode">{{ displayModeText }}</v-btn>
             </div>
 
             <!-- 第二個區塊 -->
-            <div v-if="showDetails" class="time-section py-2 d-flex justify-center">
+            <div v-if="showDetails" class="py-2 d-flex justify-center">
                 <v-btn-toggle v-model="timeMode" class="time-toggle" variant="outlined">
                     <v-btn class="time-btn" value="quarter">季</v-btn>
                     <v-btn class="time-btn" value="week">週</v-btn>
@@ -40,15 +40,43 @@
             </div>
 
             <!-- 第三個區塊 -->
-            <div v-if="selectedLoopId && displayMode === 'table'" class="action-section">
+            <div v-if="selectedLoopId && displayMode === 'table'">
                 <v-btn v-if="showDetails" :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'" @click="toggleProjectType">{{ projectTypeText }}</v-btn>
                 <v-btn class="overview-btn" @click="showDetails = false">總覽</v-btn>
                 <v-btn class="details-btn" @click="showDetails = true">詳情</v-btn>
             </div>
         </div>
         
-        <!-- 表格 -->
-        
+        <!-- 周數據展示 -->
+        <div class="div-container" v-if="selectedLoopId && timeMode === 'week' && showDetails">
+            <v-table>
+                <thead>
+                <tr>
+                    <th>案場 / 週間</th>
+                    <th v-for="(dateRange, index) in allDateRanges" :key="index" :class="{'special-bg': index === 0, 'normal-bg': index !== 0}" colspan="2">
+                    {{ dateRange }}
+                    <v-icon v-if="index === 0" color="yellow">mdi-new-box</v-icon>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="item in weekTableData" :key="item.pv_name">
+                    <td class="font-weight-bold">{{ item.pv_name }}</td>
+                    <template v-for="dateRange in item.date_ranges">
+                    <td>{{ formatPercentage(dateRange.records[0].actual) }}</td>
+                    <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
+                    </template>
+                </tr>
+                </tbody>
+            </v-table>
+            <!-- 分頁組件 -->
+            <v-pagination
+                v-model="currentPage"
+                :length="totalPages"
+                :total-visible="7"
+                @input="fetchData"
+            ></v-pagination>
+        </div>
     </v-container>
 </template>
 
@@ -64,34 +92,25 @@ export default {
             selectedProject:[],
             selectedPlan: null, //所選中計畫
             selectedLoopId: null, //所選中之迴路
+            timeMode: 'week',
             displayMode: 'table',
             projectType: 'engineering',
             showDetails: false,
             weekTableData: [], //周數據
+            itemsPerPage: 2, //一次只要顯示兩筆
+            currentPage: 1, //當前頁面
+            totalPages: 0, // 總頁數
         };
     },
     watch: {
-        selectedLoopId(newVal) {
-            if(newVal && this.showDetails && this.timeMode === 'week') {
-                this.fetchWeekData();
-            }
-        },
-        // 当展示详情和时间模式变化时，重新获取数据
-        showDetails(newVal) {
-            if(newVal && this.selectedLoopId && this.timeMode === 'week') {
-                this.fetchWeekData();
-            }
-        },
-        timeMode(newVal) {
-            if(newVal === 'week' && this.selectedLoopId && this.showDetails) {
-                this.fetchWeekData();
-            }
-        }
+        selectedLoopId: 'fetchData',
+        showDetails: 'fetchData',
+        currentPage: 'fetchData',
+        projectType: 'fetchData',
     },
     async created() {
         this.selectedPlan = this.$route.query.Plan;
         this.selectedProject = this.$route.query.Project;
-        console.log('api response:', this.selectedProject);
         await this.fetchLoops();
     },
     computed: {
@@ -101,8 +120,45 @@ export default {
         projectTypeText() {
             return this.projectType === 'engineering' ? '工程' : '銀行';
         },
+        allDateRanges() {
+            const ranges = new Set();
+            this.weekTableData.forEach(item => {
+                item.date_ranges.forEach(range => {
+                    ranges.add(range.date_range);
+                });
+            });
+            return Array.from(ranges);
+        },
     },
     methods: {
+        organizeWeekTableData(flatData) {
+            const organizedData = [];
+            const tempMap = new Map();
+
+            flatData.forEach(item => {
+            const { pv_name, date_range, actual, expected } = item;
+
+            if (!tempMap.has(pv_name)) {
+                tempMap.set(pv_name, { pv_name, date_ranges: [] });
+            }
+
+            const currentPv = tempMap.get(pv_name);
+
+            let dateRangeObj = currentPv.date_ranges.find(dr => dr.date_range === date_range);
+            if (!dateRangeObj) {
+                dateRangeObj = { date_range, records: [] };
+                currentPv.date_ranges.push(dateRangeObj);
+            }
+
+            dateRangeObj.records.push({ actual, expected });
+            });
+
+            tempMap.forEach(value => {
+            organizedData.push(value);
+            });
+ 
+            return organizedData;
+        },
         async fetchLoops() {
             try {
                 console.log('api response:', this.selectedProject);
@@ -113,21 +169,24 @@ export default {
                 console.error("Error fetching loops:", error);
             }
         },
-        async fetchWeekData() {
-            if(this.selectedLoopId) {
-                try {
-                    const response = await fetchWeekTableData(this.selectedLoopId);
-                    console.log('weekTableData:', response.data); 
-                    this.weekTableData = response.data;
-                } catch (error) {
-                    console.error("Error fetching week table data:", error);
-                    this.weekTableData = [];
-                }
+        async fetchData() {
+            if (!this.selectedLoopId || !this.showDetails || this.timeMode !== 'week') return;
+            this.isLoading = true;
+            try {
+                console.log(this.selectedLoopId, this.currentPage, this.itemsPerPage, this.projectType);
+                const response = await fetchWeekTableData(this.selectedLoopId, this.currentPage, this.itemsPerPage, this.projectType);
+                console.log(response.data.results);
+                this.weekTableData = this.organizeWeekTableData(response.data.results);
+                this.totalPages = response.data.totalPages;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                this.weekTableData = [];
+            } finally {
+                this.isLoading = false;
             }
         },
         selectLoop(loopId) {
             this.selectedLoopId = loopId; 
-            this.fetchWeekData();
         },
         // 切換顯示模式
         toggleDisplayMode() {
@@ -137,6 +196,9 @@ export default {
         // 切換項目類型
         toggleProjectType() {
             this.projectType = this.projectType === 'engineering' ? 'bank' : 'engineering';
+        },
+        formatPercentage(value) {
+            return `${(Number(value) * 100).toFixed(2)}%`;
         },
     }
 };
@@ -276,5 +338,47 @@ export default {
     padding: 2px 30px;
     min-height: auto;
     height: auto;
+}
+
+.div-container {
+    margin: 20px; /* Adjust as needed */
+}
+
+.v-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.v-table th, .v-table td {
+    padding: 8px;
+    border: 1px solid #e8e8e8 !important;
+}
+
+.v-table th {
+    padding: 8px !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    background-color: #00b894;
+    color: white !important;
+}
+
+.expected{
+    background-color: #fafaea
+}
+
+.status-and-page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.normal-bg {
+  background-color: #00b894;
+}
+
+.special-bg {
+  background-color: #0769c1 !important;
 }
 </style>
