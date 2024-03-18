@@ -1,13 +1,37 @@
-import apiClient from './apiService';
+import apiClient from "./apiService";
 
 const fetchWeekTableData = (loopId, currentPage, itemsPerPage, project_type) => {
-    return apiClient.get(`/api/v1/get_pv_progress/${loopId}/${currentPage}/${itemsPerPage}/${project_type}/`, {
-        headers: {
-            Accept: 'application/json',
-        },
-    });
+  return apiClient.get(
+    `/api/v1/get_pv_progress/${loopId}/${currentPage}/${itemsPerPage}/${project_type}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
 };
 
+const fetchQuarterTableData = (loopId, currentPage, itemsPerPage, project_type) => {
+  return apiClient.get(
+    `/api/v1/get_pv_all_quarter_progress/${loopId}/${currentPage}/${itemsPerPage}/${project_type}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchTableData = (loopId, currentPage, itemsPerPage, project_type) => {
+  return apiClient.get(
+    `/api/v1/get_pv_quarter_progress/${loopId}/${currentPage}/${itemsPerPage}/${project_type}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
 
 // const fetchPVProjects = () => {
 //     return apiClient.get('/api/pv-project/');
@@ -81,4 +105,4 @@ const fetchWeekTableData = (loopId, currentPage, itemsPerPage, project_type) => 
 //     });
 // };
 
-export { fetchWeekTableData };
+export { fetchWeekTableData, fetchQuarterTableData, fetchTableData };
