@@ -90,6 +90,7 @@
   </v-container>
 </template>
 
+
 <script>
 import { fetchMeeting } from '@/api/planService';
 export default {
@@ -267,3 +268,4 @@ color: #bdc3c7;
 -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
 </style>
+
