@@ -10,12 +10,12 @@ export default {
     },
     mutations: {
         setToken(state, token) {
-            console.log("Setting token:", token);
+            // console.log("Setting token:", token);
             state.accessToken = token;
         },
         clearToken(state) {
             state.accessToken = null;
-            localStorage.removeItem('access_token');
+            localStorage.clear();
         },
     },
     actions: {
@@ -26,5 +26,6 @@ export default {
         logout({ commit }) {
             commit('clearToken');
         }
+
     }
 };

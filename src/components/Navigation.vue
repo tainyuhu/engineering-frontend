@@ -6,7 +6,7 @@
                 <v-avatar color="grey-darken-2" size="48">
                   <v-icon icon="mdi-account"></v-icon>
                 </v-avatar>
-                <h6 class="font-weight-black text-black text-h6">{{user}}</h6>
+                <h6 class="font-weight-black text-black text-h6">{{user.firstName}}{{user.lastName}}</h6>
             </v-row>
         </v-sheet>
         <v-divider></v-divider>
@@ -31,7 +31,7 @@
             </v-list-group>
 
             <!--文件管理-->
-            <v-list-group no-action sub-group>
+            <v-list-group v-if="userHasGroup(['admin', 'manager', 'power_user', 'test'])" no-action sub-group>
               <template v-slot:activator="{ props }">
                 <v-list-item prepend-icon="mdi-file-clock-outline" v-bind="props" title="文件管理" ></v-list-item>
               </template>
@@ -48,7 +48,7 @@
             </v-list-group>
 
             <!--會議記錄-->
-            <v-list-group no-action sub-group>
+            <v-list-group v-if="userHasGroup(['admin', 'manager', 'power_user', 'test'])" no-action sub-group>
               <template v-slot:activator="{ props }">
                 <v-list-item prepend-icon="mdi-file-document-outline" v-bind="props" title="會議記錄"></v-list-item>
               </template>
@@ -65,7 +65,7 @@
             </v-list-group>
 
             <!--計劃管理-->
-            <v-list-group no-action sub-group>
+            <v-list-group v-if="userHasGroup(['admin', 'manager', 'power_user'])" no-action sub-group>
               <template v-slot:activator="{ props }">
                 <v-list-item prepend-icon="mdi-calendar-text" v-bind="props" title="計畫管理"></v-list-item>
               </template>
@@ -82,7 +82,7 @@
             </v-list-group>
 
             <!--總體計劃管理-->
-            <v-list-group no-action sub-group>
+            <v-list-group v-if="userHasGroup(['admin','manager','power_user'])" no-action sub-group>
               <template v-slot:activator="{ props }">
                 <v-list-item prepend-icon="mdi-sitemap" v-bind="props" title="總體計劃管理"></v-list-item>
               </template>
@@ -90,7 +90,6 @@
               <!-- 總體計劃管理子項目 -->
               <v-list-item
                 v-for="([title, icon, routeName], i) in master"
-                :key="i"
                 :title="title"
                 :prepend-icon="icon"
                 :to="{ name: routeName }"
@@ -99,7 +98,7 @@
             </v-list-group>
 
             <!--系統設定-->
-            <v-list-group no-action sub-group>
+            <v-list-group v-if="userHasGroup(['admin','manager'])"  no-action sub-group>
               <template v-slot:activator="{ props }">
                 <v-list-item prepend-icon="mdi-cog-outline" v-bind="props" title="系統設定"></v-list-item>
               </template>
@@ -134,35 +133,115 @@
             <v-divider></v-divider>
             <v-list-item prepend-icon="mdi-logout" title="登出" @click="logout"></v-list-item>
           </v-list>
+          <v-dialog v-model="showDialog" persistent width="300">
+            <v-card>
+              <v-card-title class="text-h5">確認登出</v-card-title>
+              <v-card-text>即將登出，確定要登出嗎？</v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="showDialog = false">取消</v-btn>
+                <v-btn color="blue darken-1" text @click="confirmLogout">確認</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
     </div>
 </template>
 
 <script setup>
-  const user = localStorage.getItem('user');
+import { ref, computed } from 'vue';
+
+const userString = localStorage.getItem('user');
+const user = ref(userString ? JSON.parse(userString) : { firstName: '', lastName: '', groups: [] });
+
+const userHasGroup = (groupsToCheck) => {
+  const groupsArray = Array.isArray(groupsToCheck) ? groupsToCheck : [groupsToCheck];
+  return groupsArray.some(group => user.value.groups.includes(group));
+};
+
+// 進度管理
+const progress = computed(() => {
+  const baseItems = [
+    ['瀏覽計畫進度', 'mdi-eye', 'Browse_Progress']
+  ];
+
+  if (userHasGroup(['admin', 'power_user', 'user', 'test'])) {
+    baseItems.unshift(['填寫計畫進度', 'mdi-pencil', 'Fillin_Progress']);
+  }
+
+  if (userHasGroup(['admin', 'manager', 'power_user'])) {
+    baseItems.push(['瀏覽總體進度', 'mdi-view-dashboard', 'Browse_Master_Progress']);
+  }
+
+  return baseItems;
+});
+
+
+// 文件管理
+const file = computed(() => {
+  const baseItems = [
+    ['瀏覽文件進度', 'mdi-file-eye-outline', 'View_File_Progress']
+  ];
+
+  // if (userHasGroup('admin', 'manager', 'power_user')) {
+  //   baseItems.unshift(['上傳記錄','mdi-upload','Upload_Meeting_Record' ]);
+  // }
+  // ['上傳文件', 'mdi-help-circle', 'FAQ'],
+  // ['更新文件', 'mdi-lifebuoy', 'Contact_Support'],
+
+  return baseItems;
+});
+
+// 會議記錄管理
+const meeting = computed(() => {
+  const baseItems = [
+    ['查詢紀錄','mdi-magnify','Search_Meeting_Record']
+  ];
+
+  if (userHasGroup('admin')) {
+    baseItems.unshift(['上傳記錄','mdi-upload','Upload_Meeting_Record' ]);
+  }
+
+  return baseItems;
+});
+
+// 計劃管理
+const plan = computed(() => {
+  const baseItems = [
+    ['計畫列表', 'mdi-format-list-bulleted', 'Plan_List']
+  ];
+
+  if (userHasGroup('admin')) {
+    baseItems.unshift(
+      ['新增計畫', 'mdi-plus-box', 'Add_New_Plan'],
+      ['修改計畫', 'mdi-file-document-edit', 'Edit_Plan']
+    );
+  }
+
+  return baseItems;
+});
+
+// 總體計劃管理
+const master = computed(() => {
+  const baseItems = [
+    ['總體計畫列表', 'mdi-view-list', 'Master_Plan_List']
+  ];
+
+  if (userHasGroup('admin')) {
+    baseItems.unshift( 
+      ['新增計畫組合', 'mdi-playlist-plus', 'Add_Master_Plan'],
+      ['修改計畫組合', 'mdi-playlist-edit', 'Edit_Master_Plan']
+    );
+  }
+
+  return baseItems;
+});
+
 </script>
 <script>
   export default {
     name: 'Navigation',
     data: () => ({
-      progress: [
-        ['填寫計畫進度', 'mdi-pencil', 'Fillin_Progress'],  
-        ['瀏覽計畫進度', 'mdi-eye', 'Browse_Progress'],
-        ['瀏覽總體進度', 'mdi-view-dashboard', 'Browse_Master_Progress'],
-      ],
-      meeting: [
-        ['上傳記錄', 'mdi-upload', 'Upload_Meeting_Record'],  
-        ['查詢紀錄', 'mdi-magnify', 'Search_Meeting_Record'],
-      ],
-      plan: [
-        ['計畫列表', 'mdi-format-list-bulleted', 'Plan_List'],
-        ['新增計畫', 'mdi-plus-box', 'Add_New_Plan'],
-        ['修改計畫', 'mdi-file-document-edit', 'Edit_Plan'],
-      ],
-      master: [
-        ['總體計畫列表', 'mdi-view-list', 'Master_Plan_List'], 
-        ['新增計畫組合', 'mdi-playlist-plus', 'Add_Master_Plan'],
-        ['修改計畫組合', 'mdi-playlist-edit', 'Edit_Master_Plan'], 
-      ],
+      showDialog: false,
       setting: [
         ['通知設定', 'mdi-bell-ring', 'Notification_Settings'], 
         ['帳戶管理', 'mdi-account-circle', 'Account_Management'],
@@ -172,16 +251,15 @@
         ['常見問題', 'mdi-help-circle', 'FAQ'],
         ['聯繫支持', 'mdi-lifebuoy', 'Contact_Support'],
       ],
-      file: [
-        ['瀏覽文件進度', 'mdi-file-eye-outline', 'View_File_Progress'], 
-        // ['上傳文件', 'mdi-help-circle', 'FAQ'],
-        // ['更新文件', 'mdi-lifebuoy', 'Contact_Support'],
-      ],
     }),
-    methods: {
+  methods: {
     logout() {
-      this.$store.dispatch('auth/logout'); // 調用 Vuex 中的 logout action
-      this.$router.push({ name: 'Login' }); // 重定向到登入頁面
+    this.showDialog = true;
+    },
+    confirmLogout() {
+      this.$store.dispatch('auth/logout'); 
+      this.$router.push({ name: 'Login' });
+      this.showDialog = false;
     }
   }
 }
