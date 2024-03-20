@@ -44,15 +44,14 @@
       </div>
 
       <!-- 第三個區塊 -->
-      <div v-if="selectedLoopId && displayMode === 'table'">
+      <div v-if="selectedLoopId">
         <v-btn
-          v-if="showDetails"
           :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
         >
-        <v-btn class="overview-btn" @click="showDetails = false">總覽</v-btn>
-        <v-btn class="details-btn" @click="showDetails = true">詳情</v-btn>
+        <v-btn class="overview-btn" rounded="0" @click="showDetails = false">總覽</v-btn>
+        <v-btn class="details-btn" rounded="0" @click="showDetails = true">詳情</v-btn>
       </div>
     </div>
 
@@ -182,14 +181,76 @@
         @input="fetchData"
       ></v-pagination>
     </div>
+    <!-- 案場季報表展示 -->
+    <div
+      class="div-container"
+      v-if="selectedLoopId && displayMode === 'report' && timeMode === 'quarter'"
+    ></div>
+    <!-- 案場總覽報表展示 -->
+    <div
+      class="report-container"
+      v-if="selectedLoopId && displayMode === 'report'"
+      style="display: flex; height: 100%"
+    >
+      <div
+        class="sidebar"
+        style="
+          flex: 2;
+          background-color: white;
+          margin: 10px;
+          height: calc(100% - 20px);
+          display: flex;
+          flex-direction: column;
+        "
+      >
+        <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
+          <v-icon color="green">mdi-chevron-right-box</v-icon>
+          <span class="font-weight-bold ml-2">選擇案場：</span>
+          <div>
+            <span class="ml-1 note-span">※可以透過點選取消與選擇案場</span>
+          </div>
+        </div>
+        <div
+          v-for="item in uniquePvNames"
+          :key="item.name"
+          class="pv-name-button"
+          style="flex-grow: 1; margin: 5px"
+        >
+          <v-btn
+            block
+            rounded="0"
+            :style="{ background: item.color, color: 'white' }"
+            @click="selectPv(item.name)"
+          >
+            {{ item.name }}
+          </v-btn>
+        </div>
+      </div>
+      <div class="chart-container" style="flex: 8; height: 100%">
+        <Chart
+          v-if="Object.keys(chartData).length > 0"
+          :chartData="chartData"
+          :chartOptions="chartOptions"
+        />
+      </div>
+    </div>
   </v-container>
 </template>
 
 <script>
+import Chart from "@/components/chart/Chart.vue";
 import { fetchLoopsByProject } from "@/api/planService";
-import { fetchWeekTableData, fetchQuarterTableData, fetchTableData } from "@/api/pvProjectService";
+import {
+  fetchWeekTableData,
+  fetchQuarterTableData,
+  fetchTableData,
+  fetchQuarterChartData,
+} from "@/api/pvProjectService";
 
 export default {
+  components: {
+    Chart,
+  },
   data() {
     return {
       loops: [],
@@ -203,10 +264,12 @@ export default {
       showDetails: false,
       weekTableData: [], //周數據
       quarterTableData: [], //季數據
-      TableData: [],
+      TableData: [], //總數據
       itemsPerPage: 2, //一次只要顯示兩筆
       currentPage: 1, //當前頁面
       totalPages: 0, // 總頁數
+      chartData: {}, // 圖表內容
+      chartOptions: {}, // 圖表定義選項
     };
   },
   watch: {
@@ -215,6 +278,7 @@ export default {
     currentPage: "fetchData",
     projectType: "fetchData",
     timeMode: "fetchData",
+    displayMode: "fetchData",
   },
   async created() {
     this.selectedPlan = this.$route.query.Plan;
@@ -230,7 +294,13 @@ export default {
     },
     allDateRanges() {
       const ranges = new Set();
-      if (this.timeMode === "week") {
+      if (!this.showDetails) {
+        this.TableData.forEach((item) => {
+          item.date_ranges.forEach((range) => {
+            ranges.add(range.date_range);
+          });
+        });
+      } else if (this.timeMode === "week") {
         this.weekTableData.forEach((item) => {
           item.date_ranges.forEach((range) => {
             ranges.add(range.date_range);
@@ -256,8 +326,20 @@ export default {
           summaries.add({ year: range.year, quarter: range.quarter, week: range.week });
         });
       });
-
       return Array.from(summaries);
+    },
+    uniquePvNames() {
+      const uniqueNames = new Map();
+      if (this.chartData.datasets) {
+        this.chartData.datasets.forEach((dataset) => {
+          const name = dataset.label.split(" ")[0];
+          const color = dataset.borderColor;
+          if (!uniqueNames.has(name)) {
+            uniqueNames.set(name, color);
+          }
+        });
+      }
+      return Array.from(uniqueNames).map(([name, color]) => ({ name, color }));
     },
   },
   methods: {
@@ -282,7 +364,6 @@ export default {
 
         dateRangeObj.records.push({ actual, expected });
 
-        // Update year, quarter, and week if present
         if (year !== undefined) dateRangeObj.year = year;
         if (quarter !== undefined) dateRangeObj.quarter = quarter;
         if (week !== undefined) dateRangeObj.week = week;
@@ -292,14 +373,12 @@ export default {
         organizedData.push(value);
       });
 
-      console.log(organizedData);
       return organizedData;
     },
     async fetchLoops() {
       try {
         console.log("api response:", this.selectedProject);
         const { data } = await fetchLoopsByProject(this.selectedProject);
-        console.log("loopsdata:", data);
         this.loops = data;
       } catch (error) {
         console.error("Error fetching loops:", error);
@@ -312,12 +391,16 @@ export default {
         console.log(this.selectedLoopId, this.currentPage, this.itemsPerPage, this.projectType);
 
         let response;
-        if (!this.showDetails) {
+        if (this.displayMode === "report") {
+          response = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
+          this.chartData = response.data;
+          console.log("chartData", this.chartData);
+        } else if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedLoopId,
             this.currentPage,
             this.itemsPerPage,
-            "engineering"
+            this.projectType
           );
           this.TableData = this.organizeTableData(response.data.results);
         } else if (this.showDetails && this.timeMode === "week") {
@@ -340,7 +423,6 @@ export default {
           console.error("Invalid time mode:", this.timeMode);
           return;
         }
-
         console.log(response.data.results);
         this.totalPages = response.data.totalPages;
       } catch (error) {
@@ -365,6 +447,10 @@ export default {
     },
     formatPercentage(value) {
       return `${(Number(value) * 100).toFixed(2)}%`;
+    },
+    selectPv(pvName) {
+      console.log(`Selected PV: ${pvName}`);
+      // 選擇案場後的邏輯
     },
   },
 };
@@ -479,14 +565,26 @@ export default {
   background-color: #0769c1;
 }
 
+.overview-btn,
+.details-btn {
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.overview-btn.selected,
+.details-btn.selected {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
 .overview-btn {
-  margin-right: 5px;
   background-color: #9c27b0;
   color: white;
 }
 
-.overview-btn:hover {
-  background-color: #8e24aa;
+.overview-btn:hover,
+.overview-btn.selected {
+  background-color: #65197a;
 }
 
 .details-btn {
@@ -495,8 +593,9 @@ export default {
   color: white;
 }
 
-.details-btn:hover {
-  background-color: #d81b60;
+.details-btn:hover,
+.details-btn.selected {
+  background-color: #ae174e;
 }
 
 .time-toggle .v-btn--active {
@@ -511,7 +610,11 @@ export default {
 }
 
 .div-container {
-  margin: 20px; /* Adjust as needed */
+  margin: 20px;
+}
+
+.report-container {
+  display: flex;
 }
 
 .v-table {

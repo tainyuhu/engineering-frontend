@@ -1,31 +1,31 @@
 <template>
-  <div class="line-chart-container" style="min-width: 600px; min-height: 450px;">
+  <div class="line-chart-container" style="min-width: 600px; min-height: 450px">
     <canvas ref="chartCanvas"></canvas>
   </div>
 </template>
 
 <script>
-import Chart from 'chart.js/auto';
+import Chart from "chart.js/auto";
 
 export default {
-  name: 'SeasonProjectChart',
+  name: "Chart",
   props: {
     chartData: {
       type: Object,
-      required: true
+      required: true,
     },
     chartOptions: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   watch: {
     chartData: {
       deep: true,
       handler(newData) {
         this.updateChart(newData);
-      }
-    }
+      },
+    },
   },
   mounted() {
     this.createChart();
@@ -33,11 +33,12 @@ export default {
   methods: {
     createChart() {
       const ctx = this.$refs.chartCanvas;
-      if (!Chart.getChart(ctx)) { // 沒有圖表Instance再新增
+      if (!Chart.getChart(ctx)) {
+        // 沒有圖表Instance再新增
         this.chart = new Chart(ctx, {
-          type: 'line',
+          type: "line",
           data: this.chartData,
-          options: this.chartOptions
+          options: this.chartOptions,
         });
       }
     },
@@ -46,8 +47,8 @@ export default {
         this.chart.data = newData;
         this.chart.update();
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -66,4 +67,3 @@ export default {
   border-radius: 10px;
 }
 </style>
-
