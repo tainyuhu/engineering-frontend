@@ -50,13 +50,16 @@
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
         >
-        <v-btn class="overview-btn" rounded="0" @click="showDetails = false">總覽</v-btn>
+        <v-btn class="overview-btn" rounded="0" @click="showDetails = false">即時</v-btn>
         <v-btn class="details-btn" rounded="0" @click="showDetails = true">詳情</v-btn>
       </div>
     </div>
 
     <!-- 周數據展示 -->
-    <div class="div-container" v-if="selectedLoopId && timeMode === 'week' && showDetails">
+    <div
+      class="div-container"
+      v-if="selectedLoopId && timeMode === 'week' && showDetails && displayMode === 'table'"
+    >
       <v-table>
         <thead>
           <tr>
@@ -76,7 +79,15 @@
           <tr v-for="item in weekTableData" :key="item.pv_name">
             <td class="font-weight-bold">{{ item.pv_name }}</td>
             <template v-for="dateRange in item.date_ranges">
-              <td>{{ formatPercentage(dateRange.records[0].actual) }}</td>
+              <td
+                :style="
+                  dateRange.records[0].expected > dateRange.records[0].actual
+                    ? { 'font-weight': 'bold', color: 'red' }
+                    : {}
+                "
+              >
+                {{ formatPercentage(dateRange.records[0].actual) }}
+              </td>
               <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
             </template>
           </tr>
@@ -92,7 +103,10 @@
     </div>
 
     <!-- 季數據展示 -->
-    <div class="div-container" v-if="selectedLoopId && timeMode === 'quarter' && showDetails">
+    <div
+      class="div-container"
+      v-if="selectedLoopId && timeMode === 'quarter' && showDetails && displayMode === 'table'"
+    >
       <v-table>
         <thead>
           <tr>
@@ -122,7 +136,15 @@
           <tr v-for="item in quarterTableData" :key="item.pv_name">
             <td class="font-weight-bold">{{ item.pv_name }}</td>
             <template v-for="dateRange in item.date_ranges">
-              <td>{{ formatPercentage(dateRange.records[0].actual) }}</td>
+              <td
+                :style="
+                  dateRange.records[0].expected > dateRange.records[0].actual
+                    ? { 'font-weight': 'bold', color: 'red' }
+                    : {}
+                "
+              >
+                {{ formatPercentage(dateRange.records[0].actual) }}
+              </td>
               <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
             </template>
           </tr>
@@ -136,7 +158,7 @@
         @input="fetchData"
       ></v-pagination>
     </div>
-    <!-- 總覽表格展示 -->
+    <!-- 即時表格展示 -->
     <div class="div-container" v-if="selectedLoopId && !showDetails && displayMode === 'table'">
       <v-table>
         <thead>
@@ -167,7 +189,15 @@
           <tr v-for="item in TableData" :key="item.pv_name">
             <td class="font-weight-bold">{{ item.pv_name }}</td>
             <template v-for="dateRange in item.date_ranges">
-              <td>{{ formatPercentage(dateRange.records[0].actual) }}</td>
+              <td
+                :style="
+                  dateRange.records[0].expected > dateRange.records[0].actual
+                    ? { 'font-weight': 'bold', color: 'red' }
+                    : {}
+                "
+              >
+                {{ formatPercentage(dateRange.records[0].actual) }}
+              </td>
               <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
             </template>
           </tr>
@@ -181,71 +211,13 @@
         @input="fetchData"
       ></v-pagination>
     </div>
-    <!-- 案場季報表展示 -->
-    <div
-      class="div-container"
-      v-if="selectedLoopId && displayMode === 'report' && timeMode === 'quarter'"
-    ></div>
-    <!-- 案場總覽報表展示 -->
-    <div
-      class="report-container"
-      v-if="selectedLoopId && displayMode === 'report'"
-      style="display: flex; height: 100%"
-    >
-      <div
-        class="sidebar"
-        style="
-          flex: 2;
-          background-color: white;
-          margin: 10px;
-          height: calc(100% - 20px);
-          display: flex;
-          flex-direction: column;
-        "
-      >
-        <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-          <v-icon color="green">mdi-chevron-right-box</v-icon>
-          <span class="font-weight-bold ml-2">選擇案場：</span>
-          <div>
-            <span class="ml-1 note-span">※可以透過點選取消與選擇案場</span>
-          </div>
-        </div>
-        <div
-          v-for="item in uniquePvNames"
-          :key="item.name"
-          class="pv-name-button"
-          style="flex-grow: 1; margin: 5px"
-        >
-          <v-btn
-            block
-            rounded="0"
-            :style="{ background: item.color, color: 'white' }"
-            @click="selectPv(item.name)"
-          >
-            {{ item.name }}
-          </v-btn>
-        </div>
-      </div>
-      <div class="chart-container" style="flex: 8; height: 100%">
-        <Chart
-          v-if="Object.keys(chartData).length > 0"
-          :chartData="chartData"
-          :chartOptions="chartOptions"
-        />
-      </div>
-    </div>
   </v-container>
 </template>
 
 <script>
 import Chart from "@/components/chart/Chart.vue";
 import { fetchLoopsByProject } from "@/api/planService";
-import {
-  fetchWeekTableData,
-  fetchQuarterTableData,
-  fetchTableData,
-  fetchQuarterChartData,
-} from "@/api/pvProjectService";
+import { fetchWeekTableData, fetchQuarterTableData, fetchTableData } from "@/api/pvProjectService";
 
 export default {
   components: {
@@ -265,11 +237,9 @@ export default {
       weekTableData: [], //周數據
       quarterTableData: [], //季數據
       TableData: [], //總數據
-      itemsPerPage: 2, //一次只要顯示兩筆
+      itemsPerPage: 3, //一次只要顯示兩筆
       currentPage: 1, //當前頁面
       totalPages: 0, // 總頁數
-      chartData: {}, // 圖表內容
-      chartOptions: {}, // 圖表定義選項
     };
   },
   watch: {
@@ -317,16 +287,22 @@ export default {
     },
     quarterSummary() {
       let data = this.showDetails ? this.quarterTableData : this.TableData;
-
       if (!data.length) return [];
 
       const summaries = new Set();
+
       data.forEach((item) => {
         item.date_ranges.forEach((range) => {
-          summaries.add({ year: range.year, quarter: range.quarter, week: range.week });
+          const identifier = `${range.year}-Q${range.quarter}-${range.week}`;
+
+          summaries.add(identifier);
         });
       });
-      return Array.from(summaries);
+
+      return Array.from(summaries).map((summary) => {
+        const [year, quarter, week] = summary.split("-");
+        return { year, quarter: quarter.replace("Q", ""), week };
+      });
     },
     uniquePvNames() {
       const uniqueNames = new Map();
@@ -372,7 +348,7 @@ export default {
       tempMap.forEach((value) => {
         organizedData.push(value);
       });
-
+      console.log(organizedData);
       return organizedData;
     },
     async fetchLoops() {
@@ -391,11 +367,7 @@ export default {
         console.log(this.selectedLoopId, this.currentPage, this.itemsPerPage, this.projectType);
 
         let response;
-        if (this.displayMode === "report") {
-          response = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
-          this.chartData = response.data;
-          console.log("chartData", this.chartData);
-        } else if (!this.showDetails) {
+        if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedLoopId,
             this.currentPage,
@@ -403,6 +375,7 @@ export default {
             this.projectType
           );
           this.TableData = this.organizeTableData(response.data.results);
+          console.log("chartData", this.chartData);
         } else if (this.showDetails && this.timeMode === "week") {
           response = await fetchWeekTableData(
             this.selectedLoopId,
@@ -611,6 +584,7 @@ export default {
 
 .div-container {
   margin: 20px;
+  height: 600px;
 }
 
 .report-container {

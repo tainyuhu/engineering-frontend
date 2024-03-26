@@ -3,7 +3,7 @@
     <!-- 標題 -->
     <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
       <v-icon color="blue">mdi-chevron-right-box</v-icon>
-      <span class="font-weight-bold ml-2">瀏覽養殖工程進度：</span>
+      <span class="font-weight-bold ml-2">瀏覽PV工程進度：</span>
     </div>
     <!-- 迴路選擇 -->
     <div class="mb-3" style="padding-left: 40px; display: flex; align-items: center">
@@ -56,7 +56,10 @@
     </div>
 
     <!-- 周數據展示 -->
-    <div class="div-container" v-if="selectedLoopId && timeMode === 'week' && showDetails">
+    <div
+      class="div-container"
+      v-if="selectedLoopId && timeMode === 'week' && showDetails && displayMode === 'table'"
+    >
       <v-table>
         <thead>
           <tr>
@@ -73,8 +76,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in weekTableData" :key="item.breeding_name">
-            <td class="font-weight-bold">{{ item.breeding_name }}</td>
+          <tr v-for="item in weekTableData" :key="item.pv_name">
+            <td class="font-weight-bold">{{ item.pv_name }}</td>
             <template v-for="dateRange in item.date_ranges">
               <td
                 :style="
@@ -100,7 +103,10 @@
     </div>
 
     <!-- 季數據展示 -->
-    <div class="div-container" v-if="selectedLoopId && timeMode === 'quarter' && showDetails">
+    <div
+      class="div-container"
+      v-if="selectedLoopId && timeMode === 'quarter' && showDetails && displayMode === 'table'"
+    >
       <v-table>
         <thead>
           <tr>
@@ -127,8 +133,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in quarterTableData" :key="item.breeding_name">
-            <td class="font-weight-bold">{{ item.breeding_name }}</td>
+          <tr v-for="item in quarterTableData" :key="item.pv_name">
+            <td class="font-weight-bold">{{ item.pv_name }}</td>
             <template v-for="dateRange in item.date_ranges">
               <td
                 :style="
@@ -180,8 +186,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in TableData" :key="item.breeding_name">
-            <td class="font-weight-bold">{{ item.breeding_name }}</td>
+          <tr v-for="item in TableData" :key="item.pv_name">
+            <td class="font-weight-bold">{{ item.pv_name }}</td>
             <template v-for="dateRange in item.date_ranges">
               <td
                 :style="
@@ -205,58 +211,117 @@
         @input="fetchData"
       ></v-pagination>
     </div>
-    <!-- 案場季報表展示 -->
+
+    <!-- 案場周報表展示 -->
     <div
       class="div-container"
-      v-if="selectedLoopId && displayMode === 'report' && timeMode === 'quarter'"
-    ></div>
-    <!-- 案場即時報表展示 -->
-    <div
-      class="report-container"
-      v-if="selectedLoopId && displayMode === 'report'"
-      style="display: flex; height: 100%"
+      v-if="selectedLoopId && timeMode === 'week' && showDetails"
+      style="background-color: white; display: flex; height: 100%"
     >
       <div
         class="sidebar"
-        style="
-          flex: 2;
-          background-color: white;
-          margin: 10px;
-          height: calc(100% - 20px);
-          display: flex;
-          flex-direction: column;
-        "
+        style="flex: 2; margin: 20px; display: flex; flex-direction: column; height: 500px"
       >
-        <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
+        <div class="mb-3" style="padding-left: 20px; align-items: center">
           <v-icon color="green">mdi-chevron-right-box</v-icon>
           <span class="font-weight-bold ml-2">選擇案場：</span>
           <div>
             <span class="ml-1 note-span">※可以透過點選取消與選擇案場</span>
           </div>
         </div>
-        <div
-          v-for="item in uniqueBreedingNames"
-          :key="item.name"
-          class="breeding-name-button"
-          style="flex-grow: 1; margin: 5px"
-        >
-          <v-btn
-            block
-            rounded="0"
-            :style="{ background: item.color, color: 'white' }"
-            @click="selectBreeding(item.name)"
-          >
-            {{ item.name }}
-          </v-btn>
+        <div style="overflow-y: auto">
+          <div v-for="item in uniquePvNames" :key="item.name" style="flex-grow: 1; margin: 5px">
+            <v-btn
+              block
+              rounded="0"
+              :style="{ background: item.color, color: 'white' }"
+              @click="selectPv(item.name)"
+            >
+              {{ item.name }}
+            </v-btn>
+          </div>
         </div>
       </div>
-      <div class="chart-container" style="flex: 8; height: 100%">
-        <Chart
-          v-if="Object.keys(chartData).length > 0"
-          :chartData="chartData"
-          :chartOptions="chartOptions"
-        />
+      <Chart
+        v-if="Object.keys(chartWeekData).length > 0"
+        :chartData="chartWeekData"
+        :chartOptions="chartOptions"
+        style="flex: 8; margin-top: 25px"
+      />
+    </div>
+    <!-- 案場季報表展示 -->
+    <div
+      class="div-container"
+      v-if="selectedLoopId && timeMode === 'quarter' && showDetails"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <div
+        class="sidebar"
+        style="flex: 2; margin: 20px; display: flex; flex-direction: column; height: 500px"
+      >
+        <div class="mb-3" style="padding-left: 20px; align-items: center">
+          <v-icon color="green">mdi-chevron-right-box</v-icon>
+          <span class="font-weight-bold ml-2">選擇案場：</span>
+          <div>
+            <span class="ml-1 note-span">※可以透過點選取消與選擇案場</span>
+          </div>
+        </div>
+        <div style="overflow-y: auto">
+          <div v-for="item in uniquePvNames" :key="item.name" style="flex-grow: 1; margin: 5px">
+            <v-btn
+              block
+              rounded="0"
+              :style="{ background: item.color, color: 'white' }"
+              @click="selectPv(item.name)"
+            >
+              {{ item.name }}
+            </v-btn>
+          </div>
+        </div>
       </div>
+      <Chart
+        v-if="Object.keys(chartData).length > 0"
+        :chartData="chartData"
+        :chartOptions="chartOptions"
+        style="flex: 8; margin-top: 25px"
+      />
+    </div>
+    <!-- 案場即時報表展示 -->
+    <div
+      class="div-container report-container"
+      v-if="selectedLoopId && !showDetails"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <div
+        class="sidebar"
+        style="flex: 2; margin: 20px; display: flex; flex-direction: column; height: 500px"
+      >
+        <div class="mb-3" style="padding-left: 20px; align-items: center">
+          <v-icon color="green">mdi-chevron-right-box</v-icon>
+          <span class="font-weight-bold ml-2">選擇案場：</span>
+          <div>
+            <span class="ml-1 note-span">※可以透過點選取消與選擇案場</span>
+          </div>
+        </div>
+        <div style="overflow-y: auto">
+          <div v-for="item in uniquePvNames" :key="item.name" style="flex-grow: 1; margin: 5px">
+            <v-btn
+              block
+              rounded="0"
+              :style="{ background: item.color, color: 'white' }"
+              @click="selectPv(item.name)"
+            >
+              {{ item.name }}
+            </v-btn>
+          </div>
+        </div>
+      </div>
+      <Chart
+        v-if="Object.keys(chartData).length > 0"
+        :chartData="chartData"
+        :chartOptions="chartOptions"
+        style="flex: 8; margin-top: 25px"
+      />
     </div>
   </v-container>
 </template>
@@ -269,7 +334,8 @@ import {
   fetchQuarterTableData,
   fetchTableData,
   fetchQuarterChartData,
-} from "@/api/breedingProjectService";
+  fetchWeekChartData,
+} from "@/api/pvProjectService";
 
 export default {
   components: {
@@ -293,6 +359,7 @@ export default {
       currentPage: 1, //當前頁面
       totalPages: 0, // 總頁數
       chartData: {}, // 圖表內容
+      chartWeekData: {},
       chartOptions: {}, // 圖表定義選項
     };
   },
@@ -358,7 +425,7 @@ export default {
         return { year, quarter: quarter.replace("Q", ""), week };
       });
     },
-    uniqueBreedingNames() {
+    uniquePvNames() {
       const uniqueNames = new Map();
       if (this.chartData.datasets) {
         this.chartData.datasets.forEach((dataset) => {
@@ -378,18 +445,18 @@ export default {
       const tempMap = new Map();
 
       flatData.forEach((item) => {
-        const { breeding_name, date_range, actual, expected, year, quarter, week } = item;
+        const { pv_name, date_range, actual, expected, year, quarter, week } = item;
 
-        if (!tempMap.has(breeding_name)) {
-          tempMap.set(breeding_name, { breeding_name, date_ranges: [] });
+        if (!tempMap.has(pv_name)) {
+          tempMap.set(pv_name, { pv_name, date_ranges: [] });
         }
 
-        const currentBreeding = tempMap.get(breeding_name);
+        const currentPv = tempMap.get(pv_name);
 
-        let dateRangeObj = currentBreeding.date_ranges.find((dr) => dr.date_range === date_range);
+        let dateRangeObj = currentPv.date_ranges.find((dr) => dr.date_range === date_range);
         if (!dateRangeObj) {
           dateRangeObj = { date_range, records: [], year, quarter, week };
-          currentBreeding.date_ranges.push(dateRangeObj);
+          currentPv.date_ranges.push(dateRangeObj);
         }
 
         dateRangeObj.records.push({ actual, expected });
@@ -421,11 +488,8 @@ export default {
         console.log(this.selectedLoopId, this.currentPage, this.itemsPerPage, this.projectType);
 
         let response;
-        if (this.displayMode === "report") {
-          response = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
-          this.chartData = response.data;
-          console.log("chartData", this.chartData);
-        } else if (!this.showDetails) {
+        let responsechart;
+        if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedLoopId,
             this.currentPage,
@@ -433,6 +497,9 @@ export default {
             this.projectType
           );
           this.TableData = this.organizeTableData(response.data.results);
+          responsechart = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
+          this.chartData = responsechart.data;
+          console.log("chartData", this.chartData);
         } else if (this.showDetails && this.timeMode === "week") {
           response = await fetchWeekTableData(
             this.selectedLoopId,
@@ -441,6 +508,14 @@ export default {
             this.projectType
           );
           this.weekTableData = this.organizeTableData(response.data.results);
+          responsechart = await fetchWeekChartData(
+            this.selectedLoopId,
+            this.currentPage,
+            this.itemsPerPage,
+            this.projectType
+          );
+          this.chartWeekData = responsechart.data;
+          console.log("chartWeekData", this.chartWeekData);
         } else if (this.showDetails && this.timeMode === "quarter") {
           response = await fetchQuarterTableData(
             this.selectedLoopId,
@@ -449,6 +524,9 @@ export default {
             this.projectType
           );
           this.quarterTableData = this.organizeTableData(response.data.results);
+          responsechart = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
+          this.chartData = responsechart.data;
+          console.log("chartData", this.chartData);
         } else {
           console.error("Invalid time mode:", this.timeMode);
           return;
@@ -478,8 +556,8 @@ export default {
     formatPercentage(value) {
       return `${(Number(value) * 100).toFixed(2)}%`;
     },
-    selectBreeding(breedingName) {
-      console.log(`Selected Breeding: ${breedingName}`);
+    selectPv(pvName) {
+      console.log(`Selected PV: ${pvName}`);
       // 選擇案場後的邏輯
     },
   },

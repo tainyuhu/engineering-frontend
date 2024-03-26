@@ -3,30 +3,13 @@
     <!-- 標題 -->
     <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
       <v-icon color="blue">mdi-chevron-right-box</v-icon>
-      <span class="font-weight-bold ml-2">瀏覽養殖工程進度：</span>
-    </div>
-    <!-- 迴路選擇 -->
-    <div class="mb-3" style="padding-left: 40px; display: flex; align-items: center">
-      <v-icon color="orange">mdi-chevron-right-box</v-icon>
-      <span class="font-weight-bold ml-2">選擇迴路：</span>
-      <span class="ml-1 note-span">※在下方選擇一個迴路後，才會顯示迴路的進度內容</span>
-    </div>
-
-    <div class="loops-selection">
-      <v-btn
-        v-for="loop in loops"
-        :key="loop.loop_id"
-        :class="['loop-button', { 'loop-button--active': loop.loop_id === selectedLoopId }]"
-        @click="selectLoop(loop.loop_id)"
-      >
-        {{ loop.loop_name }}
-      </v-btn>
+      <span class="font-weight-bold ml-2">瀏覽總迴路工程進度：</span>
     </div>
 
     <!-- 功能列 -->
     <div class="function-row">
       <!-- 第一個區塊 -->
-      <div v-if="selectedLoopId" class="status-and-page-size-selector">
+      <div class="status-and-page-size-selector">
         <span>狀態：</span>
         <v-btn
           :class="displayMode === 'table' ? 'report-btn' : 'table-btn'"
@@ -44,7 +27,7 @@
       </div>
 
       <!-- 第三個區塊 -->
-      <div v-if="selectedLoopId">
+      <div>
         <v-btn
           :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
           @click="toggleProjectType"
@@ -56,13 +39,13 @@
     </div>
 
     <!-- 周數據展示 -->
-    <div class="div-container" v-if="selectedLoopId && timeMode === 'week' && showDetails">
+    <div class="div-container" v-if="timeMode === 'week' && showDetails">
       <v-table>
         <thead>
           <tr>
-            <th>案場 / 週間</th>
+            <th>迴路 / 週間</th>
             <th
-              v-for="(dateRange, index) in allDateRanges"
+              v-for="(dateRange, index) in paginatedDateRanges"
               :key="index"
               :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
               colspan="2"
@@ -73,38 +56,24 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in weekTableData" :key="item.breeding_name">
-            <td class="font-weight-bold">{{ item.breeding_name }}</td>
+          <tr v-for="item in paginatedData" :key="item.loop_name">
+            <td class="font-weight-bold">{{ item.loop_name }}</td>
             <template v-for="dateRange in item.date_ranges">
-              <td
-                :style="
-                  dateRange.records[0].expected > dateRange.records[0].actual
-                    ? { 'font-weight': 'bold', color: 'red' }
-                    : {}
-                "
-              >
-                {{ formatPercentage(dateRange.records[0].actual) }}
-              </td>
+              <td>{{ formatPercentage(dateRange.records[0].actual) }}</td>
               <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
             </template>
           </tr>
         </tbody>
       </v-table>
-      <!-- 分頁組件 -->
-      <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
-        :total-visible="7"
-        @input="fetchData"
-      ></v-pagination>
+      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
 
     <!-- 季數據展示 -->
-    <div class="div-container" v-if="selectedLoopId && timeMode === 'quarter' && showDetails">
+    <div class="div-container" v-if="timeMode === 'quarter' && showDetails">
       <v-table>
         <thead>
           <tr>
-            <th rowspan="2">案場 / 週間</th>
+            <th rowspan="2">迴路 / 週間</th>
             <th
               v-for="(summary, index) in quarterSummary"
               :key="index"
@@ -116,7 +85,7 @@
           </tr>
           <tr>
             <th
-              v-for="(dateRange, index) in allDateRanges"
+              v-for="(dateRange, index) in paginatedDateRanges"
               :key="index"
               :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
               colspan="2"
@@ -127,8 +96,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in quarterTableData" :key="item.breeding_name">
-            <td class="font-weight-bold">{{ item.breeding_name }}</td>
+          <tr v-for="item in paginatedData" :key="item.loop_name">
+            <td class="font-weight-bold">{{ item.loop_name }}</td>
             <template v-for="dateRange in item.date_ranges">
               <td
                 :style="
@@ -144,20 +113,15 @@
           </tr>
         </tbody>
       </v-table>
-      <!-- 分頁組件 -->
-      <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
-        :total-visible="7"
-        @input="fetchData"
-      ></v-pagination>
+      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
-    <!-- 即時表格展示 -->
-    <div class="div-container" v-if="selectedLoopId && !showDetails && displayMode === 'table'">
+
+    <!-- 季數據展示 -->
+    <div class="div-container" v-if="!showDetails && displayMode === 'table'">
       <v-table>
         <thead>
           <tr>
-            <th rowspan="2">案場 / 週間</th>
+            <th rowspan="2">迴路 / 週間</th>
             <th
               v-for="(summary, index) in quarterSummary"
               :key="index"
@@ -169,7 +133,7 @@
           </tr>
           <tr>
             <th
-              v-for="(dateRange, index) in allDateRanges"
+              v-for="(dateRange, index) in paginatedDateRanges"
               :key="index"
               :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
               colspan="2"
@@ -180,8 +144,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in TableData" :key="item.breeding_name">
-            <td class="font-weight-bold">{{ item.breeding_name }}</td>
+          <tr v-for="item in paginatedData" :key="item.loop_name">
+            <td class="font-weight-bold">{{ item.loop_name }}</td>
             <template v-for="dateRange in item.date_ranges">
               <td
                 :style="
@@ -197,79 +161,13 @@
           </tr>
         </tbody>
       </v-table>
-      <!-- 分頁組件 -->
-      <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
-        :total-visible="7"
-        @input="fetchData"
-      ></v-pagination>
-    </div>
-    <!-- 案場季報表展示 -->
-    <div
-      class="div-container"
-      v-if="selectedLoopId && displayMode === 'report' && timeMode === 'quarter'"
-    ></div>
-    <!-- 案場即時報表展示 -->
-    <div
-      class="report-container"
-      v-if="selectedLoopId && displayMode === 'report'"
-      style="display: flex; height: 100%"
-    >
-      <div
-        class="sidebar"
-        style="
-          flex: 2;
-          background-color: white;
-          margin: 10px;
-          height: calc(100% - 20px);
-          display: flex;
-          flex-direction: column;
-        "
-      >
-        <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-          <v-icon color="green">mdi-chevron-right-box</v-icon>
-          <span class="font-weight-bold ml-2">選擇案場：</span>
-          <div>
-            <span class="ml-1 note-span">※可以透過點選取消與選擇案場</span>
-          </div>
-        </div>
-        <div
-          v-for="item in uniqueBreedingNames"
-          :key="item.name"
-          class="breeding-name-button"
-          style="flex-grow: 1; margin: 5px"
-        >
-          <v-btn
-            block
-            rounded="0"
-            :style="{ background: item.color, color: 'white' }"
-            @click="selectBreeding(item.name)"
-          >
-            {{ item.name }}
-          </v-btn>
-        </div>
-      </div>
-      <div class="chart-container" style="flex: 8; height: 100%">
-        <Chart
-          v-if="Object.keys(chartData).length > 0"
-          :chartData="chartData"
-          :chartOptions="chartOptions"
-        />
-      </div>
+      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
   </v-container>
 </template>
 
 <script>
 import Chart from "@/components/chart/Chart.vue";
-import { fetchLoopsByProject } from "@/api/planService";
-import {
-  fetchWeekTableData,
-  fetchQuarterTableData,
-  fetchTableData,
-  fetchQuarterChartData,
-} from "@/api/breedingProjectService";
 
 export default {
   components: {
@@ -277,37 +175,134 @@ export default {
   },
   data() {
     return {
-      loops: [],
-      cases: [],
-      selectedProject: [],
-      selectedPlan: null, //所選中計畫
-      selectedLoopId: null, //所選中之迴路
       timeMode: "week",
       displayMode: "table",
       projectType: "engineering",
       showDetails: false,
-      weekTableData: [], //周數據
-      quarterTableData: [], //季數據
-      TableData: [], //總數據
-      itemsPerPage: 3, //一次只要顯示兩筆
-      currentPage: 1, //當前頁面
-      totalPages: 0, // 總頁數
-      chartData: {}, // 圖表內容
-      chartOptions: {}, // 圖表定義選項
+      weekTableData: [
+        {
+          actual: 0.0053,
+          date_range: "2023-12-31 - 2024-01-06",
+          expected: 0,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0.0053,
+          date_range: "2024-01-07 - 2024-01-13",
+          expected: 0,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0.0257,
+          date_range: "2024-01-14 - 2024-01-20",
+          expected: 0,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0.0312,
+          date_range: "2024-01-21 - 2024-01-27",
+          expected: 0,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0.0312,
+          date_range: "2024-01-28 - 2024-02-03",
+          expected: 0,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0.0312,
+          date_range: "2024-02-04 - 2024-02-10",
+          expected: 0,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0.0312,
+          date_range: "2024-02-11 - 2024-02-17",
+          expected: 0.0124,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0.0312,
+          date_range: "2024-02-18 - 2024-02-24",
+          expected: 0.0187,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0.0109,
+          date_range: "2024-02-18 - 2024-02-24",
+          expected: 0,
+          loop_name: "SN1",
+        },
+
+        {
+          actual: 0.0312,
+          date_range: "2024-02-25 - 2024-03-02",
+          expected: 0.0279,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0.0109,
+          date_range: "2024-02-25 - 2024-03-02",
+          expected: 0,
+          loop_name: "SN1",
+        },
+      ], //周數據
+      quarterTableData: [
+        {
+          actual: 0.0109,
+          date_range: "2024-02-25 - 2024-03-02",
+          expected: 0,
+          loop_name: "SN1",
+          year: 2024,
+          quarter: 1,
+          week: 9,
+        },
+        {
+          actual: 0.0312,
+          date_range: "2024-02-25 - 2024-03-02",
+          expected: 0.0279,
+          loop_name: "SN2",
+          year: 2024,
+          quarter: 1,
+          week: 9,
+        },
+      ], //季數據
+      TableData: [
+        {
+          actual: 0.0109,
+          date_range: "2024-02-25 - 2024-03-02",
+          expected: 0,
+          loop_name: "SN1",
+          year: 2024,
+          quarter: 1,
+          week: 9,
+        },
+        {
+          actual: 0.0312,
+          date_range: "2024-02-25 - 2024-03-02",
+          expected: 0.0279,
+          loop_name: "SN2",
+          year: 2024,
+          quarter: 1,
+          week: 9,
+        },
+      ],
+      currentPage: 1,
+      perPage: 3,
     };
   },
-  watch: {
-    selectedLoopId: "fetchData",
-    showDetails: "fetchData",
-    currentPage: "fetchData",
-    projectType: "fetchData",
-    timeMode: "fetchData",
-    displayMode: "fetchData",
-  },
+  watch: {},
   async created() {
     this.selectedPlan = this.$route.query.Plan;
     this.selectedProject = this.$route.query.Project;
-    await this.fetchLoops();
   },
   computed: {
     displayModeText() {
@@ -318,29 +313,17 @@ export default {
     },
     allDateRanges() {
       const ranges = new Set();
-      if (!this.showDetails) {
-        this.TableData.forEach((item) => {
-          item.date_ranges.forEach((range) => {
-            ranges.add(range.date_range);
-          });
+      this.organizedLoopsData.forEach((item) => {
+        item.date_ranges.forEach((range) => {
+          ranges.add(range.date_range);
         });
-      } else if (this.timeMode === "week") {
-        this.weekTableData.forEach((item) => {
-          item.date_ranges.forEach((range) => {
-            ranges.add(range.date_range);
-          });
-        });
-      } else if (this.timeMode === "quarter") {
-        this.quarterTableData.forEach((item) => {
-          item.date_ranges.forEach((range) => {
-            ranges.add(range.date_range);
-          });
-        });
-      }
+      });
+
       return Array.from(ranges);
     },
     quarterSummary() {
-      let data = this.showDetails ? this.quarterTableData : this.TableData;
+      let data = this.organizedLoopsData;
+      console.log(data);
       if (!data.length) return [];
 
       const summaries = new Set();
@@ -358,114 +341,70 @@ export default {
         return { year, quarter: quarter.replace("Q", ""), week };
       });
     },
-    uniqueBreedingNames() {
-      const uniqueNames = new Map();
-      if (this.chartData.datasets) {
-        this.chartData.datasets.forEach((dataset) => {
-          const name = dataset.label.split(" ")[0];
-          const color = dataset.borderColor;
-          if (!uniqueNames.has(name)) {
-            uniqueNames.set(name, color);
-          }
-        });
-      }
-      return Array.from(uniqueNames).map(([name, color]) => ({ name, color }));
+    totalPages() {
+      const totalItems = this.allDateRanges.length;
+      return Math.ceil(totalItems / this.perPage);
     },
-  },
-  methods: {
-    organizeTableData(flatData) {
+    paginatedData() {
+      const start = (this.currentPage - 1) * this.perPage;
+      const end = start + this.perPage;
+      const data = this.organizedLoopsData.map((loop) => ({
+        ...loop,
+        date_ranges: loop.date_ranges.slice(start, end),
+      }));
+      console.log(data);
+      return data;
+    },
+    paginatedDateRanges() {
+      const start = (this.currentPage - 1) * this.perPage;
+      const end = start + this.perPage;
+      return this.allDateRanges.slice(start, end);
+    },
+    organizedLoopsData() {
       const organizedData = [];
       const tempMap = new Map();
 
-      flatData.forEach((item) => {
-        const { breeding_name, date_range, actual, expected, year, quarter, week } = item;
+      let dataSource = [];
+      if (!this.showDetails) {
+        dataSource = this.TableData;
+      } else {
+        if (this.timeMode === "quarter") {
+          dataSource = this.quarterTableData;
+        } else if (this.timeMode === "week") {
+          dataSource = this.weekTableData;
+        }
+      }
 
-        if (!tempMap.has(breeding_name)) {
-          tempMap.set(breeding_name, { breeding_name, date_ranges: [] });
+      dataSource.forEach((item) => {
+        const { loop_name, date_range, actual, expected, year, quarter, week } = item;
+
+        if (!tempMap.has(loop_name)) {
+          tempMap.set(loop_name, { loop_name, date_ranges: [] });
         }
 
-        const currentBreeding = tempMap.get(breeding_name);
-
-        let dateRangeObj = currentBreeding.date_ranges.find((dr) => dr.date_range === date_range);
+        const currentLoop = tempMap.get(loop_name);
+        let dateRangeObj = currentLoop.date_ranges.find((dr) => dr.date_range === date_range);
         if (!dateRangeObj) {
           dateRangeObj = { date_range, records: [], year, quarter, week };
-          currentBreeding.date_ranges.push(dateRangeObj);
+          currentLoop.date_ranges.push(dateRangeObj);
         }
 
         dateRangeObj.records.push({ actual, expected });
-
-        if (year !== undefined) dateRangeObj.year = year;
-        if (quarter !== undefined) dateRangeObj.quarter = quarter;
-        if (week !== undefined) dateRangeObj.week = week;
       });
 
       tempMap.forEach((value) => {
+        value.date_ranges.sort((a, b) => {
+          const aDate = new Date(a.date_range.split(" - ")[0]);
+          const bDate = new Date(b.date_range.split(" - ")[0]);
+          return aDate - bDate;
+        });
         organizedData.push(value);
       });
-      console.log(organizedData);
+
       return organizedData;
     },
-    async fetchLoops() {
-      try {
-        console.log("api response:", this.selectedProject);
-        const { data } = await fetchLoopsByProject(this.selectedProject);
-        this.loops = data;
-      } catch (error) {
-        console.error("Error fetching loops:", error);
-      }
-    },
-    async fetchData() {
-      if (!this.selectedLoopId) return;
-      this.isLoading = true;
-      try {
-        console.log(this.selectedLoopId, this.currentPage, this.itemsPerPage, this.projectType);
-
-        let response;
-        if (this.displayMode === "report") {
-          response = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
-          this.chartData = response.data;
-          console.log("chartData", this.chartData);
-        } else if (!this.showDetails) {
-          response = await fetchTableData(
-            this.selectedLoopId,
-            this.currentPage,
-            this.itemsPerPage,
-            this.projectType
-          );
-          this.TableData = this.organizeTableData(response.data.results);
-        } else if (this.showDetails && this.timeMode === "week") {
-          response = await fetchWeekTableData(
-            this.selectedLoopId,
-            this.currentPage,
-            this.itemsPerPage,
-            this.projectType
-          );
-          this.weekTableData = this.organizeTableData(response.data.results);
-        } else if (this.showDetails && this.timeMode === "quarter") {
-          response = await fetchQuarterTableData(
-            this.selectedLoopId,
-            this.currentPage,
-            this.itemsPerPage,
-            this.projectType
-          );
-          this.quarterTableData = this.organizeTableData(response.data.results);
-        } else {
-          console.error("Invalid time mode:", this.timeMode);
-          return;
-        }
-        console.log(response.data.results);
-        this.totalPages = response.data.totalPages;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        this.weekTableData = [];
-        this.quarterTableData = [];
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    selectLoop(loopId) {
-      this.selectedLoopId = loopId;
-    },
+  },
+  methods: {
     // 切換顯示模式
     toggleDisplayMode() {
       this.displayMode = this.displayMode === "table" ? "report" : "table";
@@ -477,10 +416,6 @@ export default {
     },
     formatPercentage(value) {
       return `${(Number(value) * 100).toFixed(2)}%`;
-    },
-    selectBreeding(breedingName) {
-      console.log(`Selected Breeding: ${breedingName}`);
-      // 選擇案場後的邏輯
     },
   },
 };
