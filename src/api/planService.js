@@ -1,28 +1,39 @@
-import apiClient from './apiService';
+import apiClient from "./apiService";
 
 const fetchMeeting = () => {
-    return apiClient.get('/api/v1/meetingrecord/');
+  return apiClient.get("/api/v1/meetingrecord/");
 };
 
 const fetchFile = () => {
-    return apiClient.get('/api/v1/fileprogress/');
+  return apiClient.get("/api/v1/fileprogress/");
+};
+
+const fetchFilePhase = () => {
+  return apiClient.get("/api/v1/fileprogressphase/");
 };
 
 const fetchPlans = () => {
-    return apiClient.get('/api/v1/plans/');
+  return apiClient.get("/api/v1/plans/");
 };
 
 const fetchProjects = () => {
-    return apiClient.get('/api/v1/projects/');
+  return apiClient.get("/api/v1/projects/");
 };
 
 const fetchCasesByLoop = (loopid) => {
-    return apiClient.get(`/api/v1/project-cases/${loopid}/`);
+  return apiClient.get(`/api/v1/project-cases/${loopid}/`);
 };
 
 const fetchLoopsByProject = (projectid) => {
-    return apiClient.get(`/api/v1/project-loops-by-project/${projectid}/`);
+  return apiClient.get(`/api/v1/project-loops-by-project/${projectid}/`);
 };
 
-
-export { fetchPlans, fetchProjects, fetchCasesByLoop, fetchLoopsByProject, fetchFile, fetchMeeting };
+export {
+  fetchPlans,
+  fetchProjects,
+  fetchCasesByLoop,
+  fetchLoopsByProject,
+  fetchFile,
+  fetchMeeting,
+  fetchFilePhase,
+};

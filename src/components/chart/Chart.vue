@@ -1,5 +1,5 @@
 <template>
-  <div class="line-chart-container" style="min-width: 600px; min-height: 450px">
+  <div class="line-chart-container">
     <canvas ref="chartCanvas"></canvas>
   </div>
 </template>
@@ -53,10 +53,15 @@ export default {
 </script>
 
 <style scoped>
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 .line-chart-container {
   position: relative;
   max-width: 100vw;
-  max-height: 70vh;
+  max-height: 80vh;
   overflow-x: auto;
   overflow-y: auto;
   margin-right: 25px;
