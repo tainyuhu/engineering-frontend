@@ -171,6 +171,13 @@ const routes = [
     meta: { requiresAuth: true, allowedGroups: ["admin", "power_user", "user", "test"] },
   },
   {
+    // Management_Summary
+    path: "/Management_Summary",
+    name: "Management_Summary",
+    component: loadBrowseProgressView("Management_Summary"),
+    meta: { requiresAuth: true, allowedGroups: ["admin", "power_user", "user", "test"] },
+  },
+  {
     // General_Loop_Photoelectric_Engineering
     path: "/General_Loop_Photoelectric_Engineering",
     name: "General_Loop_Photoelectric_Engineering",

@@ -36,7 +36,7 @@
       </div>
 
       <!-- 第二個區塊 -->
-      <div v-if="showDetails" class="py-2 d-flex justify-center">
+      <div v-if="showDetails && displayMode === 'table'" class="py-2 d-flex justify-center">
         <v-btn-toggle mandatory v-model="timeMode" class="time-toggle" variant="outlined">
           <v-btn class="time-btn" value="quarter">季</v-btn>
           <v-btn class="time-btn" value="week">週</v-btn>
@@ -44,7 +44,7 @@
       </div>
 
       <!-- 第三個區塊 -->
-      <div v-if="selectedLoopId">
+      <div v-if="selectedLoopId && displayMode === 'table'">
         <v-btn
           :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
           @click="toggleProjectType"
@@ -60,39 +60,7 @@
       class="div-container"
       v-if="selectedLoopId && timeMode === 'week' && showDetails && displayMode === 'table'"
     >
-      <v-table>
-        <thead>
-          <tr>
-            <th>案場 / 週間</th>
-            <th
-              v-for="(dateRange, index) in allDateRanges"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              {{ dateRange }}
-              <v-icon v-if="index === 0" color="yellow">mdi-new-box</v-icon>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in weekTableData" :key="item.pv_name">
-            <td class="font-weight-bold">{{ item.pv_name }}</td>
-            <template v-for="dateRange in item.date_ranges">
-              <td
-                :style="
-                  dateRange.records[0].expected > dateRange.records[0].actual
-                    ? { 'font-weight': 'bold', color: 'red' }
-                    : {}
-                "
-              >
-                {{ formatPercentage(dateRange.records[0].actual) }}
-              </td>
-              <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
-            </template>
-          </tr>
-        </tbody>
-      </v-table>
+      <WeekTable :allDateRanges="allDateRanges" :weekTableData="weekTableData" />
       <!-- 分頁組件 -->
       <v-pagination
         v-model="currentPage"
@@ -107,49 +75,11 @@
       class="div-container"
       v-if="selectedLoopId && timeMode === 'quarter' && showDetails && displayMode === 'table'"
     >
-      <v-table>
-        <thead>
-          <tr>
-            <th rowspan="2">案場 / 週間</th>
-            <th
-              v-for="(summary, index) in quarterSummary"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              【{{ summary.year }} Q{{ summary.quarter }}】 第{{ summary.week }}周
-            </th>
-          </tr>
-          <tr>
-            <th
-              v-for="(dateRange, index) in allDateRanges"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              {{ dateRange }}
-              <v-icon v-if="index === 0" color="yellow">mdi-new-box</v-icon>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in quarterTableData" :key="item.pv_name">
-            <td class="font-weight-bold">{{ item.pv_name }}</td>
-            <template v-for="dateRange in item.date_ranges">
-              <td
-                :style="
-                  dateRange.records[0].expected > dateRange.records[0].actual
-                    ? { 'font-weight': 'bold', color: 'red' }
-                    : {}
-                "
-              >
-                {{ formatPercentage(dateRange.records[0].actual) }}
-              </td>
-              <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
-            </template>
-          </tr>
-        </tbody>
-      </v-table>
+      <AllQuarterTable
+        :allDateRanges="allDateRanges"
+        :quarterSummary="quarterSummary"
+        :quarterTableData="quarterTableData"
+      />
       <!-- 分頁組件 -->
       <v-pagination
         v-model="currentPage"
@@ -158,51 +88,14 @@
         @input="fetchData"
       ></v-pagination>
     </div>
+
     <!-- 即時表格展示 -->
     <div class="div-container" v-if="selectedLoopId && !showDetails && displayMode === 'table'">
-      <v-table>
-        <thead>
-          <tr>
-            <th rowspan="2">案場 / 週間</th>
-            <th
-              v-for="(summary, index) in quarterSummary"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              【{{ summary.year }} Q{{ summary.quarter }}】 第{{ summary.week }}周
-            </th>
-          </tr>
-          <tr>
-            <th
-              v-for="(dateRange, index) in allDateRanges"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              {{ dateRange }}
-              <v-icon v-if="index === 0" color="yellow">mdi-new-box</v-icon>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in TableData" :key="item.pv_name">
-            <td class="font-weight-bold">{{ item.pv_name }}</td>
-            <template v-for="dateRange in item.date_ranges">
-              <td
-                :style="
-                  dateRange.records[0].expected > dateRange.records[0].actual
-                    ? { 'font-weight': 'bold', color: 'red' }
-                    : {}
-                "
-              >
-                {{ formatPercentage(dateRange.records[0].actual) }}
-              </td>
-              <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
-            </template>
-          </tr>
-        </tbody>
-      </v-table>
+      <QuarterTable
+        :allDateRanges="allDateRanges"
+        :quarterSummary="quarterSummary"
+        :TableData="TableData"
+      />
       <!-- 分頁組件 -->
       <v-pagination
         v-model="currentPage"
@@ -210,18 +103,58 @@
         :total-visible="7"
         @input="fetchData"
       ></v-pagination>
+    </div>
+
+    <!-- 案場即時報表展示 -->
+    <div
+      class="div-container report-container"
+      v-if="selectedLoopId && displayMode === 'report' && !showDetails"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <SiteSelectionChart :chartData="chartData" />
+    </div>
+
+    <!-- 案場所有季報表展示 -->
+    <div
+      class="div-container report-container"
+      v-if="selectedLoopId && displayMode === 'report' && showDetails && timeMode === 'quarter'"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <SiteSelectionChart :chartData="chartData" />
+    </div>
+
+    <!-- 案場所有周報表展示 -->
+    <div
+      class="div-container report-container"
+      v-if="selectedLoopId && displayMode === 'report' && showDetails && timeMode === 'week'"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <SiteSelectionChart :chartData="chartData" />
     </div>
   </v-container>
 </template>
 
 <script>
-import Chart from "@/components/chart/Chart.vue";
+import SiteSelectionChart from "@/components/chart/SiteSelectionChart.vue";
+import WeekTable from "@/components/table/weekTable.vue";
+import AllQuarterTable from "@/components/table/allQuarterTable.vue";
+import QuarterTable from "@/components/table/quarterTable.vue";
 import { fetchLoopsByProject } from "@/api/planService";
-import { fetchWeekTableData, fetchQuarterTableData, fetchTableData } from "@/api/pvProjectService";
+import {
+  fetchWeekTableData,
+  fetchQuarterTableData,
+  fetchTableData,
+  fetchQuarterChartData,
+  fetchWeekChartData,
+  fetchAllQuarterChartData,
+} from "@/api/pvProjectService";
 
 export default {
   components: {
-    Chart,
+    WeekTable,
+    AllQuarterTable,
+    QuarterTable,
+    SiteSelectionChart,
   },
   data() {
     return {
@@ -233,6 +166,8 @@ export default {
       timeMode: "week",
       displayMode: "table",
       projectType: "engineering",
+      previousTimeMode: null,
+      previousShowDetails: null,
       showDetails: false,
       weekTableData: [], //周數據
       quarterTableData: [], //季數據
@@ -240,10 +175,16 @@ export default {
       itemsPerPage: 3, //一次只要顯示兩筆
       currentPage: 1, //當前頁面
       totalPages: 0, // 總頁數
+      chartData: {}, // 圖表內容
     };
   },
   watch: {
-    selectedLoopId: "fetchData",
+    selectedLoopId: function (newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.fetchData();
+        this.displayMode = "table";
+      }
+    },
     showDetails: "fetchData",
     currentPage: "fetchData",
     projectType: "fetchData",
@@ -304,21 +245,21 @@ export default {
         return { year, quarter: quarter.replace("Q", ""), week };
       });
     },
-    uniquePvNames() {
-      const uniqueNames = new Map();
-      if (this.chartData.datasets) {
-        this.chartData.datasets.forEach((dataset) => {
-          const name = dataset.label.split(" ")[0];
-          const color = dataset.borderColor;
-          if (!uniqueNames.has(name)) {
-            uniqueNames.set(name, color);
-          }
-        });
-      }
-      return Array.from(uniqueNames).map(([name, color]) => ({ name, color }));
-    },
   },
   methods: {
+    toggleDisplayMode() {
+      if (this.displayMode === "table") {
+        this.previousTimeMode = this.timeMode;
+        this.previousShowDetails = this.showDetails;
+
+        this.displayMode = "report";
+      } else {
+        this.displayMode = "table";
+
+        this.timeMode = this.previousTimeMode;
+        this.showDetails = this.previousShowDetails;
+      }
+    },
     organizeTableData(flatData) {
       const organizedData = [];
       const tempMap = new Map();
@@ -367,6 +308,7 @@ export default {
         console.log(this.selectedLoopId, this.currentPage, this.itemsPerPage, this.projectType);
 
         let response;
+        let responsechart;
         if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedLoopId,
@@ -375,6 +317,8 @@ export default {
             this.projectType
           );
           this.TableData = this.organizeTableData(response.data.results);
+          responsechart = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
+          this.chartData = responsechart.data;
           console.log("chartData", this.chartData);
         } else if (this.showDetails && this.timeMode === "week") {
           response = await fetchWeekTableData(
@@ -384,6 +328,14 @@ export default {
             this.projectType
           );
           this.weekTableData = this.organizeTableData(response.data.results);
+          responsechart = await fetchWeekChartData(
+            this.selectedLoopId,
+            this.currentPage,
+            this.itemsPerPage,
+            this.projectType
+          );
+          this.chartData = responsechart.data;
+          console.log("chartData", this.chartData);
         } else if (this.showDetails && this.timeMode === "quarter") {
           response = await fetchQuarterTableData(
             this.selectedLoopId,
@@ -392,6 +344,9 @@ export default {
             this.projectType
           );
           this.quarterTableData = this.organizeTableData(response.data.results);
+          responsechart = await fetchAllQuarterChartData(this.selectedLoopId, this.projectType);
+          this.chartData = responsechart.data;
+          console.log("chartData", this.chartData);
         } else {
           console.error("Invalid time mode:", this.timeMode);
           return;
@@ -409,224 +364,20 @@ export default {
     selectLoop(loopId) {
       this.selectedLoopId = loopId;
     },
-    // 切換顯示模式
-    toggleDisplayMode() {
-      this.displayMode = this.displayMode === "table" ? "report" : "table";
-      this.showDetails = false;
-    },
     // 切換項目類型
     toggleProjectType() {
       this.projectType = this.projectType === "engineering" ? "bank" : "engineering";
-    },
-    formatPercentage(value) {
-      return `${(Number(value) * 100).toFixed(2)}%`;
-    },
-    selectPv(pvName) {
-      console.log(`Selected PV: ${pvName}`);
-      // 選擇案場後的邏輯
     },
   },
 };
 </script>
 
 <style scoped>
-.v-container {
-  padding-left: 0px;
-  max-width: 100%;
-}
-
-.v-icon {
-  font-size: 35px;
-}
-
-.note-span {
-  color: #6c757d;
-  font-size: 11px;
-}
-
-.loops-selection {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  margin-left: 40px;
-  margin-right: 40px;
-}
-
-.loop-button {
-  border-top: 1px solid #cccccc;
-  border-bottom: 1px solid #cccccc;
-  text-transform: none;
-  color: #404040;
-  background-color: transparent;
-  padding: 5px 10px;
-  box-shadow: none;
-  white-space: nowrap;
-  border-radius: 0;
-}
-
-.loop-button:hover {
-  background-color: #b2dfdb;
-}
-
-.loop-button:last-child {
-  margin-right: 0;
-}
-.loop-button--active {
-  border-top: 1px solid #cccccc;
-  border-bottom: 1px solid #cccccc;
-  background-color: #00b894;
-  color: white;
-  font-weight: bold;
-}
-
-.function-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 40px;
-}
-
-.engineering-btn,
-.bank-btn,
-.table-btn,
-.report-btn,
-.overview-btn,
-.details-btn {
-  text-transform: none;
-  font-weight: bold;
-}
-
-.table-btn {
-  background-color: #1976d2;
-  color: white;
-}
-
-.table-btn:hover {
-  background-color: #1565c0;
-}
-
-.report-btn {
-  background-color: #4caf50;
-  color: white;
-}
-
-.report-btn:hover {
-  background-color: #43a047;
-}
-
-.engineering-btn {
-  margin-right: 5px;
-  background-color: #ffc107;
-  color: white;
-}
-
-.engineering-btn:hover {
-  background-color: #ffb300;
-}
-
-.bank-btn {
-  margin-right: 5px;
-  background-color: #0984e3;
-  color: white;
-}
-
-.bank-btn:hover {
-  background-color: #0769c1;
-}
-
-.overview-btn,
-.details-btn {
-  transition: background-color 0.3s, box-shadow 0.3s;
-}
-
-.overview-btn.selected,
-.details-btn.selected {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  position: relative;
-  z-index: 1;
-}
-
-.overview-btn {
-  background-color: #9c27b0;
-  color: white;
-}
-
-.overview-btn:hover,
-.overview-btn.selected {
-  background-color: #65197a;
-}
-
-.details-btn {
-  margin-right: 5px;
-  background-color: #e91e63;
-  color: white;
-}
-
-.details-btn:hover,
-.details-btn.selected {
-  background-color: #ae174e;
-}
-
-.time-toggle .v-btn--active {
-  background-color: #cccccc;
-  color: #404040;
-}
+@import "@/assets/style/browseprogress.css";
 
 :deep(.v-btn-toggle) {
   padding: 2px 30px;
   min-height: auto;
   height: auto;
-}
-
-.div-container {
-  margin: 20px;
-  height: 600px;
-}
-
-.report-container {
-  display: flex;
-}
-
-.v-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  text-align: center;
-}
-
-.v-table th,
-.v-table td {
-  padding: 8px;
-  border: 1px solid #e8e8e8 !important;
-}
-
-.v-table th {
-  padding: 8px !important;
-  font-weight: bold !important;
-  text-align: center !important;
-  background-color: #00b894;
-  color: white !important;
-}
-
-.expected {
-  background-color: #fafaea;
-}
-
-.status-and-page-size-selector {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.normal-bg {
-  background-color: #00b894;
-}
-
-.special-bg {
-  background-color: #0769c1 !important;
 }
 </style>

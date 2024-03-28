@@ -30,6 +30,9 @@ export default {
   mounted() {
     this.createChart();
   },
+  beforeDestroy() {
+    this.destroyChart();
+  },
   methods: {
     createChart() {
       const ctx = this.$refs.chartCanvas;
@@ -46,6 +49,12 @@ export default {
       if (this.chart) {
         this.chart.data = newData;
         this.chart.update();
+      }
+    },
+    destroyChart() {
+      if (this.chart) {
+        this.chart.destroy();
+        this.chart = null;
       }
     },
   },

@@ -1,0 +1,209 @@
+.v-container {
+  padding-left: 0px;
+  max-width: 100%;
+}
+
+.v-icon {
+  font-size: 35px;
+}
+
+.note-span {
+  color: #6c757d;
+  font-size: 11px;
+}
+
+.loops-selection {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+.loop-button {
+  border-top: 1px solid #cccccc;
+  border-bottom: 1px solid #cccccc;
+  text-transform: none;
+  color: #404040;
+  background-color: transparent;
+  padding: 5px 10px;
+  box-shadow: none;
+  white-space: nowrap;
+  border-radius: 0;
+}
+
+.loop-button:hover {
+  background-color: #b2dfdb;
+}
+
+.loop-button:last-child {
+  margin-right: 0;
+}
+.loop-button--active {
+  border-top: 1px solid #cccccc;
+  border-bottom: 1px solid #cccccc;
+  background-color: #00b894;
+  color: white;
+  font-weight: bold;
+}
+
+.function-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+}
+
+.engineering-btn,
+.bank-btn,
+.table-btn,
+.custom-btn,
+.report-btn,
+.overview-btn,
+.details-btn {
+  text-transform: none;
+  font-weight: bold;
+}
+
+.custom-btn {
+  margin-right: 5px;
+  background-color: #8bc34a;
+  color: white;
+}
+
+.custom-btn:hover {
+  background-color: #7cb342;
+}
+
+.table-btn {
+  background-color: #1976d2;
+  color: white;
+}
+
+.table-btn:hover {
+  background-color: #1565c0;
+}
+
+.report-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.report-btn:hover {
+  background-color: #43a047;
+}
+
+.engineering-btn {
+  margin-right: 5px;
+  background-color: #ffc107;
+  color: white;
+}
+
+.engineering-btn:hover {
+  background-color: #ffb300;
+}
+
+.bank-btn {
+  margin-right: 5px;
+  background-color: #0984e3;
+  color: white;
+}
+
+.bank-btn:hover {
+  background-color: #0769c1;
+}
+
+.overview-btn,
+.details-btn {
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.overview-btn.selected,
+.details-btn.selected {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.overview-btn {
+  background-color: #9c27b0;
+  color: white;
+}
+
+.overview-btn:hover,
+.overview-btn.selected {
+  background-color: #65197a;
+}
+
+.details-btn {
+  margin-right: 5px;
+  background-color: #e91e63;
+  color: white;
+}
+
+.details-btn:hover,
+.details-btn.selected {
+  background-color: #ae174e;
+}
+
+.time-toggle .v-btn--active {
+  background-color: #cccccc;
+  color: #404040;
+}
+
+.div-container {
+  margin: 20px;
+  height: 600px;
+}
+
+.div-container-1 {
+  margin: 20px;
+  height: 700px;
+}
+
+.report-container {
+  display: flex;
+}
+
+.v-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.v-table th,
+.v-table td {
+  padding: 8px;
+  border: 1px solid #e8e8e8 !important;
+}
+
+.v-table th {
+  padding: 8px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  background-color: #00b894;
+  color: white !important;
+}
+
+.expected {
+  background-color: #fafaea;
+}
+
+.status-and-page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.normal-bg {
+  background-color: #00b894;
+}
+
+.special-bg {
+  background-color: #0769c1 !important;
+}
