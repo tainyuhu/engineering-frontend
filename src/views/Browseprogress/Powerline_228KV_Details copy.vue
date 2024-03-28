@@ -33,13 +33,13 @@
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
         >
-        <!-- <v-btn
+        <v-btn
           v-if="projectType === 'engineering'"
           class="custom-btn"
           @click="scrollToSection('engineeringSection')"
         >
           土木/纜線進度
-        </v-btn> -->
+        </v-btn>
         <v-btn class="overview-btn" rounded="0" @click="showDetails = false">即時</v-btn>
         <v-btn class="details-btn" rounded="0" @click="showDetails = true">詳情</v-btn>
       </div>
@@ -100,6 +100,176 @@
     >
       <SiteSelectionChart :chartData="chartData" />
     </div>
+
+    <!-- 子標題 -->
+    <div
+      class="mb-3"
+      ref="engineeringSection"
+      style="padding-left: 20px; display: flex; align-items: center"
+    >
+      <v-icon color="blue">mdi-chevron-right-box</v-icon>
+      <span class="font-weight-bold ml-2">瀏覽土木/纜線工程進度：</span>
+    </div>
+
+    <v-card v-if="displayMode === 'table'" class="div-container-1" outlined>
+      <v-tabs v-model="tab" bg-color="indigo-darken-2" slider-color="yellow" show-arrows>
+        <v-tab style="font-weight: bold" value="civil">土木工程</v-tab>
+        <v-tab style="font-weight: bold" value="cable">纜線工程</v-tab>
+      </v-tabs>
+      <v-card-text>
+        <v-window v-model="tab">
+          <v-window-item value="civil">
+            <div class="function-row">
+              <!-- 第一個區塊 -->
+              <div class="status-and-page-size-selector">
+                <span>狀態：</span>
+                <v-btn
+                  :class="endisplayMode === 'table' ? 'report-btn' : 'table-btn'"
+                  @click="toggleEnDisplayMode"
+                  >{{ endisplayModeText }}</v-btn
+                >
+              </div>
+
+              <!-- 第二個區塊 -->
+              <div
+                v-if="enshowDetails && endisplayMode === 'table'"
+                class="py-2 d-flex justify-center"
+              >
+                <v-btn-toggle mandatory v-model="entimeMode" class="time-toggle" variant="outlined">
+                  <v-btn value="quarter">季</v-btn>
+                  <v-btn value="week">週</v-btn>
+                </v-btn-toggle>
+              </div>
+
+              <!-- 第三個區塊 -->
+              <div v-if="endisplayMode === 'table'">
+                <v-btn class="overview-btn" rounded="0" @click="enshowDetails = false">即時</v-btn>
+                <v-btn class="details-btn" rounded="0" @click="enshowDetails = true">詳情</v-btn>
+              </div>
+            </div>
+            <!-- 周數據展示 -->
+            <div
+              class="div-container"
+              v-if="entimeMode === 'week' && enshowDetails && endisplayMode === 'table'"
+            >
+              <WeekLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :weekTableData="enpaginatedData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 季數據展示 -->
+            <div
+              class="div-container"
+              v-if="entimeMode === 'quarter' && enshowDetails && endisplayMode === 'table'"
+            >
+              <AllQuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :quarterTableData="enpaginatedData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 即時數據展示 -->
+            <div class="div-container" v-if="!enshowDetails && endisplayMode === 'table'">
+              <QuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :TableData="enpaginatedData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 案場即時報表展示 -->
+            <div
+              class="div-container report-container"
+              v-if="endisplayMode === 'report' && !enshowDetails"
+              style="background-color: white; display: flex; height: 100%"
+            >
+              <SiteSelectionChart :chartData="enchartData" />
+            </div>
+
+            <!-- 案場所有季報表展示 -->
+            <div
+              class="div-container report-container"
+              v-if="endisplayMode === 'report' && enshowDetails && entimeMode === 'quarter'"
+              style="background-color: white; display: flex; height: 100%"
+            >
+              <SiteSelectionChart :chartData="enchartData" />
+            </div>
+
+            <!-- 案場所有周報表展示 -->
+            <div
+              class="div-container report-container"
+              v-if="endisplayMode === 'report' && enshowDetails && entimeMode === 'week'"
+              style="background-color: white; display: flex; height: 100%"
+            >
+              <SiteSelectionChart :chartData="enchartData" />
+            </div>
+          </v-window-item>
+          <v-window-item value="cable">
+            <div class="function-row">
+              <!-- 第一個區塊 -->
+              <div class="status-and-page-size-selector">
+                <span>狀態：</span>
+                <v-btn
+                  :class="endisplayMode === 'table' ? 'report-btn' : 'table-btn'"
+                  @click="toggleEnDisplayMode"
+                  >{{ endisplayModeText }}</v-btn
+                >
+              </div>
+
+              <!-- 第二個區塊 -->
+              <div
+                v-if="enshowDetails && endisplayMode === 'table'"
+                class="py-2 d-flex justify-center"
+              >
+                <v-btn-toggle mandatory v-model="entimeMode" class="time-toggle" variant="outlined">
+                  <v-btn value="quarter">季</v-btn>
+                  <v-btn value="week">週</v-btn>
+                </v-btn-toggle>
+              </div>
+
+              <!-- 第三個區塊 -->
+              <div v-if="endisplayMode === 'table'">
+                <v-btn class="overview-btn" rounded="0" @click="enshowDetails = false">即時</v-btn>
+                <v-btn class="details-btn" rounded="0" @click="enshowDetails = true">詳情</v-btn>
+              </div>
+            </div>
+            <!-- 周數據展示 -->
+            <div class="div-container" v-if="entimeMode === 'week' && enshowDetails">
+              <WeekLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :weekTableData="enpaginatedData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 季數據展示 -->
+            <div class="div-container" v-if="entimeMode === 'quarter' && enshowDetails">
+              <AllQuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :quarterTableData="enpaginatedData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 即時數據展示 -->
+            <div class="div-container" v-if="!enshowDetails && endisplayMode === 'table'">
+              <QuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :TableData="enpaginatedData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+          </v-window-item>
+        </v-window>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
