@@ -5,6 +5,10 @@ function loadView(view) {
   return () => import(`@/views/${view}.vue`);
 }
 
+function loadBrowseMasterProgressView(view) {
+  return () => import(`@/views/Browsemasterprogress/${view}.vue`);
+}
+
 function loadBrowseProgressView(view) {
   return () => import(`@/views/Browseprogress/${view}.vue`);
 }
@@ -161,6 +165,13 @@ const routes = [
     name: "Contact_Support",
     component: loadView("Contact_Support"),
     meta: { requiresAuth: true, allowedGroups: ["admin"] },
+  },
+  // 瀏覽總體計畫進度子頁面 loadBrowseMasterProgressView
+  {
+    path: "/Master_Progress",
+    name: "Master_Progress",
+    component: loadBrowseMasterProgressView("Master_Progress"),
+    meta: { requiresAuth: true, allowedGroups: ["admin", "power_user", "user", "test"] },
   },
   // 瀏覽計畫進度子頁面 loadBrowseProgressView
   {

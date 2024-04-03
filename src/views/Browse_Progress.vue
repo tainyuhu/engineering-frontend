@@ -2,7 +2,7 @@
   <v-container>
     <!-- 瀏覽計畫進度標題 -->
     <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-      <v-icon color="blue">mdi-chevron-right-box</v-icon>
+      <v-icon color="blue">mdi-chevron-down-box</v-icon>
       <span class="font-weight-bold ml-2">瀏覽計畫進度：</span>
       <span class="ml-1 note-span">※在下方選擇一項計畫後，才會顯示計畫內容</span>
     </div>
@@ -25,7 +25,7 @@
 
     <div v-if="selectedPlan !== 3">
       <v-row v-if="selectedPlan && filteredProjects.length > 0" class="project-cards-row">
-        <!-- <v-col cols="12">
+        <v-col cols="12">
           <v-card class="project-card" color="indigo-accent-2" dark>
             <v-card-title
               class="d-flex font-weight-bold flex-column align-items-center justify-content-center card-title-custom"
@@ -46,7 +46,7 @@
               </v-btn>
             </v-card-actions>
           </v-card>
-        </v-col> -->
+        </v-col>
         <v-col
           v-for="project in filteredProjects"
           :key="project.project_id"
@@ -227,6 +227,11 @@ export default {
     },
   },
   async created() {
+    if (this.$route.query.planId && !isNaN(parseInt(this.$route.query.planId))) {
+      this.selectedPlan = parseInt(this.$route.query.planId);
+    } else {
+      this.selectedPlan = null;
+    }
     await this.fetchData();
   },
   methods: {

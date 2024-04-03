@@ -202,7 +202,7 @@ const progress = computed(() => {
   }
   // , 'power_user', 'user', 'test'
 
-  if (userHasGroup(["admin", "manager"])) {
+  if (userHasGroup(["admin", "manager", "power_user", "user", "test"])) {
     baseItems.push(["瀏覽總體進度", "mdi-view-dashboard", "Browse_Master_Progress"]);
   }
 

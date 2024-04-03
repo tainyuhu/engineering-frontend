@@ -5,7 +5,7 @@
       style="padding-left: 20px; display: flex; align-items: center; justify-content: space-between"
     >
       <div>
-        <v-icon class="icon" color="blue">mdi-chevron-right-box</v-icon>
+        <v-icon color="blue" @click="goBack">mdi-chevron-left-box</v-icon>
         <span class="title">瀏覽電業申辦進度：</span>
       </div>
       <v-btn style="margin-right: 40px" color="indigo-darken-4" @click="showStepInstructions">
@@ -273,6 +273,9 @@ export default {
     };
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
     showStepInstructions() {
       this.showInstructionsDialog = true;
     },

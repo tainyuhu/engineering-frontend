@@ -6,10 +6,22 @@
         <div v-if="loginSuccess" class="alert alert-success">登入成功！</div>
         <div v-if="loginError" class="alert alert-danger">{{ errorMessage }}</div>
         <div class="form-group">
-          <input v-model="username" type="text" placeholder="帳號" class="form-control" autocomplete="username">
+          <input
+            v-model="username"
+            type="text"
+            placeholder="帳號"
+            class="form-control"
+            autocomplete="username"
+          />
         </div>
         <div class="form-group">
-          <input v-model="password" type="password" placeholder="密碼" class="form-control" autocomplete="current-password">
+          <input
+            v-model="password"
+            type="password"
+            placeholder="密碼"
+            class="form-control"
+            autocomplete="current-password"
+          />
         </div>
         <button type="submit" class="btn-login">登入</button>
       </form>
@@ -18,15 +30,15 @@
 </template>
 
 <script>
-import http from '@/http';
+import http from "@/http";
 
 export default {
   data() {
     return {
       // username: 'pp',
       // password: 'mirdcUC',
-      username: '',
-      password: '',
+      username: "",
+      password: "",
       loginSuccess: false,
       loginError: false,
     };
@@ -36,9 +48,9 @@ export default {
       this.loginSuccess = false;
       this.loginError = false;
       try {
-        const response = await http.post('api/token/', {
+        const response = await http.post("api/token/", {
           username: this.username,
-          password: this.password
+          password: this.password,
         });
 
         this.loginSuccess = true;
@@ -47,45 +59,45 @@ export default {
         console.log("Request:", response);
         const user = {
           username: response.data.username,
-          firstName: response.data.first_name,
-          lastName: response.data.last_name,
-          email: response.data.email,
-          isStaff: response.data.is_staff,
-          isActive: response.data.is_active,
-          groups: response.data.groups,
+          firstName: response.data.first_name || "",
+          lastName: response.data.last_name || "",
+          email: response.data.email || "",
+          isStaff: response.data.is_staff || false,
+          isActive: response.data.is_active || false,
+          groups: response.data.groups || [],
         };
-        this.$store.commit('setUser', user);
-        
-        localStorage.setItem('access_token', response.data.access);
-        this.$store.commit('auth/setToken', response.data.access);
+        this.$store.commit("setUser", user);
+
+        localStorage.setItem("access_token", response.data.access);
+        this.$store.commit("auth/setToken", response.data.access);
 
         if (this.$route.query.redirect) {
           this.$router.push(this.$route.query.redirect);
         } else {
-          this.$router.push('/');
+          this.$router.push("/");
         }
-        this.$router.push({ name: 'home' });
+        this.$router.push({ name: "home" });
       } catch (error) {
         console.error(error);
         this.loginError = true;
         this.loginSuccess = false;
         this.errorMessage = "登入失敗，請檢查您的帳號或密碼。";
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style>
-.login-background{
-  background-image: url('~@/assets/image/system-background.jpg');
+.login-background {
+  background-image: url("~@/assets/image/system-background.jpg");
   background-size: cover;
   background-position: center;
   width: 100vw;
   height: 90vh;
-  background-repeat: no-repeat; 
-  display: flex; 
-  justify-content: center; 
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 
@@ -151,5 +163,4 @@ export default {
   border-color: #f5c6cb;
   color: #721c24;
 }
-
 </style>

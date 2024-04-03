@@ -1,8 +1,9 @@
 <template>
-  <v-table>
+  <v-table height="400px" fixed-header>
     <thead>
       <tr>
         <th rowspan="2">項目 / 週間</th>
+        <th rowspan="2">比例</th>
         <th
           v-for="(summary, index) in quarterSummary"
           :key="index"
@@ -27,17 +28,36 @@
     <tbody>
       <tr v-for="item in quarterTableData" :key="item.project_name">
         <td class="font-weight-bold">{{ item.project_name }}</td>
-        <template v-for="dateRange in item.date_ranges">
-          <td
-            :style="
-              dateRange.records[0].expected > dateRange.records[0].actual
-                ? { 'font-weight': 'bold', color: 'red' }
-                : {}
-            "
-          >
-            {{ formatPercentage(dateRange.records[0].actual) }}
-          </td>
-          <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
+        <td>{{ formatPercentage(getPercentage(item.project_name)) }}</td>
+        <td
+          v-if="shouldDisplayNotStarted(item)"
+          :colspan="allDateRanges.length * 2"
+          class="text-center"
+        >
+          未開工
+        </td>
+        <template v-else>
+          <template v-for="dateRange in allDateRanges">
+            <td
+              v-if="
+                getActualData(item.date_ranges, dateRange) > 0 ||
+                getExpectedData(item.date_ranges, dateRange) > 0
+              "
+              :style="dataStyle(item.date_ranges, dateRange)"
+            >
+              {{ formatPercentage(getActualData(item.date_ranges, dateRange)) }}
+            </td>
+            <td
+              v-if="
+                getActualData(item.date_ranges, dateRange) > 0 ||
+                getExpectedData(item.date_ranges, dateRange) > 0
+              "
+              class="expected"
+            >
+              {{ formatPercentage(getExpectedData(item.date_ranges, dateRange)) }}
+            </td>
+            <td v-else colspan="2" class="text-center">未開工</td>
+          </template>
         </template>
       </tr>
     </tbody>
@@ -50,6 +70,7 @@ export default {
     allDateRanges: Array,
     quarterSummary: Array,
     quarterTableData: Array,
+    percentagedata: Array,
   },
   created() {
     console.log("this.quarterTableData", this.quarterTableData);
@@ -57,6 +78,31 @@ export default {
   methods: {
     formatPercentage(value) {
       return `${(Number(value) * 100).toFixed(2)}%`;
+    },
+    getPercentage(project_name) {
+      const item = this.percentagedata.find((p) => p.project_name === project_name);
+      return item ? item.percentage : 0;
+    },
+    getActualData(date_ranges, dateRange) {
+      const range = date_ranges.find((dr) => dr.date_range === dateRange);
+      return range && range.records.length > 0 ? range.records[0].actual : 0;
+    },
+    getExpectedData(date_ranges, dateRange) {
+      const range = date_ranges.find((dr) => dr.date_range === dateRange);
+      return range && range.records.length > 0 ? range.records[0].expected : 0;
+    },
+    dataStyle(date_ranges, dateRange) {
+      const range = date_ranges.find((dr) => dr.date_range === dateRange);
+      if (range && range.records[0].expected > range.records[0].actual) {
+        return { "font-weight": "bold", color: "red" };
+      }
+      return {};
+    },
+    shouldDisplayNotStarted(item) {
+      return (
+        item.construction_status === 0 ||
+        item.date_ranges.every((dr) => dr.records.every((r) => r.actual === 0 && r.expected === 0))
+      );
     },
   },
 };
