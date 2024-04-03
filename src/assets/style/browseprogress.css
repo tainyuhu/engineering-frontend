@@ -129,25 +129,20 @@
   z-index: 1;
 }
 
-.overview-btn {
-  background-color: #9c27b0;
+.btn-active {
+  background-color: #e91e63;
   color: white;
+  border: 2px solid #e91e63 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* 加深内阴影效果 */
 }
 
-.overview-btn:hover,
-.overview-btn.selected {
-  background-color: #65197a;
+.overview-btn {
+  border: 2px solid #e8e8e8 !important;
 }
 
 .details-btn {
   margin-right: 5px;
-  background-color: #e91e63;
-  color: white;
-}
-
-.details-btn:hover,
-.details-btn.selected {
-  background-color: #ae174e;
+  border: 2px solid #e8e8e8 !important;
 }
 
 .time-toggle .v-btn--active {
@@ -157,12 +152,10 @@
 
 .div-container {
   margin: 20px;
-  height: 600px;
 }
 
 .div-container-1 {
   margin: 20px;
-  height: 700px;
 }
 
 .report-container {
@@ -186,7 +179,7 @@
   padding: 8px !important;
   font-weight: bold !important;
   text-align: center !important;
-  background-color: #00b894;
+  background-color: #00b894 !important;
   color: white !important;
 }
 
@@ -201,9 +194,9 @@
 }
 
 .normal-bg {
-  background-color: #00b894;
+  background-color: #00b894 !important;
 }
 
-.special-bg {
+.v-table th.special-bg {
   background-color: #0769c1 !important;
 }

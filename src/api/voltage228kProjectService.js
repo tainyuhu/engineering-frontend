@@ -1,8 +1,8 @@
 import apiClient from "./apiService";
 
-const fetchWeekTableData = (loopId, currentPage, itemsPerPage, project_type) => {
+const fetchWeekTableData = (projectId, currentPage, itemsPerPage, project_type) => {
   return apiClient.get(
-    `/api/v1/get_voltage228k_progress/${loopId}/${currentPage}/${itemsPerPage}/${project_type}/`,
+    `/api/v1/get_voltage228k_progress/${projectId}/${currentPage}/${itemsPerPage}/${project_type}/`,
     {
       headers: {
         Accept: "application/json",
@@ -44,4 +44,21 @@ const fetchQuarterChartData = (loopId, project_type) => {
   );
 };
 
-export { fetchWeekTableData, fetchQuarterTableData, fetchTableData, fetchQuarterChartData };
+const fetchCivilWeekTableData = (projectId, currentPage, itemsPerPage, project_type) => {
+  return apiClient.get(
+    `/api/v1/get_civil_progress/${projectId}/${currentPage}/${itemsPerPage}/${project_type}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+export {
+  fetchWeekTableData,
+  fetchQuarterTableData,
+  fetchTableData,
+  fetchQuarterChartData,
+  fetchCivilWeekTableData,
+};

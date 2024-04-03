@@ -2,7 +2,7 @@
   <v-container>
     <!-- 標題 -->
     <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-      <v-icon color="blue">mdi-chevron-right-box</v-icon>
+      <v-icon color="blue" @click="goBack">mdi-chevron-left-box</v-icon>
       <span class="font-weight-bold ml-2">瀏覽22.8KV工程進度：</span>
     </div>
 
@@ -33,21 +33,41 @@
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
         >
-        <!-- <v-btn
+        <v-btn
           v-if="projectType === 'engineering'"
           class="custom-btn"
           @click="scrollToSection('engineeringSection')"
         >
           土木/纜線進度
-        </v-btn> -->
-        <v-btn class="overview-btn" rounded="0" @click="showDetails = false">即時</v-btn>
-        <v-btn class="details-btn" rounded="0" @click="showDetails = true">詳情</v-btn>
+        </v-btn>
+        <v-btn
+          class="overview-btn"
+          :class="{ 'btn-active': !showDetails }"
+          rounded="0"
+          variant="outlined"
+          @click="showDetails = false"
+        >
+          即時
+        </v-btn>
+        <v-btn
+          class="details-btn"
+          :class="{ 'btn-active': showDetails }"
+          rounded="0"
+          variant="outlined"
+          @click="showDetails = true"
+        >
+          詳情
+        </v-btn>
       </div>
     </div>
 
     <!-- 周數據展示 -->
     <div class="div-container" v-if="timeMode === 'week' && showDetails && displayMode === 'table'">
-      <WeekLoopTable :allDateRanges="paginatedDateRanges" :weekTableData="paginatedData" />
+      <WeekLoopTable
+        :allDateRanges="paginatedDateRanges"
+        :weekTableData="paginatedData"
+        :percentagedata="percentageData"
+      />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
 
@@ -60,6 +80,7 @@
         :allDateRanges="paginatedDateRanges"
         :quarterSummary="quarterSummary"
         :quarterTableData="paginatedData"
+        :percentagedata="percentageData"
       />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
@@ -70,6 +91,7 @@
         :allDateRanges="paginatedDateRanges"
         :quarterSummary="quarterSummary"
         :TableData="paginatedData"
+        :percentagedata="percentageData"
       />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
@@ -100,6 +122,215 @@
     >
       <SiteSelectionChart :chartData="chartData" />
     </div>
+
+    <!-- 子標題 -->
+    <div
+      class="mb-3"
+      ref="engineeringSection"
+      style="padding-left: 20px; display: flex; align-items: center"
+      v-if="displayMode === 'table'"
+    >
+      <v-icon color="blue">mdi-chevron-right-box</v-icon>
+      <span class="font-weight-bold ml-2">瀏覽土木/纜線工程進度：</span>
+    </div>
+
+    <v-card v-if="displayMode === 'table'" class="div-container-1" outlined>
+      <v-tabs v-model="tab" bg-color="indigo-darken-2" slider-color="yellow" show-arrows>
+        <v-tab style="font-weight: bold" value="civil">土木工程</v-tab>
+        <v-tab style="font-weight: bold" value="cable">纜線工程</v-tab>
+      </v-tabs>
+      <v-card-text>
+        <v-window v-model="tab">
+          <v-window-item value="civil">
+            <div class="function-row">
+              <!-- 第一個區塊 -->
+              <div class="status-and-page-size-selector">
+                <span>狀態：</span>
+                <v-btn
+                  :class="endisplayMode === 'table' ? 'report-btn' : 'table-btn'"
+                  @click="toggleEnDisplayMode"
+                  >{{ endisplayModeText }}</v-btn
+                >
+              </div>
+
+              <!-- 第二個區塊 -->
+              <div
+                v-if="enshowDetails && endisplayMode === 'table'"
+                class="py-2 d-flex justify-center"
+              >
+                <v-btn-toggle mandatory v-model="entimeMode" class="time-toggle" variant="outlined">
+                  <v-btn value="quarter">季</v-btn>
+                  <v-btn value="week">週</v-btn>
+                </v-btn-toggle>
+              </div>
+
+              <!-- 第三個區塊 -->
+              <div v-if="endisplayMode === 'table'">
+                <v-btn
+                  class="overview-btn"
+                  :class="{ 'btn-active': !enshowDetails }"
+                  rounded="0"
+                  variant="outlined"
+                  @click="enshowDetails = false"
+                >
+                  即時
+                </v-btn>
+                <v-btn
+                  class="details-btn"
+                  :class="{ 'btn-active': enshowDetails }"
+                  rounded="0"
+                  variant="outlined"
+                  @click="enshowDetails = true"
+                >
+                  詳情
+                </v-btn>
+              </div>
+            </div>
+            <!-- 周數據展示 -->
+            <div
+              class="div-container"
+              v-if="entimeMode === 'week' && enshowDetails && endisplayMode === 'table'"
+            >
+              <WeekLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :weekTableData="enpaginatedData"
+                :percentagedata="percentageData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 季數據展示 -->
+            <div
+              class="div-container"
+              v-if="entimeMode === 'quarter' && enshowDetails && endisplayMode === 'table'"
+            >
+              <AllQuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :quarterTableData="enpaginatedData"
+                :percentagedata="percentageData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 即時數據展示 -->
+            <div class="div-container" v-if="!enshowDetails && endisplayMode === 'table'">
+              <QuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :TableData="enpaginatedData"
+                :percentagedata="percentageData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 案場即時報表展示 -->
+            <div
+              class="div-container report-container"
+              v-if="endisplayMode === 'report' && !enshowDetails"
+              style="background-color: white; display: flex; height: 100%"
+            >
+              <SiteSelectionChart :chartData="enchartData" />
+            </div>
+
+            <!-- 案場所有季報表展示 -->
+            <div
+              class="div-container report-container"
+              v-if="endisplayMode === 'report' && enshowDetails && entimeMode === 'quarter'"
+              style="background-color: white; display: flex; height: 100%"
+            >
+              <SiteSelectionChart :chartData="enchartData" />
+            </div>
+
+            <!-- 案場所有周報表展示 -->
+            <div
+              class="div-container report-container"
+              v-if="endisplayMode === 'report' && enshowDetails && entimeMode === 'week'"
+              style="background-color: white; display: flex; height: 100%"
+            >
+              <SiteSelectionChart :chartData="enchartData" />
+            </div>
+          </v-window-item>
+          <v-window-item value="cable">
+            <div class="function-row">
+              <!-- 第一個區塊 -->
+              <div class="status-and-page-size-selector">
+                <span>狀態：</span>
+                <v-btn
+                  :class="endisplayMode === 'table' ? 'report-btn' : 'table-btn'"
+                  @click="toggleEnDisplayMode"
+                  >{{ endisplayModeText }}</v-btn
+                >
+              </div>
+
+              <!-- 第二個區塊 -->
+              <div
+                v-if="enshowDetails && endisplayMode === 'table'"
+                class="py-2 d-flex justify-center"
+              >
+                <v-btn-toggle mandatory v-model="entimeMode" class="time-toggle" variant="outlined">
+                  <v-btn value="quarter">季</v-btn>
+                  <v-btn value="week">週</v-btn>
+                </v-btn-toggle>
+              </div>
+
+              <!-- 第三個區塊 -->
+              <div v-if="endisplayMode === 'table'">
+                <v-btn
+                  class="overview-btn"
+                  :class="{ 'btn-active': !enshowDetails }"
+                  rounded="0"
+                  variant="outlined"
+                  @click="enshowDetails = false"
+                >
+                  即時
+                </v-btn>
+                <v-btn
+                  class="details-btn"
+                  :class="{ 'btn-active': enshowDetails }"
+                  rounded="0"
+                  variant="outlined"
+                  @click="enshowDetails = true"
+                >
+                  詳情
+                </v-btn>
+              </div>
+            </div>
+            <!-- 周數據展示 -->
+            <div class="div-container" v-if="entimeMode === 'week' && enshowDetails">
+              <WeekLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :weekTableData="enpaginatedData"
+                :percentagedata="percentageData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 季數據展示 -->
+            <div class="div-container" v-if="entimeMode === 'quarter' && enshowDetails">
+              <AllQuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :quarterTableData="enpaginatedData"
+                :percentagedata="percentageData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+
+            <!-- 即時數據展示 -->
+            <div class="div-container" v-if="!enshowDetails && endisplayMode === 'table'">
+              <QuarterLoopTable
+                :allDateRanges="enpaginatedDateRanges"
+                :quarterSummary="enquarterSummary"
+                :TableData="enpaginatedData"
+                :percentagedata="percentageData"
+              />
+              <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+            </div>
+          </v-window-item>
+        </v-window>
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
@@ -127,234 +358,754 @@ export default {
       showDetails: false,
       enshowDetails: false,
       weekTableData: [
-        { actual: 0, date_range: "2024-01-07 - 2024-01-13", expected: 0.0238, loop_name: "SN1" },
-        { actual: 0, date_range: "2024-01-07 - 2024-01-13", expected: 0.0238, loop_name: "SN2" },
-        { actual: 0, date_range: "2024-01-14 - 2024-01-20", expected: 0.0476, loop_name: "SN1" },
-        { actual: 0, date_range: "2024-01-14 - 2024-01-20", expected: 0.0476, loop_name: "SN2" },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-07 - 2024-01-13",
+          expected: 0.0238,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-07 - 2024-01-13",
+          expected: 0.0238,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-14 - 2024-01-20",
+          expected: 0.0476,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-14 - 2024-01-20",
+          expected: 0.0476,
+          loop_name: "SN2",
+        },
         {
           actual: 0.441,
+          construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
           expected: 0.0714,
           loop_name: "SN1",
         },
         {
           actual: 0.4007,
+          construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
           expected: 0.0714,
           loop_name: "SN2",
         },
         {
           actual: 0.441,
+          construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
           expected: 0.0952,
           loop_name: "SN1",
         },
         {
           actual: 0.4007,
+          construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
           expected: 0.0952,
           loop_name: "SN2",
         },
-        { actual: 0.441, date_range: "2024-02-04 - 2024-02-10", expected: 0.119, loop_name: "SN1" },
+        {
+          actual: 0.441,
+          construction_status: 2,
+          date_range: "2024-02-04 - 2024-02-10",
+          expected: 0.119,
+          loop_name: "SN1",
+        },
         {
           actual: 0.4007,
+          construction_status: 2,
           date_range: "2024-02-04 - 2024-02-10",
           expected: 0.119,
           loop_name: "SN2",
         },
         {
           actual: 0.441,
+          construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
           expected: 0.1429,
           loop_name: "SN1",
         },
         {
           actual: 0.4007,
+          construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
           expected: 0.1429,
           loop_name: "SN2",
         },
         {
           actual: 0.441,
+          construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
           expected: 0.1667,
           loop_name: "SN1",
         },
         {
           actual: 0.4007,
+          construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
           expected: 0.1667,
           loop_name: "SN2",
         },
         {
           actual: 0.4463,
+          construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
           expected: 0.1905,
           loop_name: "SN1",
         },
         {
           actual: 0.4081,
+          construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
           expected: 0.1905,
           loop_name: "SN2",
+        },
+        {
+          actual: 0.4463,
+          construction_status: 2,
+          date_range: "2024-03-03 - 2024-03-09",
+          expected: 0.2143,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0.4081,
+          construction_status: 2,
+          date_range: "2024-03-03 - 2024-03-09",
+          expected: 0.2143,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0.4463,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.2381,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0.4081,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.2381,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
         },
       ], //周數據
       quarterTableData: [
         {
           actual: 0.4463,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.1905,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.2381,
           loop_name: "SN1",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
           actual: 0.4081,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.1905,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.2381,
           loop_name: "SN2",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ], //季數據
       TableData: [
         {
           actual: 0.4463,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.1905,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.2381,
           loop_name: "SN1",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
           actual: 0.4081,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.1905,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.2381,
           loop_name: "SN2",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ],
       civilweekTableData: [
-        { actual: 0, date_range: "2024-01-07 - 2024-01-13", expected: 0.0476, loop_name: "SN1" },
-        { actual: 0, date_range: "2024-01-07 - 2024-01-13", expected: 0.0476, loop_name: "SN2" },
-        { actual: 0, date_range: "2024-01-14 - 2024-01-20", expected: 0.0952, loop_name: "SN1" },
-        { actual: 0, date_range: "2024-01-14 - 2024-01-20", expected: 0.0952, loop_name: "SN2" },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-07 - 2024-01-13",
+          expected: 0.0476,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-07 - 2024-01-13",
+          expected: 0.0476,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-14 - 2024-01-20",
+          expected: 0.0952,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0,
+          construction_status: 2,
+          date_range: "2024-01-14 - 2024-01-20",
+          expected: 0.0952,
+          loop_name: "SN2",
+        },
         {
           actual: 0.8819,
+          construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
           expected: 0.1429,
           loop_name: "SN1",
         },
         {
           actual: 0.8013,
+          construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
           expected: 0.1429,
           loop_name: "SN2",
         },
         {
           actual: 0.8819,
+          construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
           expected: 0.1905,
           loop_name: "SN1",
         },
         {
           actual: 0.8013,
+          construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
           expected: 0.1905,
           loop_name: "SN2",
         },
         {
           actual: 0.8819,
+          construction_status: 2,
           date_range: "2024-02-04 - 2024-02-10",
           expected: 0.2381,
           loop_name: "SN1",
         },
         {
           actual: 0.8013,
+          construction_status: 2,
           date_range: "2024-02-04 - 2024-02-10",
           expected: 0.2381,
           loop_name: "SN2",
         },
         {
           actual: 0.8819,
+          construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
           expected: 0.2857,
           loop_name: "SN1",
         },
         {
           actual: 0.8013,
+          construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
           expected: 0.2857,
           loop_name: "SN2",
         },
         {
           actual: 0.8819,
+          construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
           expected: 0.3333,
           loop_name: "SN1",
         },
         {
           actual: 0.8013,
+          construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
           expected: 0.3333,
           loop_name: "SN2",
         },
         {
           actual: 0.8926,
+          construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
           expected: 0.381,
           loop_name: "SN1",
         },
         {
           actual: 0.8162,
+          construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
           expected: 0.381,
           loop_name: "SN2",
+        },
+        {
+          actual: 0.8926,
+          construction_status: 2,
+          date_range: "2024-03-03 - 2024-03-09",
+          expected: 0.4286,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0.8162,
+          construction_status: 2,
+          date_range: "2024-03-03 - 2024-03-09",
+          expected: 0.4286,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0.8926,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.4762,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0.8162,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.4762,
+          loop_name: "SN2",
+        },
+
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
         },
       ], //周數據
       civilquarterTableData: [
         {
           actual: 0.8926,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.381,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.4762,
           loop_name: "SN1",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
           actual: 0.8162,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.381,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.4762,
           loop_name: "SN2",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ], //季數據
       civilTableData: [
         {
           actual: 0.8926,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.381,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.4762,
           loop_name: "SN1",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
           actual: 0.8162,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.381,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.4762,
           loop_name: "SN2",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ],
       currentPage: 1,
@@ -367,6 +1118,17 @@ export default {
         labels: [],
         datasets: [],
       },
+      percentageData: [
+        { loop_name: "SN1", percentage: 0.0991 },
+        { loop_name: "SN2", percentage: 0.128 },
+        { loop_name: "SN3", percentage: 0.1145 },
+        { loop_name: "SN4", percentage: 0.1175 },
+        { loop_name: "SN5", percentage: 0.1001 },
+        { loop_name: "SN6", percentage: 0.0808 },
+        { loop_name: "SN7", percentage: 0.1421 },
+        { loop_name: "SN8", percentage: 0.1212 },
+        { loop_name: "SN9", percentage: 0.0968 },
+      ],
     };
   },
   watch: {
@@ -442,19 +1204,47 @@ export default {
       return Math.ceil(totalItems / this.perPage);
     },
     paginatedData() {
-      const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      const data = this.organizedLoopsData.map((loop) => ({
-        ...loop,
-        date_ranges: loop.date_ranges.slice(start, end),
-      }));
-      console.log(data);
-      return data;
+      this.organizedLoopsData.forEach((loop) => {
+        loop.date_ranges.sort(
+          (a, b) => new Date(b.date_range.split(" - ")[0]) - new Date(a.date_range.split(" - ")[0])
+        );
+      });
+
+      const paginatedEntries = this.organizedLoopsData.map((loop) => {
+        const latestDateRange = [loop.date_ranges[0]];
+
+        let additionalDateRanges = [];
+        if (this.currentPage === 1) {
+          additionalDateRanges = loop.date_ranges.slice(1, 3);
+        } else {
+          const startIndex = 1 + (this.currentPage - 2) * 3 + 2;
+          const endIndex = startIndex + 3;
+          additionalDateRanges = loop.date_ranges.slice(startIndex, endIndex);
+        }
+
+        return {
+          loop_name: loop.loop_name,
+          date_ranges: [...latestDateRange, ...additionalDateRanges],
+        };
+      });
+
+      return paginatedEntries;
     },
     paginatedDateRanges() {
       const start = (this.currentPage - 1) * this.perPage;
       const end = start + this.perPage;
-      return this.allDateRanges.slice(start, end);
+      const dateRanges = this.allDateRanges.sort((a, b) => {
+        return new Date(b.split(" - ")[0]) - new Date(a.split(" - ")[0]);
+      });
+
+      const latestDateRange = dateRanges[0];
+      let paginatedRanges = dateRanges.slice(start, end);
+
+      if (!paginatedRanges.includes(latestDateRange)) {
+        paginatedRanges = [latestDateRange, ...paginatedRanges].slice(0, end - start + 1);
+      }
+
+      return paginatedRanges;
     },
     organizedLoopsData() {
       const organizedData = [];
@@ -472,7 +1262,16 @@ export default {
       }
 
       dataSource.forEach((item) => {
-        const { loop_name, date_range, actual, expected, year, quarter, week } = item;
+        const {
+          loop_name,
+          construction_status,
+          date_range,
+          actual,
+          expected,
+          year,
+          quarter,
+          week,
+        } = item;
 
         if (!tempMap.has(loop_name)) {
           tempMap.set(loop_name, { loop_name, date_ranges: [] });
@@ -481,7 +1280,7 @@ export default {
         const currentLoop = tempMap.get(loop_name);
         let dateRangeObj = currentLoop.date_ranges.find((dr) => dr.date_range === date_range);
         if (!dateRangeObj) {
-          dateRangeObj = { date_range, records: [], year, quarter, week };
+          dateRangeObj = { date_range, construction_status, records: [], year, quarter, week };
           currentLoop.date_ranges.push(dateRangeObj);
         }
 
@@ -492,7 +1291,7 @@ export default {
         value.date_ranges.sort((a, b) => {
           const aDate = new Date(a.date_range.split(" - ")[0]);
           const bDate = new Date(b.date_range.split(" - ")[0]);
-          return aDate - bDate;
+          return bDate - aDate;
         });
         organizedData.push(value);
       });
@@ -517,7 +1316,16 @@ export default {
       }
 
       dataSource.forEach((item) => {
-        const { loop_name, date_range, actual, expected, year, quarter, week } = item;
+        const {
+          loop_name,
+          construction_status,
+          date_range,
+          actual,
+          expected,
+          year,
+          quarter,
+          week,
+        } = item;
 
         if (!tempMap.has(loop_name)) {
           tempMap.set(loop_name, { loop_name, date_ranges: [] });
@@ -526,7 +1334,7 @@ export default {
         const currentLoop = tempMap.get(loop_name);
         let dateRangeObj = currentLoop.date_ranges.find((dr) => dr.date_range === date_range);
         if (!dateRangeObj) {
-          dateRangeObj = { date_range, records: [], year, quarter, week };
+          dateRangeObj = { date_range, construction_status, records: [], year, quarter, week };
           currentLoop.date_ranges.push(dateRangeObj);
         }
 
@@ -537,7 +1345,7 @@ export default {
         value.date_ranges.sort((a, b) => {
           const aDate = new Date(a.date_range.split(" - ")[0]);
           const bDate = new Date(b.date_range.split(" - ")[0]);
-          return aDate - bDate;
+          return bDate - aDate;
         });
         enorganizedData.push(value);
       });
@@ -553,11 +1361,6 @@ export default {
       });
 
       return Array.from(ranges);
-    },
-    enpaginatedDateRanges() {
-      const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      return this.enallDateRanges.slice(start, end);
     },
     enquarterSummary() {
       let data = this.enorganizedLoopsData;
@@ -580,17 +1383,53 @@ export default {
       });
     },
     enpaginatedData() {
+      this.enorganizedLoopsData.forEach((loop) => {
+        loop.date_ranges.sort(
+          (a, b) => new Date(b.date_range.split(" - ")[0]) - new Date(a.date_range.split(" - ")[0])
+        );
+      });
+
+      const paginatedEntries = this.enorganizedLoopsData.map((loop) => {
+        const latestDateRange = [loop.date_ranges[0]];
+
+        let additionalDateRanges = [];
+        if (this.currentPage === 1) {
+          additionalDateRanges = loop.date_ranges.slice(1, 3);
+        } else {
+          const startIndex = 1 + (this.currentPage - 2) * 3 + 2;
+          const endIndex = startIndex + 3;
+          additionalDateRanges = loop.date_ranges.slice(startIndex, endIndex);
+        }
+
+        return {
+          loop_name: loop.loop_name,
+          date_ranges: [...latestDateRange, ...additionalDateRanges],
+        };
+      });
+
+      return paginatedEntries;
+    },
+    enpaginatedDateRanges() {
       const start = (this.currentPage - 1) * this.perPage;
       const end = start + this.perPage;
-      const data = this.enorganizedLoopsData.map((loop) => ({
-        ...loop,
-        date_ranges: loop.date_ranges.slice(start, end),
-      }));
-      console.log(data);
-      return data;
+      const dateRanges = this.enallDateRanges.sort((a, b) => {
+        return new Date(b.split(" - ")[0]) - new Date(a.split(" - ")[0]);
+      });
+
+      const latestDateRange = dateRanges[0];
+      let paginatedRanges = dateRanges.slice(start, end);
+
+      if (!paginatedRanges.includes(latestDateRange)) {
+        paginatedRanges = [latestDateRange, ...paginatedRanges].slice(0, end - start + 1);
+      }
+
+      return paginatedRanges;
     },
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
     scrollToSection(refName) {
       const element = this.$refs[refName];
       if (element) {
@@ -665,9 +1504,15 @@ export default {
       });
 
       const colorPairs = [
-        { color: "rgba(255, 99, 132, 0.2)" },
-        { color: "rgba(75, 192, 192, 0.2)" },
-        { color: "rgba(255, 206, 86, 0.2)" },
+        { color: "rgba(255, 99, 132, 0.2)" }, // Red
+        { color: "rgba(75, 192, 192, 0.2)" }, // Green
+        { color: "rgba(255, 206, 86, 0.2)" }, // Yellow
+        { color: "rgba(153, 102, 255, 0.2)" }, // Purple
+        { color: "rgba(255, 159, 64, 0.2)" }, // Orange
+        { color: "rgba(54, 162, 235, 0.2)" }, // Blue
+        { color: "rgba(104, 132, 245, 0.2)" }, // Light blue
+        { color: "rgba(164, 206, 78, 0.2)" }, // Light green
+        { color: "rgba(215, 86, 255, 0.2)" }, // Magenta
       ];
       let colorIndex = 0;
 
@@ -726,9 +1571,15 @@ export default {
       });
 
       const colorPairs = [
-        { color: "rgba(255, 99, 132, 0.2)" },
-        { color: "rgba(75, 192, 192, 0.2)" },
-        { color: "rgba(255, 206, 86, 0.2)" },
+        { color: "rgba(255, 99, 132, 0.2)" }, // Red
+        { color: "rgba(75, 192, 192, 0.2)" }, // Green
+        { color: "rgba(255, 206, 86, 0.2)" }, // Yellow
+        { color: "rgba(153, 102, 255, 0.2)" }, // Purple
+        { color: "rgba(255, 159, 64, 0.2)" }, // Orange
+        { color: "rgba(54, 162, 235, 0.2)" }, // Blue
+        { color: "rgba(104, 132, 245, 0.2)" }, // Light blue
+        { color: "rgba(164, 206, 78, 0.2)" }, // Light green
+        { color: "rgba(215, 86, 255, 0.2)" }, // Magenta
       ];
       let colorIndex = 0;
 
@@ -861,9 +1712,15 @@ export default {
       });
 
       const colorPairs = [
-        { color: "rgba(255, 99, 132, 0.2)" },
-        { color: "rgba(75, 192, 192, 0.2)" },
-        { color: "rgba(255, 206, 86, 0.2)" },
+        { color: "rgba(255, 99, 132, 0.2)" }, // Red
+        { color: "rgba(75, 192, 192, 0.2)" }, // Green
+        { color: "rgba(255, 206, 86, 0.2)" }, // Yellow
+        { color: "rgba(153, 102, 255, 0.2)" }, // Purple
+        { color: "rgba(255, 159, 64, 0.2)" }, // Orange
+        { color: "rgba(54, 162, 235, 0.2)" }, // Blue
+        { color: "rgba(104, 132, 245, 0.2)" }, // Light blue
+        { color: "rgba(164, 206, 78, 0.2)" }, // Light green
+        { color: "rgba(215, 86, 255, 0.2)" }, // Magenta
       ];
       let colorIndex = 0;
 
@@ -922,9 +1779,15 @@ export default {
       });
 
       const colorPairs = [
-        { color: "rgba(255, 99, 132, 0.2)" },
-        { color: "rgba(75, 192, 192, 0.2)" },
-        { color: "rgba(255, 206, 86, 0.2)" },
+        { color: "rgba(255, 99, 132, 0.2)" }, // Red
+        { color: "rgba(75, 192, 192, 0.2)" }, // Green
+        { color: "rgba(255, 206, 86, 0.2)" }, // Yellow
+        { color: "rgba(153, 102, 255, 0.2)" }, // Purple
+        { color: "rgba(255, 159, 64, 0.2)" }, // Orange
+        { color: "rgba(54, 162, 235, 0.2)" }, // Blue
+        { color: "rgba(104, 132, 245, 0.2)" }, // Light blue
+        { color: "rgba(164, 206, 78, 0.2)" }, // Light green
+        { color: "rgba(215, 86, 255, 0.2)" }, // Magenta
       ];
       let colorIndex = 0;
 

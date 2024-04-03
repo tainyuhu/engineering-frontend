@@ -1,8 +1,8 @@
-import { createStore } from 'vuex';
-import authModule from './authModule';
+import { createStore } from "vuex";
+import authModule from "./authModule";
 
 function getSavedUser() {
-  const userData = localStorage.getItem('user');
+  const userData = localStorage.getItem("user");
   try {
     return userData ? JSON.parse(userData) : null;
   } catch (error) {
@@ -13,7 +13,7 @@ function getSavedUser() {
 
 const store = createStore({
   modules: {
-    auth: authModule
+    auth: authModule,
   },
   state: {
     user: getSavedUser() || {
@@ -26,26 +26,31 @@ const store = createStore({
       department: null,
       isActive: null,
       groups: [],
-    }
+    },
   },
   getters: {
     getUser(state) {
       return state.user;
-    }
+    },
   },
   mutations: {
     setUser(state, user) {
       state.user = {
-        ...state.user,
+        username: user.username || null,
+        firstName: user.firstName || null,
+        lastName: user.lastName || null,
+        email: user.email || null,
+        isStaff: user.isStaff || null,
+        isActive: user.isActive || null,
         groups: user.groups || [],
       };
-      localStorage.setItem('user', JSON.stringify(user));
-    }
+      localStorage.setItem("user", JSON.stringify(state.user));
+    },
   },
   actions: {
     setUser({ commit }, user) {
-      commit('setUser', user);
-    }
+      commit("setUser", user);
+    },
   },
 });
 

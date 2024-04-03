@@ -2,7 +2,7 @@
   <v-container>
     <!-- 標題 -->
     <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-      <v-icon color="blue">mdi-chevron-right-box</v-icon>
+      <v-icon color="blue" @click="goBack">mdi-chevron-left-box</v-icon>
       <span class="font-weight-bold ml-2">瀏覽總迴路工程進度：</span>
     </div>
 
@@ -19,7 +19,7 @@
       </div>
 
       <!-- 第二個區塊 -->
-      <div v-if="showDetails" class="py-2 d-flex justify-center">
+      <div v-if="showDetails && displayMode === 'table'" class="py-2 d-flex justify-center">
         <v-btn-toggle mandatory v-model="timeMode" class="time-toggle" variant="outlined">
           <v-btn class="time-btn" value="quarter">季</v-btn>
           <v-btn class="time-btn" value="week">週</v-btn>
@@ -27,151 +27,109 @@
       </div>
 
       <!-- 第三個區塊 -->
-      <div>
+      <div v-if="displayMode === 'table'">
         <v-btn
           :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
         >
-        <v-btn class="overview-btn" rounded="0" @click="showDetails = false">即時</v-btn>
-        <v-btn class="details-btn" rounded="0" @click="showDetails = true">詳情</v-btn>
+        <v-btn
+          class="overview-btn"
+          :class="{ 'btn-active': !showDetails }"
+          rounded="0"
+          variant="outlined"
+          @click="showDetails = false"
+        >
+          即時
+        </v-btn>
+        <v-btn
+          class="details-btn"
+          :class="{ 'btn-active': showDetails }"
+          rounded="0"
+          variant="outlined"
+          @click="showDetails = true"
+        >
+          詳情
+        </v-btn>
       </div>
     </div>
 
     <!-- 周數據展示 -->
-    <div class="div-container" v-if="timeMode === 'week' && showDetails">
-      <v-table>
-        <thead>
-          <tr>
-            <th>迴路 / 週間</th>
-            <th
-              v-for="(dateRange, index) in paginatedDateRanges"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              {{ dateRange }}
-              <v-icon v-if="index === 0" color="yellow">mdi-new-box</v-icon>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in paginatedData" :key="item.loop_name">
-            <td class="font-weight-bold">{{ item.loop_name }}</td>
-            <template v-for="dateRange in item.date_ranges">
-              <td>{{ formatPercentage(dateRange.records[0].actual) }}</td>
-              <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
-            </template>
-          </tr>
-        </tbody>
-      </v-table>
+    <div class="div-container" v-if="timeMode === 'week' && showDetails && displayMode === 'table'">
+      <WeekLoopTable
+        :allDateRanges="paginatedDateRanges"
+        :weekTableData="paginatedData"
+        :percentagedata="percentageData"
+      />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
 
     <!-- 季數據展示 -->
-    <div class="div-container" v-if="timeMode === 'quarter' && showDetails">
-      <v-table>
-        <thead>
-          <tr>
-            <th rowspan="2">迴路 / 週間</th>
-            <th
-              v-for="(summary, index) in quarterSummary"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              【{{ summary.year }} Q{{ summary.quarter }}】 第{{ summary.week }}周
-            </th>
-          </tr>
-          <tr>
-            <th
-              v-for="(dateRange, index) in paginatedDateRanges"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              {{ dateRange }}
-              <v-icon v-if="index === 0" color="yellow">mdi-new-box</v-icon>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in paginatedData" :key="item.loop_name">
-            <td class="font-weight-bold">{{ item.loop_name }}</td>
-            <template v-for="dateRange in item.date_ranges">
-              <td
-                :style="
-                  dateRange.records[0].expected > dateRange.records[0].actual
-                    ? { 'font-weight': 'bold', color: 'red' }
-                    : {}
-                "
-              >
-                {{ formatPercentage(dateRange.records[0].actual) }}
-              </td>
-              <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
-            </template>
-          </tr>
-        </tbody>
-      </v-table>
+    <div
+      class="div-container"
+      v-if="timeMode === 'quarter' && showDetails && displayMode === 'table'"
+    >
+      <AllQuarterLoopTable
+        :allDateRanges="paginatedDateRanges"
+        :quarterSummary="quarterSummary"
+        :quarterTableData="paginatedData"
+        :percentagedata="percentageData"
+      />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
 
-    <!-- 季數據展示 -->
+    <!-- 即時數據展示 -->
     <div class="div-container" v-if="!showDetails && displayMode === 'table'">
-      <v-table>
-        <thead>
-          <tr>
-            <th rowspan="2">迴路 / 週間</th>
-            <th
-              v-for="(summary, index) in quarterSummary"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              【{{ summary.year }} Q{{ summary.quarter }}】 第{{ summary.week }}周
-            </th>
-          </tr>
-          <tr>
-            <th
-              v-for="(dateRange, index) in paginatedDateRanges"
-              :key="index"
-              :class="{ 'special-bg': index === 0, 'normal-bg': index !== 0 }"
-              colspan="2"
-            >
-              {{ dateRange }}
-              <v-icon v-if="index === 0" color="yellow">mdi-new-box</v-icon>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in paginatedData" :key="item.loop_name">
-            <td class="font-weight-bold">{{ item.loop_name }}</td>
-            <template v-for="dateRange in item.date_ranges">
-              <td
-                :style="
-                  dateRange.records[0].expected > dateRange.records[0].actual
-                    ? { 'font-weight': 'bold', color: 'red' }
-                    : {}
-                "
-              >
-                {{ formatPercentage(dateRange.records[0].actual) }}
-              </td>
-              <td class="expected">{{ formatPercentage(dateRange.records[0].expected) }}</td>
-            </template>
-          </tr>
-        </tbody>
-      </v-table>
+      <QuarterLoopTable
+        :allDateRanges="paginatedDateRanges"
+        :quarterSummary="quarterSummary"
+        :TableData="paginatedData"
+        :percentagedata="percentageData"
+      />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+    </div>
+
+    <!-- 案場即時報表展示 -->
+    <div
+      class="div-container report-container"
+      v-if="displayMode === 'report' && !showDetails"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <SiteSelectionChart :chartData="chartData" />
+    </div>
+
+    <!-- 案場所有季報表展示 -->
+    <div
+      class="div-container report-container"
+      v-if="displayMode === 'report' && showDetails && timeMode === 'quarter'"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <SiteSelectionChart :chartData="chartData" />
+    </div>
+
+    <!-- 案場所有周報表展示 -->
+    <div
+      class="div-container report-container"
+      v-if="displayMode === 'report' && showDetails && timeMode === 'week'"
+      style="background-color: white; display: flex; height: 100%"
+    >
+      <SiteSelectionChart :chartData="chartData" />
     </div>
   </v-container>
 </template>
 
 <script>
-import Chart from "@/components/chart/Chart.vue";
+import SiteSelectionChart from "@/components/chart/SiteSelectionChart.vue";
+import WeekLoopTable from "@/components/table/weekLoopTable.vue";
+import AllQuarterLoopTable from "@/components/table/allQuarterLoopTable.vue";
+import QuarterLoopTable from "@/components/table/quarterLoopTable.vue";
 
 export default {
   components: {
-    Chart,
+    WeekLoopTable,
+    AllQuarterLoopTable,
+    QuarterLoopTable,
+    SiteSelectionChart,
   },
   data() {
     return {
@@ -182,6 +140,7 @@ export default {
       weekTableData: [
         {
           actual: 0.0053,
+          construction_status: 2,
           date_range: "2023-12-31 - 2024-01-06",
           expected: 0,
           loop_name: "SN2",
@@ -189,6 +148,7 @@ export default {
 
         {
           actual: 0.0053,
+          construction_status: 2,
           date_range: "2024-01-07 - 2024-01-13",
           expected: 0,
           loop_name: "SN2",
@@ -196,6 +156,7 @@ export default {
 
         {
           actual: 0.0257,
+          construction_status: 2,
           date_range: "2024-01-14 - 2024-01-20",
           expected: 0,
           loop_name: "SN2",
@@ -203,6 +164,7 @@ export default {
 
         {
           actual: 0.0312,
+          construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
           expected: 0,
           loop_name: "SN2",
@@ -210,6 +172,7 @@ export default {
 
         {
           actual: 0.0312,
+          construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
           expected: 0,
           loop_name: "SN2",
@@ -217,6 +180,7 @@ export default {
 
         {
           actual: 0.0312,
+          construction_status: 2,
           date_range: "2024-02-04 - 2024-02-10",
           expected: 0,
           loop_name: "SN2",
@@ -224,6 +188,7 @@ export default {
 
         {
           actual: 0.0312,
+          construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
           expected: 0.0124,
           loop_name: "SN2",
@@ -231,12 +196,14 @@ export default {
 
         {
           actual: 0.0312,
+          construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
           expected: 0.0187,
           loop_name: "SN2",
         },
         {
           actual: 0.0109,
+          construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
           expected: 0,
           loop_name: "SN1",
@@ -244,65 +211,318 @@ export default {
 
         {
           actual: 0.0312,
+          construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
           expected: 0.0279,
           loop_name: "SN2",
         },
         {
           actual: 0.0109,
+          construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
           expected: 0,
           loop_name: "SN1",
+        },
+
+        {
+          actual: 0.0312,
+          construction_status: 2,
+          date_range: "2024-03-03 - 2024-03-09",
+          expected: 0.0414,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0.0109,
+          construction_status: 2,
+          date_range: "2024-03-03 - 2024-03-09",
+          expected: 0,
+          loop_name: "SN1",
+        },
+
+        {
+          actual: 0.0313,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.0605,
+          loop_name: "SN2",
+        },
+        {
+          actual: 0.06,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN1",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
         },
       ], //周數據
       quarterTableData: [
         {
-          actual: 0.0109,
-          date_range: "2024-02-25 - 2024-03-02",
+          actual: 0.0313,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.0605,
+          loop_name: "SN2",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0.06,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
           expected: 0,
           loop_name: "SN1",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
-          actual: 0.0312,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.0279,
-          loop_name: "SN2",
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ], //季數據
       TableData: [
         {
-          actual: 0.0109,
-          date_range: "2024-02-25 - 2024-03-02",
+          actual: 0.0313,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0.0605,
+          loop_name: "SN2",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0.06,
+          construction_status: 2,
+          date_range: "2024-03-10 - 2024-03-16",
           expected: 0,
           loop_name: "SN1",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
-          actual: 0.0312,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.0279,
-          loop_name: "SN2",
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN3",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN4",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN5",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN6",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN7",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN8",
+          year: 2024,
+          quarter: 1,
+          week: 11,
+        },
+        {
+          actual: 0,
+          construction_status: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          expected: 0,
+          loop_name: "SN9",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ],
       currentPage: 1,
       perPage: 3,
+      chartData: {
+        labels: [],
+        datasets: [],
+      },
+      percentageData: [
+        { loop_name: "SN1", percentage: 0.0991 },
+        { loop_name: "SN2", percentage: 0.128 },
+        { loop_name: "SN3", percentage: 0.1145 },
+        { loop_name: "SN4", percentage: 0.1175 },
+        { loop_name: "SN5", percentage: 0.1001 },
+        { loop_name: "SN6", percentage: 0.0808 },
+        { loop_name: "SN7", percentage: 0.1421 },
+        { loop_name: "SN8", percentage: 0.1212 },
+        { loop_name: "SN9", percentage: 0.0968 },
+      ],
     };
   },
-  watch: {},
+  watch: {
+    displayMode() {
+      this.updateChartData();
+    },
+    timeMode() {
+      this.updateChartData();
+    },
+    showDetails() {
+      this.updateChartData();
+    },
+  },
   async created() {
     this.selectedPlan = this.$route.query.Plan;
     this.selectedProject = this.$route.query.Project;
+  },
+  mounted() {
+    this.updateChartData();
   },
   computed: {
     displayModeText() {
@@ -346,19 +566,47 @@ export default {
       return Math.ceil(totalItems / this.perPage);
     },
     paginatedData() {
-      const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      const data = this.organizedLoopsData.map((loop) => ({
-        ...loop,
-        date_ranges: loop.date_ranges.slice(start, end),
-      }));
-      console.log(data);
-      return data;
+      this.organizedLoopsData.forEach((loop) => {
+        loop.date_ranges.sort(
+          (a, b) => new Date(b.date_range.split(" - ")[0]) - new Date(a.date_range.split(" - ")[0])
+        );
+      });
+
+      const paginatedEntries = this.organizedLoopsData.map((loop) => {
+        const latestDateRange = [loop.date_ranges[0]];
+
+        let additionalDateRanges = [];
+        if (this.currentPage === 1) {
+          additionalDateRanges = loop.date_ranges.slice(1, 3);
+        } else {
+          const startIndex = 1 + (this.currentPage - 2) * 3 + 2;
+          const endIndex = startIndex + 3;
+          additionalDateRanges = loop.date_ranges.slice(startIndex, endIndex);
+        }
+
+        return {
+          loop_name: loop.loop_name,
+          date_ranges: [...latestDateRange, ...additionalDateRanges],
+        };
+      });
+
+      return paginatedEntries;
     },
     paginatedDateRanges() {
       const start = (this.currentPage - 1) * this.perPage;
       const end = start + this.perPage;
-      return this.allDateRanges.slice(start, end);
+      const dateRanges = this.allDateRanges.sort((a, b) => {
+        return new Date(b.split(" - ")[0]) - new Date(a.split(" - ")[0]);
+      });
+
+      const latestDateRange = dateRanges[0];
+      let paginatedRanges = dateRanges.slice(start, end);
+
+      if (!paginatedRanges.includes(latestDateRange)) {
+        paginatedRanges = [latestDateRange, ...paginatedRanges].slice(0, end - start + 1);
+      }
+
+      return paginatedRanges;
     },
     organizedLoopsData() {
       const organizedData = [];
@@ -376,7 +624,16 @@ export default {
       }
 
       dataSource.forEach((item) => {
-        const { loop_name, date_range, actual, expected, year, quarter, week } = item;
+        const {
+          loop_name,
+          construction_status,
+          date_range,
+          actual,
+          expected,
+          year,
+          quarter,
+          week,
+        } = item;
 
         if (!tempMap.has(loop_name)) {
           tempMap.set(loop_name, { loop_name, date_ranges: [] });
@@ -385,7 +642,7 @@ export default {
         const currentLoop = tempMap.get(loop_name);
         let dateRangeObj = currentLoop.date_ranges.find((dr) => dr.date_range === date_range);
         if (!dateRangeObj) {
-          dateRangeObj = { date_range, records: [], year, quarter, week };
+          dateRangeObj = { date_range, construction_status, records: [], year, quarter, week };
           currentLoop.date_ranges.push(dateRangeObj);
         }
 
@@ -396,7 +653,7 @@ export default {
         value.date_ranges.sort((a, b) => {
           const aDate = new Date(a.date_range.split(" - ")[0]);
           const bDate = new Date(b.date_range.split(" - ")[0]);
-          return aDate - bDate;
+          return bDate - aDate;
         });
         organizedData.push(value);
       });
@@ -405,17 +662,234 @@ export default {
     },
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
     // 切換顯示模式
     toggleDisplayMode() {
-      this.displayMode = this.displayMode === "table" ? "report" : "table";
-      this.showDetails = false;
+      if (this.displayMode === "table") {
+        this.previousTimeMode = this.timeMode;
+        this.previousShowDetails = this.showDetails;
+
+        this.displayMode = "report";
+      } else {
+        this.displayMode = "table";
+
+        this.timeMode = this.previousTimeMode;
+        this.showDetails = this.previousShowDetails;
+      }
     },
     // 切換項目類型
     toggleProjectType() {
       this.projectType = this.projectType === "engineering" ? "bank" : "engineering";
     },
-    formatPercentage(value) {
-      return `${(Number(value) * 100).toFixed(2)}%`;
+    generateChartData() {
+      const currentYear = new Date().getFullYear();
+      const filteredData = this.TableData.filter((item) => item.year === currentYear);
+
+      const uniqueQuarters = new Set(filteredData.map((item) => `Q${item.quarter}`));
+      const labels = Array.from(uniqueQuarters).sort();
+
+      const datasetMap = new Map();
+
+      filteredData.forEach((item) => {
+        const label = `Q${item.quarter}`;
+        const loopName = item.loop_name;
+
+        if (!datasetMap.has(loopName)) {
+          datasetMap.set(loopName, {
+            actual: Array(labels.length).fill(null),
+            expected: Array(labels.length).fill(null),
+          });
+        }
+
+        const loopData = datasetMap.get(loopName);
+
+        const index = labels.indexOf(label);
+        if (index !== -1) {
+          loopData.actual[index] = item.actual * 100;
+          loopData.expected[index] = item.expected * 100;
+        }
+      });
+
+      const colorPairs = [
+        { color: "rgba(255, 99, 132, 0.2)" }, // Red
+        { color: "rgba(75, 192, 192, 0.2)" }, // Green
+        { color: "rgba(255, 206, 86, 0.2)" }, // Yellow
+        { color: "rgba(153, 102, 255, 0.2)" }, // Purple
+        { color: "rgba(255, 159, 64, 0.2)" }, // Orange
+        { color: "rgba(54, 162, 235, 0.2)" }, // Blue
+        { color: "rgba(104, 132, 245, 0.2)" }, // Light blue
+        { color: "rgba(164, 206, 78, 0.2)" }, // Light green
+        { color: "rgba(215, 86, 255, 0.2)" }, // Magenta
+      ];
+      let colorIndex = 0;
+
+      const datasets = [];
+      datasetMap.forEach((data, loopName) => {
+        const color = colorPairs[colorIndex++ % colorPairs.length].color;
+        datasets.push({
+          label: `${loopName} Actual`,
+          data: data.actual,
+          backgroundColor: color,
+          borderColor: color.replace("0.2", "1"),
+          borderWidth: 5,
+        });
+        datasets.push({
+          label: `${loopName} Expected`,
+          data: data.expected,
+          backgroundColor: color,
+          borderColor: color.replace("0.2", "1"),
+          borderDash: [5, 5],
+        });
+      });
+
+      return {
+        labels,
+        datasets,
+      };
+    },
+    generateyearChartData() {
+      const currentYear = new Date().getFullYear();
+      const filteredData = this.quarterTableData.filter((item) => item.year === currentYear);
+
+      const labels = [
+        ...new Set(filteredData.map((item) => `${item.year}Q${item.quarter}`)),
+      ].sort();
+
+      const datasetMap = new Map();
+
+      filteredData.forEach((item) => {
+        const label = `${item.year}Q${item.quarter}`;
+        const loopName = item.loop_name;
+
+        if (!datasetMap.has(loopName)) {
+          datasetMap.set(loopName, {
+            actual: Array(labels.length).fill(null),
+            expected: Array(labels.length).fill(null),
+          });
+        }
+
+        const loopData = datasetMap.get(loopName);
+
+        const index = labels.indexOf(label);
+        if (index !== -1) {
+          loopData.actual[index] = item.actual * 100;
+          loopData.expected[index] = item.expected * 100;
+        }
+      });
+
+      const colorPairs = [
+        { color: "rgba(255, 99, 132, 0.2)" }, // Red
+        { color: "rgba(75, 192, 192, 0.2)" }, // Green
+        { color: "rgba(255, 206, 86, 0.2)" }, // Yellow
+        { color: "rgba(153, 102, 255, 0.2)" }, // Purple
+        { color: "rgba(255, 159, 64, 0.2)" }, // Orange
+        { color: "rgba(54, 162, 235, 0.2)" }, // Blue
+        { color: "rgba(104, 132, 245, 0.2)" }, // Light blue
+        { color: "rgba(164, 206, 78, 0.2)" }, // Light green
+        { color: "rgba(215, 86, 255, 0.2)" }, // Magenta
+      ];
+      let colorIndex = 0;
+
+      const datasets = [];
+      datasetMap.forEach((data, loopName) => {
+        const color = colorPairs[colorIndex++ % colorPairs.length].color;
+        datasets.push({
+          label: `${loopName} Actual`,
+          data: data.actual,
+          backgroundColor: color,
+          borderColor: color.replace("0.2", "1"),
+          borderWidth: 5,
+        });
+        datasets.push({
+          label: `${loopName} Expected`,
+          data: data.expected,
+          backgroundColor: color,
+          borderColor: color.replace("0.2", "1"),
+          borderDash: [5, 5],
+        });
+      });
+
+      return {
+        labels,
+        datasets,
+      };
+    },
+    generatedaterangeChartData() {
+      const currentYear = new Date().getFullYear();
+      const filteredData = this.weekTableData;
+
+      const labels = [...new Set(filteredData.map((item) => item.date_range))].sort();
+
+      const datasetMap = new Map();
+
+      filteredData.forEach((item) => {
+        const label = item.date_range;
+        const loopName = item.loop_name;
+
+        if (!datasetMap.has(loopName)) {
+          datasetMap.set(loopName, {
+            actual: Array(labels.length).fill(null),
+            expected: Array(labels.length).fill(null),
+          });
+        }
+
+        const loopData = datasetMap.get(loopName);
+        const index = labels.indexOf(label);
+        if (index !== -1) {
+          loopData.actual[index] = item.actual * 100;
+          loopData.expected[index] = item.expected * 100;
+        }
+      });
+
+      const colorPairs = [
+        { color: "rgba(255, 99, 132, 0.2)" }, // Red
+        { color: "rgba(75, 192, 192, 0.2)" }, // Green
+        { color: "rgba(255, 206, 86, 0.2)" }, // Yellow
+        { color: "rgba(153, 102, 255, 0.2)" }, // Purple
+        { color: "rgba(255, 159, 64, 0.2)" }, // Orange
+        { color: "rgba(54, 162, 235, 0.2)" }, // Blue
+        { color: "rgba(104, 132, 245, 0.2)" }, // Light blue
+        { color: "rgba(164, 206, 78, 0.2)" }, // Light green
+        { color: "rgba(215, 86, 255, 0.2)" }, // Magenta
+      ];
+      let colorIndex = 0;
+
+      const datasets = [];
+      datasetMap.forEach((data, loopName) => {
+        const color = colorPairs[colorIndex++ % colorPairs.length].color;
+        datasets.push({
+          label: `${loopName} Actual`,
+          data: data.actual,
+          backgroundColor: color,
+          borderColor: color.replace("0.2", "1"),
+          borderWidth: 5,
+        });
+        datasets.push({
+          label: `${loopName} Expected`,
+          data: data.expected,
+          backgroundColor: color,
+          borderColor: color.replace("0.2", "1"),
+          borderDash: [5, 5],
+        });
+      });
+
+      return {
+        labels,
+        datasets,
+      };
+    },
+    updateChartData() {
+      if (!this.showDetails) {
+        this.chartData = this.generateChartData();
+      } else {
+        if (this.timeMode === "quarter") {
+          this.chartData = this.generateyearChartData();
+        } else if (this.timeMode === "week") {
+          this.chartData = this.generatedaterangeChartData();
+        }
+      }
     },
   },
 };

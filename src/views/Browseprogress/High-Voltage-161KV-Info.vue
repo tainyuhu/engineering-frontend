@@ -2,7 +2,7 @@
   <v-container>
     <!-- 標題 -->
     <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-      <v-icon color="blue">mdi-chevron-right-box</v-icon>
+      <v-icon color="blue" @click="goBack">mdi-chevron-left-box</v-icon>
       <span class="font-weight-bold ml-2">瀏覽161KV工程進度：</span>
     </div>
 
@@ -33,14 +33,34 @@
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
         >
-        <v-btn class="overview-btn" rounded="0" @click="showDetails = false">即時</v-btn>
-        <v-btn class="details-btn" rounded="0" @click="showDetails = true">詳情</v-btn>
+        <v-btn
+          class="overview-btn"
+          :class="{ 'btn-active': !showDetails }"
+          rounded="0"
+          variant="outlined"
+          @click="showDetails = false"
+        >
+          即時
+        </v-btn>
+        <v-btn
+          class="details-btn"
+          :class="{ 'btn-active': showDetails }"
+          rounded="0"
+          variant="outlined"
+          @click="showDetails = true"
+        >
+          詳情
+        </v-btn>
       </div>
     </div>
 
     <!-- 周數據展示 -->
     <div class="div-container" v-if="timeMode === 'week' && showDetails && displayMode === 'table'">
-      <WeekLoopTable :allDateRanges="paginatedDateRanges" :weekTableData="paginatedData" />
+      <WeekLoopTable
+        :allDateRanges="paginatedDateRanges"
+        :weekTableData="paginatedData"
+        :percentagedata="percentageData"
+      />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
 
@@ -53,6 +73,7 @@
         :allDateRanges="paginatedDateRanges"
         :quarterSummary="quarterSummary"
         :quarterTableData="paginatedData"
+        :percentagedata="percentageData"
       />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
@@ -63,6 +84,7 @@
         :allDateRanges="paginatedDateRanges"
         :quarterSummary="quarterSummary"
         :TableData="paginatedData"
+        :percentagedata="percentageData"
       />
       <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
     </div>
@@ -119,12 +141,14 @@ export default {
         {
           actual: 1,
           date_range: "2024-01-07 - 2024-01-13",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-01-07 - 2024-01-13",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
         },
@@ -132,12 +156,14 @@ export default {
         {
           actual: 1,
           date_range: "2024-01-14 - 2024-01-20",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-01-14 - 2024-01-20",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
         },
@@ -145,12 +171,14 @@ export default {
         {
           actual: 1,
           date_range: "2024-01-21 - 2024-01-27",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-01-21 - 2024-01-27",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
         },
@@ -158,12 +186,14 @@ export default {
         {
           actual: 1,
           date_range: "2024-01-28 - 2024-02-03",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-01-28 - 2024-02-03",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
         },
@@ -171,12 +201,14 @@ export default {
         {
           actual: 1,
           date_range: "2024-02-04 - 2024-02-10",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-02-04 - 2024-02-10",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
         },
@@ -184,12 +216,14 @@ export default {
         {
           actual: 1,
           date_range: "2024-02-11 - 2024-02-17",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-02-11 - 2024-02-17",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
         },
@@ -197,12 +231,14 @@ export default {
         {
           actual: 1,
           date_range: "2024-02-18 - 2024-02-24",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-02-18 - 2024-02-24",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
         },
@@ -210,54 +246,117 @@ export default {
         {
           actual: 1,
           date_range: "2024-02-25 - 2024-03-02",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
         },
         {
           actual: 1,
           date_range: "2024-02-25 - 2024-03-02",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
+        },
+
+        {
+          actual: 1,
+          date_range: "2024-03-03 - 2024-03-09",
+          construction_status: 2,
+          expected: 1,
+          loop_name: "主變壓器 (#TR3, #TR4)",
+        },
+        {
+          actual: 1,
+          date_range: "2024-03-03 - 2024-03-09",
+          construction_status: 2,
+          expected: 1,
+          loop_name: "台電要求之50+2卸載設備",
+        },
+
+        {
+          actual: 1,
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 2,
+          expected: 1,
+          loop_name: "主變壓器 (#TR3, #TR4)",
+        },
+        {
+          actual: 1,
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 2,
+          expected: 1,
+          loop_name: "台電要求之50+2卸載設備",
+        },
+        {
+          actual: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 0,
+          expected: 0,
+          loop_name: "管理中心及勤務中心",
         },
       ], //周數據
       quarterTableData: [
         {
           actual: 1,
-          date_range: "2024-02-25 - 2024-03-02",
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
           actual: 1,
-          date_range: "2024-02-25 - 2024-03-02",
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 0,
+          expected: 0,
+          loop_name: "管理中心及勤務中心",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ], //季數據
       TableData: [
         {
           actual: 1,
-          date_range: "2024-02-25 - 2024-03-02",
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 2,
           expected: 1,
           loop_name: "主變壓器 (#TR3, #TR4)",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
         },
         {
           actual: 1,
-          date_range: "2024-02-25 - 2024-03-02",
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 2,
           expected: 1,
           loop_name: "台電要求之50+2卸載設備",
           year: 2024,
           quarter: 1,
-          week: 9,
+          week: 11,
+        },
+        {
+          actual: 0,
+          date_range: "2024-03-10 - 2024-03-16",
+          construction_status: 0,
+          expected: 0,
+          loop_name: "管理中心及勤務中心",
+          year: 2024,
+          quarter: 1,
+          week: 11,
         },
       ],
       currentPage: 1,
@@ -266,6 +365,11 @@ export default {
         labels: [],
         datasets: [],
       },
+      percentageData: [
+        { loop_name: "台電要求之50+2卸載設備", percentage: 0.025062657 },
+        { loop_name: "主變壓器 (#TR3, #TR4)", percentage: 0.306599833 },
+        { loop_name: "管理中心及勤務中心", percentage: 0.66833751 },
+      ],
     };
   },
   watch: {
@@ -328,19 +432,48 @@ export default {
       return Math.ceil(totalItems / this.perPage);
     },
     paginatedData() {
-      const start = (this.currentPage - 1) * this.perPage;
-      const end = start + this.perPage;
-      const data = this.organizedLoopsData.map((loop) => ({
-        ...loop,
-        date_ranges: loop.date_ranges.slice(start, end),
-      }));
-      console.log(data);
-      return data;
+      // 确保每个 LOOP_NAME 的 date_ranges 按日期降序排序
+      this.organizedLoopsData.forEach((loop) => {
+        loop.date_ranges.sort(
+          (a, b) => new Date(b.date_range.split(" - ")[0]) - new Date(a.date_range.split(" - ")[0])
+        );
+      });
+
+      const paginatedEntries = this.organizedLoopsData.map((loop) => {
+        const latestDateRange = [loop.date_ranges[0]];
+
+        let additionalDateRanges = [];
+        if (this.currentPage === 1) {
+          additionalDateRanges = loop.date_ranges.slice(1, 3);
+        } else {
+          const startIndex = 1 + (this.currentPage - 2) * 3 + 2;
+          const endIndex = startIndex + 3;
+          additionalDateRanges = loop.date_ranges.slice(startIndex, endIndex);
+        }
+
+        return {
+          loop_name: loop.loop_name,
+          date_ranges: [...latestDateRange, ...additionalDateRanges],
+        };
+      });
+
+      return paginatedEntries;
     },
     paginatedDateRanges() {
       const start = (this.currentPage - 1) * this.perPage;
       const end = start + this.perPage;
-      return this.allDateRanges.slice(start, end);
+      const dateRanges = this.allDateRanges.sort((a, b) => {
+        return new Date(b.split(" - ")[0]) - new Date(a.split(" - ")[0]);
+      });
+
+      const latestDateRange = dateRanges[0];
+      let paginatedRanges = dateRanges.slice(start, end);
+
+      if (!paginatedRanges.includes(latestDateRange)) {
+        paginatedRanges = [latestDateRange, ...paginatedRanges].slice(0, end - start + 1);
+      }
+
+      return paginatedRanges;
     },
     organizedLoopsData() {
       const organizedData = [];
@@ -358,7 +491,16 @@ export default {
       }
 
       dataSource.forEach((item) => {
-        const { loop_name, date_range, actual, expected, year, quarter, week } = item;
+        const {
+          loop_name,
+          construction_status,
+          date_range,
+          actual,
+          expected,
+          year,
+          quarter,
+          week,
+        } = item;
 
         if (!tempMap.has(loop_name)) {
           tempMap.set(loop_name, { loop_name, date_ranges: [] });
@@ -367,7 +509,7 @@ export default {
         const currentLoop = tempMap.get(loop_name);
         let dateRangeObj = currentLoop.date_ranges.find((dr) => dr.date_range === date_range);
         if (!dateRangeObj) {
-          dateRangeObj = { date_range, records: [], year, quarter, week };
+          dateRangeObj = { date_range, construction_status, records: [], year, quarter, week };
           currentLoop.date_ranges.push(dateRangeObj);
         }
 
@@ -378,7 +520,7 @@ export default {
         value.date_ranges.sort((a, b) => {
           const aDate = new Date(a.date_range.split(" - ")[0]);
           const bDate = new Date(b.date_range.split(" - ")[0]);
-          return aDate - bDate;
+          return bDate - aDate;
         });
         organizedData.push(value);
       });
@@ -387,6 +529,9 @@ export default {
     },
   },
   methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
     // 切換顯示模式
     toggleDisplayMode() {
       if (this.displayMode === "table") {
