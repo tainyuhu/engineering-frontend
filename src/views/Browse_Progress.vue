@@ -23,7 +23,7 @@
       ></v-select>
     </div>
 
-    <div v-if="selectedPlan !== 3">
+    <div v-if="selectedPlan !== 3 && selectedPlan !== 4">
       <v-row v-if="selectedPlan && filteredProjects.length > 0" class="project-cards-row">
         <v-col cols="12">
           <v-card class="project-card" color="indigo-accent-2" dark>
@@ -131,8 +131,125 @@
         </v-col>
       </v-row>
 
-      <v-row v-else-if="selectedPlan">
-        <p>此計畫沒有其他專案項目。</p>
+      <v-row v-else-if="selectedPlan" justify="center">
+        <v-col cols="12">
+          <v-alert
+            style="margin: 10px 20px"
+            title="該計畫沒有其他專案項目。"
+            type="warning"
+          ></v-alert>
+          <v-alert
+            style="margin: 10px 20px"
+            title="請選擇其他計畫。"
+            type="info"
+            variant="outlined"
+            prominent
+          ></v-alert>
+        </v-col>
+      </v-row>
+    </div>
+
+    <div v-else-if="selectedPlan == 4">
+      <v-row v-if="selectedPlan && filteredProjects.length > 0" class="project-cards-row">
+        <v-col
+          v-for="project in filteredProjects"
+          :key="project.project_id"
+          cols="12"
+          sm="6"
+          md="4"
+        >
+          <v-card :color="getProjectCardInfo(project.project_name).color" class="project-card" dark>
+            <v-card-title
+              class="d-flex font-weight-bold flex-column align-items-center justify-content-center card-title-custom"
+            >
+              <v-icon
+                :icon="getProjectCardInfo(project.project_name).icon"
+                class="icon-background mb-2"
+                :color="getProjectCardInfo(project.project_name).color"
+              ></v-icon>
+              {{ getProjectCardInfo(project.project_name).title }}
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-card-actions class="justify-end">
+              <template v-if="project.project_name === '案場'">
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName3,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽總迴路</v-btn
+                >
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName2,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽迴路</v-btn
+                >
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽 PV</v-btn
+                >
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName1,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽養殖</v-btn
+                >
+              </template>
+              <template v-else>
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽</v-btn
+                >
+              </template>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <v-row v-else-if="selectedPlan" justify="center">
+        <v-col cols="12">
+          <v-alert
+            style="margin: 10px 20px"
+            title="該計畫沒有其他專案項目。"
+            type="warning"
+          ></v-alert>
+          <v-alert
+            style="margin: 10px 20px"
+            title="請選擇其他計畫。"
+            type="info"
+            variant="outlined"
+            prominent
+          ></v-alert>
+        </v-col>
       </v-row>
     </div>
 
@@ -198,8 +315,21 @@
         </v-col>
       </v-row>
 
-      <v-row v-else-if="selectedPlan">
-        <p>此計畫沒有其他專案項目。</p>
+      <v-row v-else-if="selectedPlan" justify="center">
+        <v-col cols="12">
+          <v-alert
+            style="margin: 10px 20px"
+            title="該計畫沒有其他專案項目。"
+            type="warning"
+          ></v-alert>
+          <v-alert
+            style="margin: 10px 20px"
+            title="請選擇其他計畫。"
+            type="info"
+            variant="outlined"
+            prominent
+          ></v-alert>
+        </v-col>
       </v-row>
     </div>
   </v-container>
@@ -303,6 +433,12 @@ export default {
           color: "#38ada9",
           icon: "mdi-sprinkler-variant",
           routeName: "Booster_Station_Progress",
+        },
+        其他: {
+          title: "工程進度",
+          color: "#827717",
+          icon: "mdi-help-box",
+          routeName: "Other_Progress",
         },
       };
       return projectInfo[projectName] || {};

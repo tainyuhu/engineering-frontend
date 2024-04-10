@@ -210,10 +210,10 @@ const routes = [
     meta: { requiresAuth: true, allowedGroups: ["admin", "power_user", "user", "test"] },
   },
   {
-    // PV
-    path: "/Project_PV",
-    name: "Project_PV",
-    component: loadBrowseProgressView("Project_PV"),
+    // 其他進度
+    path: "/Other_Progress",
+    name: "Other_Progress",
+    component: loadBrowseProgressView("Other_Progress"),
     meta: { requiresAuth: true, allowedGroups: ["admin", "power_user", "user", "test"] },
   },
   {

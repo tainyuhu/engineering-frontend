@@ -20,7 +20,7 @@
     </div>
 
     <!-- 功能列 -->
-    <div class="select-container">
+    <!-- <div class="select-container">
       <v-select
         v-model="filterStatus"
         :items="['All', 'Active', 'Expired', 'Not Started']"
@@ -30,91 +30,107 @@
         density="compact"
         variant="solo"
       ></v-select>
-    </div>
+    </div> -->
 
-    <!-- 卡片 -->
-    <v-row justify="center">
-      <v-col cols="12" md="10">
-        <v-row>
-          <v-col cols="12" md="3" v-for="(planGroup, index) in filteredPlanGroups" :key="index">
-            <v-card class="mb-5 card-shadow" :color="getColor(planGroup.status)" elevation="2">
-              <v-card-title class="d-flex justify-space-between align-center">
-                <span class="plan-title">{{ planGroup.name }}</span>
-                <v-chip :color="getMasterProgressColor(planGroup.progress)" variant="flat">
-                  {{ planGroup.progress }}%
-                </v-chip>
-                <v-btn variant="tonal" color="white" @click="goToDetails(planGroup)">
-                  <v-icon style="margin-right: 5px">mdi-file-document-outline</v-icon>
-                  查看
-                </v-btn>
-              </v-card-title>
-              <v-divider></v-divider>
-              <v-card-text class="white-background">
-                <v-carousel height="250" hide-delimiters>
-                  <template v-slot:prev="{ props }">
-                    <v-btn
-                      density="compact"
-                      :color="getColor(planGroup.status)"
-                      variant="text"
-                      @click="props.onClick"
-                      icon="mdi-chevron-left"
-                    ></v-btn>
-                  </template>
-                  <template v-slot:next="{ props }">
-                    <v-btn
-                      density="compact"
-                      :color="getColor(planGroup.status)"
-                      variant="text"
-                      @click="props.onClick"
-                      icon="mdi-chevron-right"
-                    ></v-btn>
-                  </template>
-                  <v-carousel-item v-for="(project, pIndex) in planGroup.projects" :key="pIndex">
-                    <div class="project-container d-flex flex-row flex-wrap justify-center">
-                      <div class="project-item">
-                        <div class="project-title font-weight-bold">
-                          <v-icon style="margin-right: 5px" :color="getColor(planGroup.status)">
-                            mdi-file-table-box
-                          </v-icon>
-                          <span>{{ project.name }}</span>
-                        </div>
-                        <v-progress-circular
-                          class="progress-circular"
-                          :size="100"
-                          :width="12"
-                          :model-value="project.progress"
-                          :color="getProgressColor(project.progress)"
-                        >
-                          <span class="progress-text">{{ project.progress }}%</span>
-                        </v-progress-circular>
-                        <v-btn
-                          variant="tonal"
-                          block
-                          :color="getColor(planGroup.status)"
-                          @click="goToDetail(project)"
-                          style="margin-top: 10px"
-                        >
-                          瀏覽
-                        </v-btn>
+    <v-sheet class="mx-auto sheet-card" max-width="99%">
+      <v-slide-group>
+        <v-slide-item v-for="(planGroup, index) in filteredPlanGroups" :key="index">
+          <v-card class="mb-5 card-shadow" :color="getColor(planGroup.status)">
+            <v-card-title class="d-flex justify-space-between align-center">
+              <span class="plan-title">{{ planGroup.name }}</span>
+              <v-chip
+                style="margin-left: 5px"
+                :color="getMasterProgressColor(planGroup.progress)"
+                variant="flat"
+              >
+                {{ planGroup.progress }}%
+              </v-chip>
+              <v-btn
+                style="margin-left: 5px"
+                variant="tonal"
+                size="small"
+                color="white"
+                @click="goToDetails(planGroup)"
+              >
+                查看
+              </v-btn>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-card-text class="white-background">
+              <v-carousel height="250" hide-delimiters>
+                <template v-slot:prev="{ props }">
+                  <v-btn
+                    density="compact"
+                    :color="getColor(planGroup.status)"
+                    variant="text"
+                    @click="props.onClick"
+                    icon="mdi-chevron-left"
+                  ></v-btn>
+                </template>
+                <template v-slot:next="{ props }">
+                  <v-btn
+                    density="compact"
+                    :color="getColor(planGroup.status)"
+                    variant="text"
+                    @click="props.onClick"
+                    icon="mdi-chevron-right"
+                  ></v-btn>
+                </template>
+                <v-carousel-item v-for="(project, pIndex) in planGroup.projects" :key="pIndex">
+                  <div class="project-container d-flex flex-row flex-wrap justify-center">
+                    <div class="project-item">
+                      <div class="project-title font-weight-bold">
+                        <v-icon style="margin-right: 5px" :color="getColor(planGroup.status)">
+                          mdi-file-table-box
+                        </v-icon>
+                        <span>{{ project.name }}</span>
                       </div>
+                      <v-progress-circular
+                        class="progress-circular"
+                        :size="100"
+                        :width="12"
+                        :model-value="project.progress"
+                        :color="getProgressColor(project.progress)"
+                      >
+                        <span class="progress-text">{{ project.progress }}%</span>
+                      </v-progress-circular>
+                      <v-btn
+                        variant="tonal"
+                        block
+                        :color="getColor(planGroup.status)"
+                        @click="goToDetail(project)"
+                        style="margin-top: 10px"
+                      >
+                        瀏覽
+                      </v-btn>
                     </div>
-                  </v-carousel-item>
-                </v-carousel>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
+                  </div>
+                </v-carousel-item>
+              </v-carousel>
+            </v-card-text>
+          </v-card>
+        </v-slide-item>
+      </v-slide-group>
+    </v-sheet>
+
+    <div class="detail-card" v-if="selectedPlanGroup">
+      <masterProgressTable :plan-group="selectedPlanGroup"></masterProgressTable>
+    </div>
   </v-container>
 </template>
 
 <script>
+import masterProgressTable from "@/components/table/masterProgressTable.vue";
+
 export default {
+  components: {
+    masterProgressTable,
+  },
   data() {
     return {
       filterStatus: "All",
       searchText: null,
+      selectedPlanGroup: null,
       planGroups: [
         {
           master_id: 1,
@@ -157,9 +173,13 @@ export default {
       return "white";
     },
     goToDetails(planGroup) {
-      this.$router.push({
-        name: "Master_Progress",
-        query: { planId: planGroup.master_id },
+      this.selectedPlanGroup = planGroup;
+      this.$nextTick(() => {
+        const detailsElement = this.$el.querySelector(".detail-card");
+        if (detailsElement) {
+          const elementPosition = detailsElement.getBoundingClientRect().top + window.scrollY - 65;
+          window.scrollTo({ top: elementPosition, behavior: "smooth" });
+        }
       });
     },
     goToDetail(project) {
@@ -209,7 +229,23 @@ export default {
 }
 
 .card-shadow {
+  margin: 10px;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sheet-card {
+  background-color: white;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.detail-card {
+  background-color: white;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  border-radius: 5px;
+  padding: 10px;
 }
 
 .white-background {
@@ -218,7 +254,7 @@ export default {
 
 .plan-title {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .project-container {

@@ -136,6 +136,8 @@ export default {
       timeMode: "week",
       displayMode: "table",
       projectType: "engineering",
+      selectedPlan: null, //所選中計畫
+      selectedProject: null,
       showDetails: false,
       weekTableData: [
         {
@@ -663,7 +665,10 @@ export default {
   },
   methods: {
     goBack() {
-      this.$router.go(-1);
+      this.$router.push({
+        name: "Browse_Progress",
+        query: { planId: this.selectedPlan },
+      });
     },
     // 切換顯示模式
     toggleDisplayMode() {

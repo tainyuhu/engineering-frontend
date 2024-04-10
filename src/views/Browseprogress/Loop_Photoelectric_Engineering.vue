@@ -185,6 +185,7 @@ export default {
       cases: [],
       selectedProject: [],
       selectedPlan: null, //所選中計畫
+      selectedProject: null,
       selectedLoopId: null, //所選中之迴路
       timeMode: "week",
       displayMode: "table",
@@ -344,7 +345,10 @@ export default {
   },
   methods: {
     goBack() {
-      this.$router.go(-1);
+      this.$router.push({
+        name: "Browse_Progress",
+        query: { planId: this.selectedPlan },
+      });
     },
     toggleDisplayMode() {
       if (this.displayMode === "table") {

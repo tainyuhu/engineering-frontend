@@ -159,6 +159,8 @@ export default {
       })),
       progress: null,
       progressDialog: false,
+      selectedPlan: null, //所選中計畫
+      selectedProject: null,
       showInstructionsDialog: false,
       steps: {
         第一步驟_併聯審查意見書: 5,
@@ -272,9 +274,16 @@ export default {
       ],
     };
   },
+  async created() {
+    this.selectedPlan = this.$route.query.Plan;
+    this.selectedProject = this.$route.query.Project;
+  },
   methods: {
     goBack() {
-      this.$router.go(-1);
+      this.$router.push({
+        name: "Browse_Progress",
+        query: { planId: this.selectedPlan },
+      });
     },
     showStepInstructions() {
       this.showInstructionsDialog = true;

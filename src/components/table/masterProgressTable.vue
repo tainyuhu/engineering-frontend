@@ -1,121 +1,119 @@
 <template>
-  <v-container>
-    <!-- 標題 -->
-    <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-      <v-icon color="blue" @click="goBack">mdi-chevron-left-box</v-icon>
-      <span class="font-weight-bold ml-2">瀏覽管理總表工程進度：</span>
+  <!-- 標題 -->
+  <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
+    <v-icon color="orange">mdi-chevron-right-box</v-icon>
+    <span class="font-weight-bold ml-2">瀏覽Re-financing工程進度：</span>
+  </div>
+
+  <!-- 功能列 -->
+  <div class="function-row">
+    <!-- 第一個區塊 -->
+    <div class="status-and-page-size-selector">
+      <span>狀態：</span>
+      <v-btn
+        :class="displayMode === 'table' ? 'report-btn' : 'table-btn'"
+        @click="toggleDisplayMode"
+        >{{ displayModeText }}</v-btn
+      >
     </div>
 
-    <!-- 功能列 -->
-    <div class="function-row">
-      <!-- 第一個區塊 -->
-      <div class="status-and-page-size-selector">
-        <span>狀態：</span>
-        <v-btn
-          :class="displayMode === 'table' ? 'report-btn' : 'table-btn'"
-          @click="toggleDisplayMode"
-          >{{ displayModeText }}</v-btn
-        >
-      </div>
-
-      <!-- 第二個區塊 -->
-      <div v-if="showDetails" class="py-2 d-flex justify-center">
-        <v-btn-toggle mandatory v-model="timeMode" class="time-toggle" variant="outlined">
-          <v-btn class="time-btn" value="quarter">季</v-btn>
-          <v-btn class="time-btn" value="week">週</v-btn>
-        </v-btn-toggle>
-      </div>
-
-      <!-- 第三個區塊 -->
-      <div>
-        <v-btn
-          :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
-          @click="toggleProjectType"
-          >{{ projectTypeText }}</v-btn
-        >
-        <v-btn
-          class="overview-btn"
-          :class="{ 'btn-active': !showDetails }"
-          rounded="0"
-          variant="outlined"
-          @click="showDetails = false"
-        >
-          即時
-        </v-btn>
-        <v-btn
-          class="details-btn"
-          :class="{ 'btn-active': showDetails }"
-          rounded="0"
-          variant="outlined"
-          @click="showDetails = true"
-        >
-          詳情
-        </v-btn>
-      </div>
+    <!-- 第二個區塊 -->
+    <div v-if="showDetails && displayMode === 'table'" class="py-2 d-flex justify-center">
+      <v-btn-toggle mandatory v-model="timeMode" class="time-toggle" variant="outlined">
+        <v-btn class="time-btn" value="quarter">季</v-btn>
+        <v-btn class="time-btn" value="week">週</v-btn>
+      </v-btn-toggle>
     </div>
 
-    <!-- 周數據展示 -->
-    <div class="div-container" v-if="timeMode === 'week' && showDetails && displayMode === 'table'">
-      <WeekProjectTable
-        :allDateRanges="paginatedDateRanges"
-        :weekTableData="paginatedData"
-        :percentagedata="percentageData"
-      />
-      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+    <!-- 第三個區塊 -->
+    <div v-if="displayMode === 'table'">
+      <v-btn
+        :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
+        @click="toggleProjectType"
+        >{{ projectTypeText }}</v-btn
+      >
+      <v-btn
+        class="overview-btn"
+        :class="{ 'btn-active': !showDetails }"
+        rounded="0"
+        variant="outlined"
+        @click="showDetails = false"
+      >
+        即時
+      </v-btn>
+      <v-btn
+        class="details-btn"
+        :class="{ 'btn-active': showDetails }"
+        rounded="0"
+        variant="outlined"
+        @click="showDetails = true"
+      >
+        詳情
+      </v-btn>
     </div>
+  </div>
 
-    <!-- 季數據展示 -->
-    <div
-      class="div-container"
-      v-if="timeMode === 'quarter' && showDetails && displayMode === 'table'"
-    >
-      <AllQuarterProjectTable
-        :allDateRanges="paginatedDateRanges"
-        :quarterSummary="quarterSummary"
-        :quarterTableData="paginatedData"
-        :percentagedata="percentageData"
-      />
-      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
-    </div>
+  <!-- 周數據展示 -->
+  <div class="div-container" v-if="timeMode === 'week' && showDetails && displayMode === 'table'">
+    <WeekProjectTable
+      :allDateRanges="paginatedDateRanges"
+      :weekTableData="paginatedData"
+      :percentagedata="percentageData"
+    />
+    <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+  </div>
 
-    <!-- 即時數據展示 -->
-    <div class="div-container" v-if="!showDetails && displayMode === 'table'">
-      <QuarterProjectTable
-        :allDateRanges="paginatedDateRanges"
-        :quarterSummary="quarterSummary"
-        :TableData="paginatedData"
-        :percentagedata="percentageData"
-      />
-      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
-    </div>
+  <!-- 季數據展示 -->
+  <div
+    class="div-container"
+    v-if="timeMode === 'quarter' && showDetails && displayMode === 'table'"
+  >
+    <AllQuarterProjectTable
+      :allDateRanges="paginatedDateRanges"
+      :quarterSummary="quarterSummary"
+      :quarterTableData="paginatedData"
+      :percentagedata="percentageData"
+    />
+    <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+  </div>
 
-    <!-- 案場即時報表展示 -->
-    <div
-      class="div-container report-container"
-      v-if="displayMode === 'report' && !showDetails"
-      style="background-color: white; display: flex; height: 100%"
-    >
-      <SiteSelectionChart :chartData="chartData" />
-    </div>
+  <!-- 即時數據展示 -->
+  <div class="div-container" v-if="!showDetails && displayMode === 'table'">
+    <QuarterProjectTable
+      :allDateRanges="paginatedDateRanges"
+      :quarterSummary="quarterSummary"
+      :TableData="paginatedData"
+      :percentagedata="percentageData"
+    />
+    <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+  </div>
 
-    <!-- 案場所有季報表展示 -->
-    <div
-      class="div-container report-container"
-      v-if="displayMode === 'report' && showDetails && timeMode === 'quarter'"
-      style="background-color: white; display: flex; height: 100%"
-    >
-      <SiteSelectionChart :chartData="chartData" />
-    </div>
+  <!-- 案場即時報表展示 -->
+  <div
+    class="div-container report-container"
+    v-if="displayMode === 'report' && !showDetails"
+    style="background-color: white; display: flex; height: 100%"
+  >
+    <SiteSelectionChart :chartData="chartData" />
+  </div>
 
-    <!-- 案場所有周報表展示 -->
-    <div
-      class="div-container report-container"
-      v-if="displayMode === 'report' && showDetails && timeMode === 'week'"
-      style="background-color: white; display: flex; height: 100%"
-    >
-      <SiteSelectionChart :chartData="chartData" />
-    </div>
-  </v-container>
+  <!-- 案場所有季報表展示 -->
+  <div
+    class="div-container report-container"
+    v-if="displayMode === 'report' && showDetails && timeMode === 'quarter'"
+    style="background-color: white; display: flex; height: 100%"
+  >
+    <SiteSelectionChart :chartData="chartData" />
+  </div>
+
+  <!-- 案場所有周報表展示 -->
+  <div
+    class="div-container report-container"
+    v-if="displayMode === 'report' && showDetails && timeMode === 'week'"
+    style="background-color: white; display: flex; height: 100%"
+  >
+    <SiteSelectionChart :chartData="chartData" />
+  </div>
 </template>
 
 <script>
@@ -125,6 +123,7 @@ import AllQuarterProjectTable from "@/components/table/allQuarterProjectTable.vu
 import QuarterProjectTable from "@/components/table/quarterProjectTable.vue";
 
 export default {
+  props: ["planGroup"],
   components: {
     SiteSelectionChart,
     WeekProjectTable,
@@ -136,359 +135,277 @@ export default {
       timeMode: "week",
       displayMode: "table",
       projectType: "engineering",
-      selectedPlan: null, //所選中計畫
-      selectedProject: null, //所選中之迴路
       showDetails: false,
       weekTableData: [
         {
-          actual: 0.3317,
+          actual: 0.8257,
           construction_status: 2,
           date_range: "2023-12-30 - 2024-01-06",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.75,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0007,
+          actual: 0.0153,
           construction_status: 2,
           date_range: "2023-12-30 - 2024-01-06",
-          expected: 0,
-          project_name: "案場",
+          expected: 0.0093,
+          project_name: "Phase2",
         },
         {
-          actual: 0.1181,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2023-12-30 - 2024-01-06",
-          expected: 0.0095,
-          project_name: "電業申辦",
+          expected: 0.9048,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8342,
           construction_status: 2,
           date_range: "2024-01-07 - 2024-01-13",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.8175,
+          project_name: "Phase1",
         },
         {
-          actual: 0,
+          actual: 0.0153,
           construction_status: 2,
           date_range: "2024-01-07 - 2024-01-13",
-          expected: 0.0054,
-          project_name: "22.8KV",
+          expected: 0.0103,
+          project_name: "Phase2",
         },
         {
-          actual: 0.0007,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-01-07 - 2024-01-13",
-          expected: 0,
-          project_name: "案場",
-        },
-        {
-          actual: 0.1181,
-          construction_status: 2,
-          date_range: "2024-01-07 - 2024-01-13",
-          expected: 0.019,
-          project_name: "電業申辦",
+          expected: 0.95,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8462,
           construction_status: 2,
           date_range: "2024-01-14 - 2024-01-20",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.87,
+          project_name: "Phase1",
         },
         {
-          actual: 0,
+          actual: 0.0175,
           construction_status: 2,
           date_range: "2024-01-14 - 2024-01-20",
-          expected: 0.0108,
-          project_name: "22.8KV",
+          expected: 0.0113,
+          project_name: "Phase2",
         },
         {
-          actual: 0.0033,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-01-14 - 2024-01-20",
-          expected: 0,
-          project_name: "案場",
-        },
-        {
-          actual: 0.1181,
-          construction_status: 2,
-          date_range: "2024-01-14 - 2024-01-20",
-          expected: 0.0286,
-          project_name: "電業申辦",
+          expected: 0.9743,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.863,
           construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.909,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0949,
+          actual: 0.0273,
           construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
-          expected: 0.0162,
-          project_name: "22.8KV",
+          expected: 0.0124,
+          project_name: "Phase2",
         },
         {
-          actual: 0.004,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-01-21 - 2024-01-27",
-          expected: 0,
-          project_name: "案場",
-        },
-        {
-          actual: 0.1181,
-          construction_status: 2,
-          date_range: "2024-01-21 - 2024-01-27",
-          expected: 0.0381,
-          project_name: "電業申辦",
+          expected: 0.987,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8735,
           construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.9372,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0949,
+          actual: 0.0273,
           construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
-          expected: 0.0216,
-          project_name: "22.8KV",
+          expected: 0.0134,
+          project_name: "Phase2",
         },
         {
-          actual: 0.004,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-01-28 - 2024-02-03",
-          expected: 0,
-          project_name: "案場",
-        },
-        {
-          actual: 0.1181,
-          construction_status: 2,
-          date_range: "2024-01-28 - 2024-02-03",
-          expected: 0.0476,
-          project_name: "電業申辦",
+          expected: 0.9935,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8746,
           construction_status: 2,
           date_range: "2024-02-04 - 2024-02-10",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.9571,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0949,
+          actual: 0.0273,
           construction_status: 2,
           date_range: "2024-02-04 - 2024-02-10",
-          expected: 0.027,
-          project_name: "22.8KV",
+          expected: 0.0144,
+          project_name: "Phase2",
         },
         {
-          actual: 0.004,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-02-04 - 2024-02-10",
-          expected: 0,
-          project_name: "案場",
-        },
-        {
-          actual: 0.1181,
-          construction_status: 2,
-          date_range: "2024-02-04 - 2024-02-10",
-          expected: 0.0571,
-          project_name: "電業申辦",
+          expected: 0.9967,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8859,
           construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.9708,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0949,
+          actual: 0.0273,
           construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
-          expected: 0.0324,
-          project_name: "22.8KV",
+          expected: 0.0167,
+          project_name: "Phase2",
         },
         {
-          actual: 0.004,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-02-11 - 2024-02-17",
-          expected: 0.0016,
-          project_name: "案場",
-        },
-        {
-          actual: 0.1181,
-          construction_status: 2,
-          date_range: "2024-02-11 - 2024-02-17",
-          expected: 0.0667,
-          project_name: "電業申辦",
+          expected: 0.9984,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8884,
           construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.9803,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0949,
+          actual: 0.0281,
           construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
-          expected: 0.0378,
-          project_name: "22.8KV",
+          expected: 0.0183,
+          project_name: "Phase2",
         },
         {
-          actual: 0.0051,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-02-18 - 2024-02-24",
-          expected: 0.0024,
-          project_name: "案場",
-        },
-        {
-          actual: 0.1181,
-          construction_status: 2,
-          date_range: "2024-02-18 - 2024-02-24",
-          expected: 0.0762,
-          project_name: "電業申辦",
+          expected: 0.9992,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8925,
           construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.9867,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0964,
+          actual: 0.038,
           construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.0432,
-          project_name: "22.8KV",
+          expected: 0.0203,
+          project_name: "Phase2",
         },
         {
-          actual: 0.0051,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.0036,
-          project_name: "案場",
-        },
-        {
-          actual: 0.3114,
-          construction_status: 2,
-          date_range: "2024-02-25 - 2024-03-02",
-          expected: 0.0857,
-          project_name: "電業申辦",
+          expected: 0.9996,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8932,
           construction_status: 2,
           date_range: "2024-03-03 - 2024-03-09",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.9911,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0964,
+          actual: 0.038,
           construction_status: 2,
           date_range: "2024-03-03 - 2024-03-09",
-          expected: 0.0486,
-          project_name: "22.8KV",
+          expected: 0.0227,
+          project_name: "Phase2",
         },
         {
-          actual: 0.0051,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-03-03 - 2024-03-09",
-          expected: 0.0053,
-          project_name: "案場",
-        },
-        {
-          actual: 0.3114,
-          construction_status: 2,
-          date_range: "2024-03-03 - 2024-03-09",
-          expected: 0.0952,
-          project_name: "電業申辦",
+          expected: 0.9998,
+          project_name: "三小案",
         },
 
         {
-          actual: 0.3317,
+          actual: 0.8944,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.994,
+          project_name: "Phase1",
         },
         {
-          actual: 0.0964,
+          actual: 0.0421,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.054,
-          project_name: "22.8KV",
+          expected: 0.0258,
+          project_name: "Phase2",
         },
         {
-          actual: 0.01,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.0077,
-          project_name: "案場",
-        },
-        {
-          actual: 0.3114,
-          construction_status: 2,
-          date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.1048,
-          project_name: "電業申辦",
+          expected: 0.9999,
+          project_name: "三小案",
         },
       ], //周數據
       quarterTableData: [
         {
-          actual: 0.3317,
+          actual: 0.8944,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.994,
+          project_name: "Phase1",
           year: 2024,
           quarter: 1,
           week: 11,
         },
         {
-          actual: 0.0964,
+          actual: 0.0421,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.054,
-          project_name: "22.8KV",
+          expected: 0.0258,
+          project_name: "Phase2",
           year: 2024,
           quarter: 1,
           week: 11,
         },
         {
-          actual: 0.01,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.0077,
-          project_name: "案場",
-          year: 2024,
-          quarter: 1,
-          week: 11,
-        },
-        {
-          actual: 0.3114,
-          construction_status: 2,
-          date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.1048,
-          project_name: "電業申辦",
+          expected: 0.9999,
+          project_name: "三小案",
           year: 2024,
           quarter: 1,
           week: 11,
@@ -496,41 +413,31 @@ export default {
       ], //季數據
       TableData: [
         {
-          actual: 0.3317,
+          actual: 0.8944,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.3317,
-          project_name: "161KV",
+          expected: 0.994,
+          project_name: "Phase1",
           year: 2024,
           quarter: 1,
           week: 11,
         },
         {
-          actual: 0.0964,
+          actual: 0.0421,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.054,
-          project_name: "22.8KV",
+          expected: 0.0258,
+          project_name: "Phase2",
           year: 2024,
           quarter: 1,
           week: 11,
         },
         {
-          actual: 0.01,
+          actual: 0.972,
           construction_status: 2,
           date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.0077,
-          project_name: "案場",
-          year: 2024,
-          quarter: 1,
-          week: 11,
-        },
-        {
-          actual: 0.3114,
-          construction_status: 2,
-          date_range: "2024-03-10 - 2024-03-16",
-          expected: 0.1048,
-          project_name: "電業申辦",
+          expected: 0.9999,
+          project_name: "三小案",
           year: 2024,
           quarter: 1,
           week: 11,
@@ -543,10 +450,9 @@ export default {
         datasets: [],
       },
       percentageData: [
-        { project_name: "161KV", percentage: 0.0267277017620372 },
-        { project_name: "22.8KV", percentage: 0.0975749550966081 },
-        { project_name: "案場", percentage: 0.825697343141355 },
-        { project_name: "電業申辦", percentage: 0.5 },
+        { project_name: "Phase1", percentage: 0.523622301467742 },
+        { project_name: "Phase2", percentage: 0.463854310305556 },
+        { project_name: "三小案", percentage: 0.0125233882267015 },
       ],
     };
   },
@@ -561,10 +467,10 @@ export default {
       this.updateChartData();
     },
   },
-  async created() {
-    this.selectedPlan = this.$route.query.Plan;
-    this.selectedProject = this.$route.query.Project;
-  },
+  //   async created() {
+  //     this.selectedPlan = this.$route.query.Plan;
+  //     this.selectedProject = this.$route.query.Project;
+  //   },
   computed: {
     displayModeText() {
       return this.displayMode === "table" ? "表格" : "報表";
@@ -703,12 +609,6 @@ export default {
     },
   },
   methods: {
-    goBack() {
-      this.$router.push({
-        name: "Browse_Progress",
-        query: { planId: this.selectedPlan },
-      });
-    },
     // 切換顯示模式
     toggleDisplayMode() {
       if (this.displayMode === "table") {

@@ -73,7 +73,7 @@ export default {
     percentagedata: Array,
   },
   created() {
-    console.log("this.quarterTableData", this.quarterTableData);
+    console.log("quarterTableData", this.quarterTableData);
   },
   methods: {
     formatPercentage(value) {
