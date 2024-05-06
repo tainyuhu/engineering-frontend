@@ -36,6 +36,13 @@
         >
           未開工
         </td>
+        <td
+          v-else-if="shouldDisplayCompleted(item)"
+          :colspan="allDateRanges.length * 2"
+          class="text-center"
+        >
+          已完工
+        </td>
         <template v-else>
           <template v-for="dateRange in allDateRanges">
             <td
@@ -100,6 +107,10 @@ export default {
         item.construction_status === 0 ||
         item.date_ranges.every((dr) => dr.records.every((r) => r.actual === 0 && r.expected === 0))
       );
+    },
+    shouldDisplayCompleted(item) {
+      console.log(item.construction_status);
+      return item.construction_status === 1;
     },
   },
 };

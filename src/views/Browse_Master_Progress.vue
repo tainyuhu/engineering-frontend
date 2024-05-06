@@ -136,10 +136,10 @@ export default {
           master_id: 1,
           name: "總體計畫",
           status: "Active",
-          progress: 49.71,
+          progress: 50.83,
           projects: [
-            { name: "Phase1", progress: 89.25, plan_id: 3 },
-            { name: "Phase2", progress: 3.8, plan_id: 1 },
+            { name: "Phase1", progress: 89.99, plan_id: 3 },
+            { name: "Phase2", progress: 6.13, plan_id: 1 },
             { name: "三小案", progress: 97.2, plan_id: 4 },
           ],
         },
