@@ -168,7 +168,7 @@ import {
   fetchLoopQuarterTableData,
   fetchLoopTableData,
   fetchQuarterChartData,
-  fetchWeekChartData,
+  fetchWeekLoopChartData,
   fetchAllQuarterChartData,
 } from "@/api/pvProjectService";
 
@@ -441,7 +441,7 @@ export default {
             this.projectType
           );
           this.weekTableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchWeekChartData(
+          responsechart = await fetchWeekLoopChartData(
             this.selectedLoopId,
             this.currentPage,
             this.itemsPerPage,
