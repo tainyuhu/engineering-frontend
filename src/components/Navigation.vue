@@ -92,7 +92,11 @@
       </v-list-group>
 
       <!--計劃管理-->
-      <v-list-group v-if="userHasGroup(['admin', 'manager', 'power_user'])" no-action sub-group>
+      <v-list-group
+        v-if="userHasGroup(['admin', 'manager', 'power_user', 'test'])"
+        no-action
+        sub-group
+      >
         <template v-slot:activator="{ props }">
           <v-list-item
             prepend-icon="mdi-calendar-text"
@@ -113,7 +117,11 @@
       </v-list-group>
 
       <!--總體計劃管理-->
-      <v-list-group v-if="userHasGroup(['admin', 'manager', 'power_user'])" no-action sub-group>
+      <v-list-group
+        v-if="userHasGroup(['admin', 'manager', 'power_user', 'test'])"
+        no-action
+        sub-group
+      >
         <template v-slot:activator="{ props }">
           <v-list-item prepend-icon="mdi-sitemap" v-bind="props" title="總體計劃管理"></v-list-item>
         </template>
