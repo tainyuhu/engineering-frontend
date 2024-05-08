@@ -253,7 +253,7 @@ const routes = [
   },
   // 瀏覽文件進度子頁面 loadViewFileProgressView
   {
-    path: "/File_Progress",
+    path: "/File_Progress/:fileId",
     name: "File_Progress",
     component: loadViewFileProgressView("File_Progress"),
     meta: { requiresAuth: true, allowedGroups: ["admin", "power_user", "manager", "test"] },

@@ -279,15 +279,19 @@ export default {
   },
   methods: {
     viewFile(file) {
-      this.$router.push({
-        name: file.routeName,
-        params: { fileId: file.id },
-        query: {
-          fileLink: file.file_link,
-          page: this.page,
-          itemsPerPage: this.itemsPerPage,
-        },
-      });
+      this.$router
+        .push({
+          name: file.routeName,
+          params: { fileId: file.id },
+          query: {
+            fileLink: file.file_link,
+            page: this.page,
+            itemsPerPage: this.itemsPerPage,
+          },
+        })
+        .catch((error) => {
+          console.error("Routing error:", error);
+        });
     },
     async fetchData() {
       try {
