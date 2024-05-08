@@ -104,6 +104,22 @@ const fetchWeekLoopChartData = (loopId, currentPage, itemsPerPage, project_type)
   );
 };
 
+const fetchLoopAllQuarterChartData = (loopId, project_type) => {
+  return apiClient.get(`/api/v1/get_loop_all_quarter_chart_progress/${loopId}/${project_type}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchLoopQuarterChartData = (loopId, project_type) => {
+  return apiClient.get(`/api/v1/get_loop_quarter_chart_progress/${loopId}/${project_type}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
 export {
   fetchWeekTableData,
   fetchQuarterTableData,
@@ -115,4 +131,6 @@ export {
   fetchLoopTableData,
   fetchAllQuarterChartData,
   fetchWeekLoopChartData,
+  fetchLoopAllQuarterChartData,
+  fetchLoopQuarterChartData,
 };

@@ -170,6 +170,8 @@ import {
   fetchQuarterChartData,
   fetchWeekLoopChartData,
   fetchAllQuarterChartData,
+  fetchLoopAllQuarterChartData,
+  fetchLoopQuarterChartData,
 } from "@/api/pvProjectService";
 
 export default {
@@ -430,7 +432,7 @@ export default {
             this.projectType
           );
           this.TableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchQuarterChartData(this.selectedLoopId, this.projectType);
+          responsechart = await fetchLoopQuarterChartData(this.selectedLoopId, this.projectType);
           this.chartData = responsechart.data;
           console.log("chartData", this.chartData);
         } else if (this.showDetails && this.timeMode === "week") {
@@ -457,7 +459,7 @@ export default {
             this.projectType
           );
           this.quarterTableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchAllQuarterChartData(this.selectedLoopId, this.projectType);
+          responsechart = await fetchLoopAllQuarterChartData(this.selectedLoopId, this.projectType);
           this.chartData = responsechart.data;
           console.log("chartData", this.chartData);
         } else {
