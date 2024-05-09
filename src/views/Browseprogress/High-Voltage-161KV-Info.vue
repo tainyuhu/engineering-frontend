@@ -142,6 +142,7 @@ import SiteSelectionChart from "@/components/chart/SiteSelectionChart.vue";
 import WeekLoopTable from "@/components/table/weekLoopTable.vue";
 import AllQuarterLoopTable from "@/components/table/allQuarterLoopTable.vue";
 import QuarterLoopTable from "@/components/table/quarterLoopTable.vue";
+import { fetchGetProjectPercentageDataView } from "@/api/planService";
 import {
   fetchWeekTableData,
   fetchQuarterTableData,
@@ -177,11 +178,7 @@ export default {
         labels: [],
         datasets: [],
       },
-      percentageData: [
-        { loop_name: "台電要求之50+2卸載設備", percentage: 0.025062657 },
-        { loop_name: "主變壓器 (#TR3, #TR4)", percentage: 0.306599833 },
-        { loop_name: "管理中心及勤務中心", percentage: 0.66833751 },
-      ],
+      percentageData: [],
     };
   },
   watch: {
@@ -190,7 +187,6 @@ export default {
     currentPage: "fetchData",
     projectType: "fetchData",
     timeMode: "fetchData",
-    displayMode: "fetchData",
   },
   async created() {
     this.selectedPlan = this.$route.query.Plan;
@@ -323,6 +319,10 @@ export default {
 
         let response;
         let responsechart;
+        let percentageDataresponse;
+
+        percentageDataresponse = await fetchGetProjectPercentageDataView(this.selectedProject);
+        this.percentageData = percentageDataresponse.data;
         if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedProject,

@@ -162,7 +162,7 @@ import SiteSelectionChart from "@/components/chart/SiteSelectionChart.vue";
 import WeekTable from "@/components/table/weekTable.vue";
 import AllQuarterTable from "@/components/table/allQuarterTable.vue";
 import QuarterTable from "@/components/table/quarterTable.vue";
-import { fetchLoopsByProject } from "@/api/planService";
+import { fetchLoopsByProject, fetchGetLoopPercentageData } from "@/api/planService";
 import {
   fetchWeekTableData,
   fetchQuarterTableData,
@@ -199,79 +199,7 @@ export default {
       currentPage: 1, //當前頁面
       totalPages: 0, // 總頁數
       chartData: {}, // 圖表內容
-      percentageData: [
-        { vb_name: "升三-A03區", percentage: 0.0635 },
-        { vb_name: "升四-K02區", percentage: 0.058 },
-        { vb_name: "升三-I02區", percentage: 0.0557 },
-        { vb_name: "升三-A02區-A棟", percentage: 0.0376 },
-        { vb_name: "升三-A02區-B棟", percentage: 0.0376 },
-        { vb_name: "升三-F01區", percentage: 0.1506 },
-        { vb_name: "升四-K01區", percentage: 0.1318 },
-        { vb_name: "升三-B01區", percentage: 0.1294 },
-        { vb_name: "升三-I01區", percentage: 0.1216 },
-        { vb_name: "升三-E01區", percentage: 0.1153 },
-        { vb_name: "升三-F02區", percentage: 0.0988 },
-        { vb_name: "升三-D01區", percentage: 0.0534 },
-        { vb_name: "升四-D03區", percentage: 0.054 },
-        { vb_name: "升四-D04區", percentage: 0.0492 },
-        { vb_name: "升四-G01區", percentage: 0.0328 },
-        { vb_name: "升四-G02區", percentage: 0.0534 },
-        { vb_name: "升四-H03區", percentage: 0.0358 },
-        { vb_name: "升四-H06區", percentage: 0.0419 },
-        { vb_name: "升三-H01區", percentage: 0.0528 },
-        { vb_name: "升三-H02區", percentage: 0.1342 },
-        { vb_name: "升四-H04區", percentage: 0.3103 },
-        { vb_name: "升四-H05區", percentage: 0.1821 },
-        { vb_name: "升三-C09區", percentage: 0.0731 },
-        { vb_name: "升三-B02區", percentage: 0.0724 },
-        { vb_name: "升三-C01區", percentage: 0.0613 },
-        { vb_name: "升三-C07區", percentage: 0.2347 },
-        { vb_name: "升三-C03區", percentage: 0.2228 },
-        { vb_name: "升三-C08區", percentage: 0.1866 },
-        { vb_name: "升三-C02區", percentage: 0.149 },
-        { vb_name: "升四-E05區-A棟", percentage: 0.0423 },
-        { vb_name: "升四-E05區-B棟", percentage: 0.041 },
-        { vb_name: "升四-E06區", percentage: 0.0357 },
-        { vb_name: "升四-J01區", percentage: 0.1389 },
-        { vb_name: "升三-E02區", percentage: 0.119 },
-        { vb_name: "升三-E04區-A棟", percentage: 0.1164 },
-        { vb_name: "升三-E04區-B棟", percentage: 0.1058 },
-        { vb_name: "升三-E03區", percentage: 0.2123 },
-        { vb_name: "升三-F03區", percentage: 0.1885 },
-        { vb_name: "升四-D02區", percentage: 0.0541 },
-        { vb_name: "升四-A04區", percentage: 0.0456 },
-        { vb_name: "升四-H10區-B棟", percentage: 0.0428 },
-        { vb_name: "升四-H08區", percentage: 0.0266 },
-        { vb_name: "升三-A01區", percentage: 0.1291 },
-        { vb_name: "升四-G06區", percentage: 0.1234 },
-        { vb_name: "升四-H09區", percentage: 0.1065 },
-        { vb_name: "升四-G05區", percentage: 0.0984 },
-        { vb_name: "升四-G07區", percentage: 0.0984 },
-        { vb_name: "升四-H10區-A棟", percentage: 0.2751 },
-        { vb_name: "升四-G04區", percentage: 0.0759 },
-        { vb_name: "升四-H07區", percentage: 0.0619 },
-        { vb_name: "升四-G03區", percentage: 0.1758 },
-        { vb_name: "升四-L02區", percentage: 0.1439 },
-        { vb_name: "升四-L03區", percentage: 0.1279 },
-        { vb_name: "升四-L01區", percentage: 0.4146 },
-        { vb_name: "升四-C15區", percentage: 0.117 },
-        { vb_name: "升三-C05區-A棟", percentage: 0.2089 },
-        { vb_name: "升三-C06區", percentage: 0.2023 },
-        { vb_name: "升三-C04區-A棟", percentage: 0.1886 },
-        { vb_name: "升三-C04區-B棟", percentage: 0.1509 },
-        { vb_name: "升三-C05區-B棟", percentage: 0.1323 },
-        { vb_name: "升四-C13區", percentage: 0.0654 },
-        { vb_name: "升四-F04區", percentage: 0.1308 },
-        { vb_name: "升四-F05區", percentage: 0.0846 },
-        { vb_name: "升四-C11區", percentage: 0.2212 },
-        { vb_name: "升四-C10區", percentage: 0.1744 },
-        { vb_name: "升四-C14區", percentage: 0.1724 },
-        { vb_name: "升四-C12區", percentage: 0.1513 },
-        { vb_name: "升四-F06區", percentage: 0.0634 },
-        { vb_name: "升四-F07區-C棟", percentage: 0.3361 },
-        { vb_name: "升四-F07區-A棟", percentage: 0.3303 },
-        { vb_name: "升四-F07區-B棟", percentage: 0.2702 },
-      ],
+      percentageData: [],
     };
   },
   watch: {
@@ -285,7 +213,6 @@ export default {
     currentPage: "fetchData",
     projectType: "fetchData",
     timeMode: "fetchData",
-    displayMode: "fetchData",
   },
   async created() {
     this.selectedPlan = this.$route.query.Plan;
@@ -421,6 +348,11 @@ export default {
 
         let response;
         let responsechart;
+        let percentageDataresponse;
+
+        percentageDataresponse = await fetchGetLoopPercentageData(this.selectedLoopId);
+        this.percentageData = percentageDataresponse.data;
+        console.log("percentageData", this.percentageData);
         if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedLoopId,
