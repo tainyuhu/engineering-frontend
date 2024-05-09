@@ -430,6 +430,7 @@ import SiteSelectionChart from "@/components/chart/SiteSelectionChart.vue";
 import WeekLoopTable from "@/components/table/weekLoopTable.vue";
 import AllQuarterLoopTable from "@/components/table/allQuarterLoopTable.vue";
 import QuarterLoopTable from "@/components/table/quarterLoopTable.vue";
+import { fetchGetProjectPercentageDataView } from "@/api/planService";
 import {
   fetchWeekTableData,
   fetchQuarterTableData,
@@ -492,17 +493,7 @@ export default {
         labels: [],
         datasets: [],
       },
-      percentageData: [
-        { loop_name: "SN1", percentage: 0.0991 },
-        { loop_name: "SN2", percentage: 0.128 },
-        { loop_name: "SN3", percentage: 0.1145 },
-        { loop_name: "SN4", percentage: 0.1175 },
-        { loop_name: "SN5", percentage: 0.1001 },
-        { loop_name: "SN6", percentage: 0.0808 },
-        { loop_name: "SN7", percentage: 0.1421 },
-        { loop_name: "SN8", percentage: 0.1212 },
-        { loop_name: "SN9", percentage: 0.0968 },
-      ],
+      percentageData: [],
     };
   },
   watch: {
@@ -511,13 +502,11 @@ export default {
     encurrentPage: "fetchenData",
     enprojectType: "fetchenData",
     entimeMode: "fetchenData",
-    endisplayMode: "fetchenData",
 
     showDetails: "fetchData",
     currentPage: "fetchData",
     projectType: "fetchData",
     timeMode: "fetchData",
-    displayMode: "fetchData",
   },
   async created() {
     this.selectedPlan = this.$route.query.Plan;
@@ -800,7 +789,10 @@ export default {
       try {
         let response;
         let responsechart;
+        let percentageDataresponse;
 
+        percentageDataresponse = await fetchGetProjectPercentageDataView(this.selectedProject);
+        this.percentageData = percentageDataresponse.data;
         if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedProject,
