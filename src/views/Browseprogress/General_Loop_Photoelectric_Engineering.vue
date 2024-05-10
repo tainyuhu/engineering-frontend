@@ -299,14 +299,11 @@ export default {
         return bHasProgress - aHasProgress;
       });
 
-      console.log(organizedData);
       return organizedData;
     },
     async fetchData() {
       this.isLoading = true;
       try {
-        console.log(this.selectedProject, this.currentPage, this.itemsPerPage, this.projectType);
-
         let response;
         let responsechart;
         let percentageDataresponse;
@@ -318,45 +315,37 @@ export default {
           response = await fetchGLoopTableData(
             this.selectedProject,
             this.currentPage,
-            this.itemsPerPage,
-            this.projectType
+            this.itemsPerPage
           );
           this.TableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchGLoopQuarterChartData(this.selectedProject, this.projectType);
+          responsechart = await fetchGLoopQuarterChartData(this.selectedProject);
           this.chartData = responsechart.data;
         } else if (this.showDetails && this.timeMode === "week") {
           response = await fetchGLoopWeekTableData(
             this.selectedProject,
             this.currentPage,
-            this.itemsPerPage,
-            this.projectType
+            this.itemsPerPage
           );
           this.weekTableData = this.organizeTableData(response.data.results);
           responsechart = await fetchGLoopWeekChartData(
             this.selectedProject,
             this.currentPage,
-            this.itemsPerPage,
-            this.projectType
+            this.itemsPerPage
           );
           this.chartData = responsechart.data;
         } else if (this.showDetails && this.timeMode === "quarter") {
           response = await fetchGLoopQuarterTableData(
             this.selectedProject,
             this.currentPage,
-            this.itemsPerPage,
-            this.projectType
+            this.itemsPerPage
           );
           this.quarterTableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchGLoopAllQuarterChartData(
-            this.selectedProject,
-            this.projectType
-          );
+          responsechart = await fetchGLoopAllQuarterChartData(this.selectedProject);
           this.chartData = responsechart.data;
         } else {
           console.error("Invalid time mode:", this.timeMode);
           return;
         }
-        console.log(response.data.results);
         this.totalPages = response.data.totalPages;
       } catch (error) {
         console.error("Error fetching data:", error);

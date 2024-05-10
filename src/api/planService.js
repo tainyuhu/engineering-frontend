@@ -28,6 +28,7 @@ const fetchLoopsByProject = (projectid) => {
   return apiClient.get(`/api/v1/project-loops-by-project/${projectid}/`);
 };
 
+// 比例
 const fetchGetLoopPercentageData = (loopid) => {
   return apiClient.get(`/api/v1/get_loop_percentage_data/${loopid}/`);
 };
@@ -36,6 +37,15 @@ const fetchGetProjectPercentageDataView = (projectid) => {
   return apiClient.get(`/api/v1/get_project_percentage_data/${projectid}/`);
 };
 
+const fetchGetPlanPercentageDataView = (planid) => {
+  return apiClient.get(`/api/v1/get_plan_percentage_data/${planid}/`);
+};
+
+const fetchGetMasterPlanPercentageDataView = (masterplanid) => {
+  return apiClient.get(`/api/v1/get_master_plan_percentage_data/${masterplanid}/`);
+};
+
+// 總迴路進度
 const fetchGLoopWeekTableData = (project_id, currentPage, itemsPerPage) => {
   return apiClient.get(`/api/v1/get_gloop_progress/${project_id}/${currentPage}/${itemsPerPage}/`, {
     headers: {
@@ -93,6 +103,125 @@ const fetchGLoopWeekChartData = (projectId, currentPage, itemsPerPage) => {
   );
 };
 
+// 管理總表進度
+const fetchProjectWeekTableData = (plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(`/api/v1/get_project_progress/${plan_id}/${currentPage}/${itemsPerPage}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchProjectQuarterTableData = (plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_project_all_quarter_progress/${plan_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchProjectTableData = (plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_project_quarter_progress/${plan_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchProjectQuarterChartData = (plan_id) => {
+  return apiClient.get(`/api/v1/get_project_quarter_chart_progress/${plan_id}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchProjectAllQuarterChartData = (plan_id) => {
+  return apiClient.get(`/api/v1/get_project_all_quarter_chart_progress/${plan_id}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchProjectWeekChartData = (plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_project_week_chart_progress/${plan_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+// 總體計畫
+const fetchPlanWeekTableData = (master_plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_plan_progress/${master_plan_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchPlanQuarterTableData = (master_plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_plan_all_quarter_progress/${master_plan_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchPlanTableData = (master_plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_plan_quarter_progress/${master_plan_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchPlanQuarterChartData = (master_plan_id) => {
+  return apiClient.get(`/api/v1/get_plan_quarter_chart_progress/${master_plan_id}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchPlanAllQuarterChartData = (master_plan_id) => {
+  return apiClient.get(`/api/v1/get_plan_all_quarter_chart_progress/${master_plan_id}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchPlanWeekChartData = (master_plan_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_plan_week_chart_progress/${master_plan_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
 export {
   fetchPlans,
   fetchProjects,
@@ -103,10 +232,24 @@ export {
   fetchFilePhase,
   fetchGetLoopPercentageData,
   fetchGetProjectPercentageDataView,
+  fetchGetPlanPercentageDataView,
+  fetchGetMasterPlanPercentageDataView,
   fetchGLoopWeekTableData,
   fetchGLoopQuarterTableData,
   fetchGLoopTableData,
   fetchGLoopQuarterChartData,
   fetchGLoopAllQuarterChartData,
   fetchGLoopWeekChartData,
+  fetchProjectWeekTableData,
+  fetchProjectQuarterTableData,
+  fetchProjectTableData,
+  fetchProjectQuarterChartData,
+  fetchProjectAllQuarterChartData,
+  fetchProjectWeekChartData,
+  fetchPlanWeekTableData,
+  fetchPlanQuarterTableData,
+  fetchPlanTableData,
+  fetchPlanQuarterChartData,
+  fetchPlanAllQuarterChartData,
+  fetchPlanWeekChartData,
 };

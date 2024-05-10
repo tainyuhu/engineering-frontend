@@ -79,9 +79,7 @@ export default {
     quarterTableData: Array,
     percentagedata: Array,
   },
-  created() {
-    console.log("quarterTableData", this.quarterTableData);
-  },
+  created() {},
   methods: {
     formatPercentage(value) {
       return `${(Number(value) * 100).toFixed(2)}%`;
@@ -112,7 +110,6 @@ export default {
       );
     },
     shouldDisplayCompleted(item) {
-      console.log(item.construction_status);
       return item.construction_status === 1;
     },
   },
