@@ -114,7 +114,9 @@
     </v-sheet>
 
     <div class="detail-card" v-if="selectedPlanGroup">
-      <masterProgressTable :plan-group="selectedPlanGroup"></masterProgressTable>
+      <masterProgressTable
+        :selectedMasterPlanId="selectedPlanGroup.master_id"
+      ></masterProgressTable>
     </div>
   </v-container>
 </template>

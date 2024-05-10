@@ -98,7 +98,6 @@ export default {
       );
     },
     shouldDisplayCompleted(item) {
-      console.log(item.construction_status);
       return item.construction_status === 1;
     },
   },
