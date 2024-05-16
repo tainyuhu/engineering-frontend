@@ -29,14 +29,14 @@
         計畫說明
       </v-card-title>
       <v-tabs v-model="tab" bg-color="primary">
-        <v-tab value="one">計畫概要</v-tab>
-        <v-tab value="two">計畫內容</v-tab>
-        <v-tab value="three">相關文件</v-tab>
+        <v-tab value="outline">計畫概要</v-tab>
+        <v-tab value="content">計畫內容</v-tab>
+        <v-tab value="information">相關文件</v-tab>
       </v-tabs>
 
       <v-card-text>
         <v-window v-model="tab">
-          <v-window-item value="one">
+          <v-window-item value="outline">
             <v-table>
               <thead>
                 <tr>
@@ -61,16 +61,16 @@
             </v-table>
           </v-window-item>
 
-          <v-window-item value="two">
+          <v-window-item value="content">
             <div class="flex-row-container">
               <v-tabs v-model="tab_sub" color="primary" direction="vertical" class="tabs-container">
-                <v-tab value="option-1">161KV</v-tab>
-                <v-tab value="option-2">22.8KV</v-tab>
-                <v-tab value="option-3">案場</v-tab>
+                <v-tab value="V161K">161KV</v-tab>
+                <v-tab value="V228K">22.8KV</v-tab>
+                <v-tab value="project">案場</v-tab>
               </v-tabs>
 
               <v-window v-model="tab_sub" class="window-container">
-                <v-window-item value="option-3">
+                <v-window-item value="project">
                   <v-tabs
                     v-model="project_sub"
                     align-tabs="center"
@@ -184,7 +184,7 @@
                   </v-window>
                 </v-window-item>
 
-                <v-window-item value="option-2">
+                <v-window-item value="V228K">
                   <v-tabs
                     v-model="v228K_sub"
                     align-tabs="center"
@@ -231,7 +231,7 @@
                   </v-window>
                 </v-window-item>
 
-                <v-window-item value="option-1">
+                <v-window-item value="V161K">
                   <v-data-table
                     :headers="v161KHeaders"
                     :items="v161K"
@@ -244,7 +244,7 @@
             </div>
           </v-window-item>
 
-          <v-window-item value="three">
+          <v-window-item value="information">
             <v-data-table
               v-model:expanded="expanded"
               item-value="name"
@@ -272,17 +272,16 @@ export default {
     GanttChart,
   },
   data: () => ({
-    tab: null,
-    tab_sub: null,
-    project_sub: null,
-    v228K_sub: null,
-    v161K_sub: null,
+    tab: "outline",
+    tab_sub: "project",
+    project_sub: "table",
+    v228K_sub: "table",
+    v161K_sub: "table",
     toggle_228k: "civil",
     toggle_one: "first_half",
     selectedPlan: "Phase 2",
     chartData: {},
     loopchartData: {},
-    sortType: "time",
     expanded: [],
     fileHeaders: [
       { title: "", key: "data-table-expand" },
@@ -1026,6 +1025,7 @@ export default {
       },
     ],
   }),
+
   methods: {
     onExpand(expanded) {
       if (expanded.length > 1) {
@@ -1049,7 +1049,7 @@ export default {
         );
 
       if (sortedPlans) {
-        this.loopchartData = {
+        const loopchartData = {
           labels: sortedPlans.map((plan) => plan.name),
           datasets: [
             {
@@ -1065,10 +1065,9 @@ export default {
             },
           ],
         };
-        return this.loopchartData;
+        return loopchartData;
       } else {
-        this.loopchartData = {};
-        return this.loopchartData;
+        return {};
       }
     },
     updateProjectChartData() {

@@ -149,130 +149,24 @@
 </template>
 
 <script>
+import { fetchStageData, fetchElectricalProgressData } from "@/api/electricalProjectService";
 export default {
   data() {
     return {
-      items: Array.from({ length: 16 }).map((_, i) => ({
-        title: `Step ${i + 1}`,
-        subtitle: `Step ${i + 1} subtitle`,
-        value: i + 1,
-      })),
       progress: null,
       progressDialog: false,
       selectedPlan: null, //所選中計畫
       selectedProject: null,
       showInstructionsDialog: false,
-      steps: {
-        第一步驟_併聯審查意見書: 5,
-        第二步驟_地政機關意見書: 10,
-        第三步驟_環境敏感地區調查: 15,
-        第四步驟_地方政府同意: 20,
-        第五步驟_電業籌設: 30,
-        第六步驟_同意備案: 40,
-        第七步驟_台電契約: 45,
-        第八步驟_初步協商: 50,
-        第九步驟_細部協商: 55,
-        第十步驟_出流管制: 65,
-        第十一步驟_施工許可: 70,
-        第十二步驟_併聯完工: 80,
-        第十三步驟_使照: 85,
-        第十四步驟_附屬綠能: 90,
-        第十五步驟_電業執照: 95,
-        第十六步驟_正式購售電能: 100,
-      },
-      projects: [
-        {
-          name: "SN1",
-          currentStep: "同意備案",
-          progress: 40,
-          prevStep: "電業籌設",
-          nextStep: "台電契約",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN2",
-          currentStep: "同意備案",
-          progress: 40,
-          prevStep: "電業籌設",
-          nextStep: "台電契約",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN3",
-          currentStep: "電業籌設",
-          progress: 30,
-          prevStep: "地方政府同意",
-          nextStep: "同意備案",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN4",
-          currentStep: "電業籌設",
-          progress: 30,
-          prevStep: "地方政府同意",
-          nextStep: "同意備案",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN5",
-          currentStep: "電業籌設",
-          progress: 30,
-          prevStep: "地方政府同意",
-          nextStep: "同意備案",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN6",
-          currentStep: "電業籌設",
-          progress: 30,
-          prevStep: "地方政府同意",
-          nextStep: "同意備案",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN7",
-          currentStep: "電業籌設",
-          progress: 30,
-          prevStep: "地方政府同意",
-          nextStep: "同意備案",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN8",
-          currentStep: "電業籌設",
-          progress: 30,
-          prevStep: "地方政府同意",
-          nextStep: "同意備案",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-        {
-          name: "SN9",
-          currentStep: "電業籌設",
-          progress: 30,
-          prevStep: "地方政府同意",
-          nextStep: "同意備案",
-          selected: [""],
-          todos: ["無"],
-          doneDate: "2024-03-16",
-        },
-      ],
+      steps: {},
+      projects: [],
     };
+  },
+  watch: {
+    selectedProject(newValue, oldValue) {
+      this.fetchStagesData();
+      this.fetchData();
+    },
   },
   async created() {
     this.selectedPlan = this.$route.query.Plan;
@@ -291,6 +185,34 @@ export default {
     showProgress(project) {
       this.progress = project.progress;
       this.progressDialog = true;
+    },
+    async fetchStagesData() {
+      this.isLoading = true;
+      console.log(this.selectedProject);
+      try {
+        const stepDataresponse = await fetchStageData(this.selectedProject);
+        this.steps = stepDataresponse.data;
+        console.log(this.steps);
+      } catch (error) {
+        console.error("Error fetching stage data:", error);
+        this.steps = {};
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async fetchData() {
+      this.isLoading = true;
+      console.log(this.selectedProject);
+      try {
+        const projectsDataresponse = await fetchElectricalProgressData(this.selectedProject);
+        this.projects = projectsDataresponse.data;
+        console.log(this.projects);
+      } catch (error) {
+        console.error("Error fetching projects data:", error);
+        this.projects = [];
+      } finally {
+        this.isLoading = false;
+      }
     },
   },
 };
