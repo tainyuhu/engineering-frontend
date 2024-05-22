@@ -187,6 +187,10 @@
   background-color: #fafaea;
 }
 
+.expected_no {
+  background-color: #faebea;
+}
+
 .status-and-page-size-selector {
   display: flex;
   align-items: center;

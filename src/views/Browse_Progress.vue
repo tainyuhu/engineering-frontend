@@ -292,21 +292,61 @@
             <v-divider></v-divider>
             <v-card-actions class="justify-end">
               <template v-if="project.project_name === '案場'">
-                <!-- <v-btn
-                  :color="getPhaseProjectCardInfo(project.project_name).color"
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
                   class="mt-auto font-weight-bold btn-custom"
                   @click="
-                    navigateToProject(getPhaseProjectCardInfo(project.project_name).routeName)
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName3,
+                      project.project_id
+                    )
                   "
+                  >瀏覽總迴路</v-btn
                 >
-                  瀏覽總迴路
-                </v-btn> -->
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName2,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽迴路</v-btn
+                >
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽 PV</v-btn
+                >
+                <v-btn
+                  :color="getProjectCardInfo(project.project_name).color"
+                  class="mt-auto font-weight-bold btn-custom"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName1,
+                      project.project_id
+                    )
+                  "
+                  >瀏覽養殖</v-btn
+                >
               </template>
               <template v-else>
                 <v-btn
-                  :color="getPhaseProjectCardInfo(project.project_name).color"
+                  :color="getProjectCardInfo(project.project_name).color"
                   class="mt-auto font-weight-bold btn-custom"
-                  @click="viewFile(getPhaseProjectCardInfo(project.project_name))"
+                  @click="
+                    navigateToProject(
+                      getProjectCardInfo(project.project_name).routeName,
+                      project.project_id
+                    )
+                  "
                   >瀏覽</v-btn
                 >
               </template>

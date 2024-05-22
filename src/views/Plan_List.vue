@@ -304,7 +304,7 @@ export default {
         name: "Phase2 施工順序及配置工區",
         type: "施工順序及配置工區的詳細說明",
         updateTime: "2024-05-13",
-        url: "https://docs.google.com/spreadsheets/d/1yo1igdwL5eLSIED_VWUAw5nXbRowx58i/edit?usp=sharing&ouid=100002892372171714788&rtpof=true&sd=true",
+        url: "https://docs.google.com/spreadsheets/d/1K8HHjYZtGxCkFuGIbTV6mIGqA8uMvgy5/edit?usp=sharing&ouid=100002892372171714788&rtpof=true&sd=true",
       },
       {
         name: "Phase2 與成本相關資料",
