@@ -401,6 +401,7 @@ export default {
         console.error("Error fetching data:", error);
         this.weekTableData = [];
         this.quarterTableData = [];
+        this.TableData = [];
       } finally {
         this.isLoading = false;
       }

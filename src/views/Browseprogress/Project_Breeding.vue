@@ -352,6 +352,7 @@ export default {
 
         percentageDataresponse = await fetchGetLoopPercentageData(this.selectedLoopId);
         this.percentageData = percentageDataresponse.data;
+        console.log("percentageData", this.percentageData);
         if (!this.showDetails) {
           response = await fetchTableData(
             this.selectedLoopId,
@@ -386,7 +387,6 @@ export default {
             this.itemsPerPage,
             this.projectType
           );
-          console.log("quarterTableData", response);
           this.quarterTableData = this.organizeTableData(response.data.results);
           responsechart = await fetchAllQuarterChartData(this.selectedLoopId, this.projectType);
           this.chartData = responsechart.data;
