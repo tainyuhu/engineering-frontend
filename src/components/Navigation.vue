@@ -123,7 +123,7 @@
         sub-group
       >
         <template v-slot:activator="{ props }">
-          <v-list-item prepend-icon="mdi-sitemap" v-bind="props" title="總體計劃管理"></v-list-item>
+          <v-list-item prepend-icon="mdi-sitemap" v-bind="props" title="總體管理"></v-list-item>
         </template>
 
         <!-- 總體計劃管理子項目 -->

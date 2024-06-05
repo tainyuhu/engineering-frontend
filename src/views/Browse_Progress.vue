@@ -255,6 +255,28 @@
 
     <div v-else>
       <v-row v-if="selectedPlan && filteredProjects.length > 0" class="project-cards-row">
+        <v-col cols="12">
+          <v-card class="project-card" color="indigo-accent-2" dark>
+            <v-card-title
+              class="d-flex font-weight-bold flex-column align-items-center justify-content-center card-title-custom"
+            >
+              <v-icon class="icon-background mb-2" color="indigo-accent-2"
+                >mdi-view-dashboard</v-icon
+              >
+              管理總表
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-card-actions class="justify-end">
+              <v-btn
+                class="mt-auto font-weight-bold btn-custom"
+                color="indigo-accent-2"
+                @click="navigateToManagement('Management_Summary')"
+              >
+                瀏覽
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
         <v-col
           v-for="project in filteredProjects"
           :key="project.project_id"

@@ -3,7 +3,7 @@
     <!-- 標題 -->
     <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
       <v-icon color="blue" @click="goBack">mdi-chevron-left-box</v-icon>
-      <span class="font-weight-bold ml-2">瀏覽管理總表：</span>
+      <span class="font-weight-bold ml-2">瀏覽工程進度：</span>
     </div>
 
     <!-- 功能列 -->
@@ -51,7 +51,7 @@
 
     <!-- 周數據展示 -->
     <div class="div-container" v-if="timeMode === 'week' && showDetails && displayMode === 'table'">
-      <WeekProjectTable
+      <WeekLoopTable
         :allDateRanges="allDateRanges"
         :weekTableData="weekTableData"
         :percentagedata="percentageData"
@@ -70,7 +70,7 @@
       class="div-container"
       v-if="timeMode === 'quarter' && showDetails && displayMode === 'table'"
     >
-      <AllQuarterProjectTable
+      <AllQuarterLoopTable
         :allDateRanges="allDateRanges"
         :quarterSummary="quarterSummary"
         :quarterTableData="quarterTableData"
@@ -87,7 +87,7 @@
 
     <!-- 即時數據展示 -->
     <div class="div-container" v-if="!showDetails && displayMode === 'table'">
-      <QuarterProjectTable
+      <QuarterLoopTable
         :allDateRanges="allDateRanges"
         :quarterSummary="quarterSummary"
         :TableData="TableData"
@@ -134,24 +134,24 @@
 
 <script>
 import SiteSelectionChart from "@/components/chart/SiteSelectionChart.vue";
-import WeekProjectTable from "@/components/table/weekProjectTable.vue";
-import AllQuarterProjectTable from "@/components/table/allQuarterProjectTable.vue";
-import QuarterProjectTable from "@/components/table/quarterProjectTable.vue";
+import WeekLoopTable from "@/components/table/weekLoopTable.vue";
+import AllQuarterLoopTable from "@/components/table/allQuarterLoopTable.vue";
+import QuarterLoopTable from "@/components/table/quarterLoopTable.vue";
 import {
-  fetchGetPlanPercentageDataView,
-  fetchProjectWeekTableData,
-  fetchProjectQuarterTableData,
-  fetchProjectTableData,
-  fetchProjectQuarterChartData,
-  fetchProjectAllQuarterChartData,
-  fetchProjectWeekChartData,
+  fetchGetProjectPercentageDataView,
+  fetchGLoopWeekTableData,
+  fetchGLoopQuarterTableData,
+  fetchGLoopTableData,
+  fetchGLoopQuarterChartData,
+  fetchGLoopAllQuarterChartData,
+  fetchGLoopWeekChartData,
 } from "@/api/planService";
 
 export default {
   components: {
-    WeekProjectTable,
-    AllQuarterProjectTable,
-    QuarterProjectTable,
+    WeekLoopTable,
+    AllQuarterLoopTable,
+    QuarterLoopTable,
     SiteSelectionChart,
   },
   data() {
@@ -258,7 +258,7 @@ export default {
 
       flatData.forEach((item) => {
         const {
-          project_name,
+          loop_name,
           date_range,
           construction_status,
           actual,
@@ -268,11 +268,11 @@ export default {
           week,
         } = item;
 
-        if (!tempMap.has(project_name)) {
-          tempMap.set(project_name, { project_name, construction_status, date_ranges: [] });
+        if (!tempMap.has(loop_name)) {
+          tempMap.set(loop_name, { loop_name, construction_status, date_ranges: [] });
         }
 
-        const currentPv = tempMap.get(project_name);
+        const currentPv = tempMap.get(loop_name);
 
         let dateRangeObj = currentPv.date_ranges.find((dr) => dr.date_range === date_range);
         if (!dateRangeObj) {
@@ -299,6 +299,8 @@ export default {
         return bHasProgress - aHasProgress;
       });
 
+      console.log("organizedData", organizedData);
+
       return organizedData;
     },
     async fetchData() {
@@ -308,38 +310,39 @@ export default {
         let responsechart;
         let percentageDataresponse;
 
-        percentageDataresponse = await fetchGetPlanPercentageDataView(this.selectedPlan);
+        percentageDataresponse = await fetchGetProjectPercentageDataView(this.selectedProject);
         this.percentageData = percentageDataresponse.data;
+
         if (!this.showDetails) {
-          response = await fetchProjectTableData(
-            this.selectedPlan,
+          response = await fetchGLoopTableData(
+            this.selectedProject,
             this.currentPage,
             this.itemsPerPage
           );
           this.TableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchProjectQuarterChartData(this.selectedPlan);
+          responsechart = await fetchGLoopQuarterChartData(this.selectedProject);
           this.chartData = responsechart.data;
         } else if (this.showDetails && this.timeMode === "week") {
-          response = await fetchProjectWeekTableData(
-            this.selectedPlan,
+          response = await fetchGLoopWeekTableData(
+            this.selectedProject,
             this.currentPage,
             this.itemsPerPage
           );
           this.weekTableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchProjectWeekChartData(
-            this.selectedPlan,
+          responsechart = await fetchGLoopWeekChartData(
+            this.selectedProject,
             this.currentPage,
             this.itemsPerPage
           );
           this.chartData = responsechart.data;
         } else if (this.showDetails && this.timeMode === "quarter") {
-          response = await fetchProjectQuarterTableData(
-            this.selectedPlan,
+          response = await fetchGLoopQuarterTableData(
+            this.selectedProject,
             this.currentPage,
             this.itemsPerPage
           );
           this.quarterTableData = this.organizeTableData(response.data.results);
-          responsechart = await fetchProjectAllQuarterChartData(this.selectedPlan);
+          responsechart = await fetchGLoopAllQuarterChartData(this.selectedProject);
           this.chartData = responsechart.data;
         } else {
           console.error("Invalid time mode:", this.timeMode);

@@ -49,7 +49,7 @@
                 getActualData(item.date_ranges, dateRange) > 0 ||
                 getExpectedData(item.date_ranges, dateRange) > 0
               "
-              class="expected"
+              :style="expectedStyle(item.date_ranges, dateRange)"
             >
               {{ formatPercentage(getExpectedData(item.date_ranges, dateRange)) }}
             </td>
@@ -86,14 +86,25 @@ export default {
     },
     dataStyle(date_ranges, dateRange) {
       const range = date_ranges.find((dr) => dr.date_range === dateRange);
-      if (range && range.records[0].expected > range.records[0].actual) {
+      const actual_lag_status = range ? range.actual_lag_status : 0;
+      if (actual_lag_status == 1 && range && range.records[0].expected > range.records[0].actual) {
+        return { "font-weight": "bold", color: "red", "background-color": "pink" };
+      } else if (range && range.records[0].expected > range.records[0].actual) {
         return { "font-weight": "bold", color: "red" };
       }
       return {};
     },
+    expectedStyle(date_ranges, dateRange) {
+      const range = date_ranges.find((dr) => dr.date_range === dateRange);
+      const expected_lag_status = range ? range.expected_lag_status : 0;
+      if (expected_lag_status == 1) {
+        return { "background-color": "pink" };
+      }
+      return { "background-color": "#fafaea" };
+    },
     shouldDisplayNotStarted(item) {
       return (
-        item.construction_status === 0 &&
+        item.construction_status === 0 ||
         item.date_ranges.every((dr) => dr.records.every((r) => r.actual === 0 && r.expected === 0))
       );
     },

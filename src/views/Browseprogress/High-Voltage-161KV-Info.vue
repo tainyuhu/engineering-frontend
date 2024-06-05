@@ -126,7 +126,6 @@
     </div>
 
     <!-- 案場所有周報表展示 -->
-
     <div
       class="div-container report-container"
       v-if="displayMode === 'report' && showDetails && timeMode === 'week'"
@@ -163,7 +162,7 @@ export default {
     return {
       timeMode: "week",
       displayMode: "table",
-      projectType: "engineering",
+      projectType: "bank",
       selectedPlan: null,
       selectedProject: null,
       showDetails: false,
@@ -276,6 +275,8 @@ export default {
           year,
           quarter,
           week,
+          actual_lag_status,
+          expected_lag_status,
         } = item;
 
         if (!tempMap.has(loop_name)) {
@@ -295,6 +296,9 @@ export default {
         if (year !== undefined) dateRangeObj.year = year;
         if (quarter !== undefined) dateRangeObj.quarter = quarter;
         if (week !== undefined) dateRangeObj.week = week;
+        if (actual_lag_status !== undefined) dateRangeObj.actual_lag_status = actual_lag_status;
+        if (expected_lag_status !== undefined)
+          dateRangeObj.expected_lag_status = expected_lag_status;
       });
 
       tempMap.forEach((value) => organizedData.push(value));
