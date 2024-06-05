@@ -60,7 +60,7 @@
     </tbody>
   </v-table>
 </template>
-<!-- class="expected" -->
+
 <script>
 export default {
   props: {

@@ -33,11 +33,7 @@
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
         >
-        <v-btn
-          v-if="projectType === 'engineering'"
-          class="custom-btn"
-          @click="scrollToSection('engineeringSection')"
-        >
+        <v-btn class="custom-btn" @click="scrollToSection('engineeringSection')">
           土木/纜線進度
         </v-btn>
         <v-btn
@@ -185,6 +181,11 @@
 
               <!-- 第三個區塊 -->
               <div v-if="endisplayMode === 'table'">
+                <v-btn
+                  :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
+                  @click="toggleProjectType"
+                  >{{ projectTypeText }}</v-btn
+                >
                 <v-btn
                   class="overview-btn"
                   :class="{ 'btn-active': !enshowDetails }"
@@ -468,7 +469,7 @@ export default {
       endisplayMode: "table",
       selectedPlan: null,
       selectedProject: null,
-      projectType: "engineering",
+      projectType: "bank",
       showDetails: false,
       enshowDetails: false,
       weekTableData: [], //周數據
@@ -667,6 +668,8 @@ export default {
           year,
           quarter,
           week,
+          actual_lag_status,
+          expected_lag_status,
         } = item;
 
         if (!tempMap.has(loop_name)) {
@@ -686,6 +689,9 @@ export default {
         if (year !== undefined) dateRangeObj.year = year;
         if (quarter !== undefined) dateRangeObj.quarter = quarter;
         if (week !== undefined) dateRangeObj.week = week;
+        if (actual_lag_status !== undefined) dateRangeObj.actual_lag_status = actual_lag_status;
+        if (expected_lag_status !== undefined)
+          dateRangeObj.expected_lag_status = expected_lag_status;
       });
 
       tempMap.forEach((value) => organizedData.push(value));

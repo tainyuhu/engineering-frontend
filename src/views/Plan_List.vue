@@ -1,10 +1,18 @@
 <template>
   <v-container>
     <!-- 瀏覽計畫標題 -->
-    <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-      <v-icon color="blue">mdi-chevron-down-box</v-icon>
-      <span class="font-weight-bold ml-2">瀏覽計畫概要：</span>
-      <span class="ml-1 note-span">※在下方選擇一項計畫後，才會顯示計畫內容</span>
+    <div
+      class="mb-3"
+      style="padding-left: 20px; display: flex; align-items: center; justify-content: space-between"
+    >
+      <div>
+        <v-icon color="blue" @click="goBack">mdi-chevron-down-box</v-icon>
+        <span class="font-weight-bold ml-2">瀏覽計畫概要：</span>
+        <span class="ml-1 note-span">※在下方選擇一項計畫後，才會顯示計畫內容</span>
+      </div>
+      <v-btn style="margin-right: 40px" color="indigo-darken-4" @click="navigateToPlanList()">
+        前往總體計畫
+      </v-btn>
     </div>
 
     <!-- 選擇計畫 -->
@@ -15,15 +23,15 @@
         label="選擇欲瀏覽的計畫"
         variant="underlined"
         class="ml-3"
-        :items="plans"
-        item-text="plan_name"
+        :items="allplan"
+        item-title="plan_name"
         item-value="plan_id"
         v-model="selectedPlan"
         style="flex-grow: 1"
       ></v-select>
     </div>
 
-    <v-card>
+    <v-card v-if="selectedPlan !== null">
       <v-card-title class="font-weight-bold" style="color: #0769c1; padding: 0px, 50px">
         <v-icon class="mr-2">mdi-information</v-icon>
         計畫說明
@@ -33,240 +41,373 @@
         <v-tab value="content">計畫內容</v-tab>
         <v-tab value="information">相關文件</v-tab>
       </v-tabs>
+      <div v-if="selectedPlan !== 3 && selectedPlan !== 4">
+        <v-card-text>
+          <v-window v-model="tab">
+            <v-window-item value="outline">
+              <v-table>
+                <thead>
+                  <tr>
+                    <th class="text-left">計畫名稱</th>
+                    <th class="text-left">預計開始日期</th>
+                    <th class="text-left">預計結束日期</th>
+                    <th class="text-left">實際開始日期</th>
+                    <th class="text-left">實際結束日期</th>
+                    <th class="text-left">計畫狀態</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-left">Phase2</td>
+                    <td class="text-left">2024/01/01</td>
+                    <td class="text-left">2025/12/31</td>
+                    <td class="text-left">2024/01/01</td>
+                    <td class="text-left">-</td>
+                    <td class="text-left">施工中</td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-window-item>
 
-      <v-card-text>
-        <v-window v-model="tab">
-          <v-window-item value="outline">
-            <v-table>
-              <thead>
-                <tr>
-                  <th class="text-left">計畫名稱</th>
-                  <th class="text-left">預計開始日期</th>
-                  <th class="text-left">預計結束日期</th>
-                  <th class="text-left">實際開始日期</th>
-                  <th class="text-left">實際結束日期</th>
-                  <th class="text-left">計畫狀態</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="text-left">Phase2</td>
-                  <td class="text-left">2024/01/01</td>
-                  <td class="text-left">2025/12/31</td>
-                  <td class="text-left">2024/01/01</td>
-                  <td class="text-left">-</td>
-                  <td class="text-left">施工中</td>
-                </tr>
-              </tbody>
-            </v-table>
-          </v-window-item>
-
-          <v-window-item value="content">
-            <div class="flex-row-container">
-              <v-tabs v-model="tab_sub" color="primary" direction="vertical" class="tabs-container">
-                <v-tab value="V161K">161KV</v-tab>
-                <v-tab value="V228K">22.8KV</v-tab>
-                <v-tab value="project">案場</v-tab>
-              </v-tabs>
-
-              <v-window v-model="tab_sub" class="window-container">
-                <v-window-item value="project">
-                  <v-tabs
-                    v-model="project_sub"
-                    align-tabs="center"
-                    bg-color="teal-darken-3"
-                    slider-color="teal-lighten-3"
-                  >
-                    <v-tab value="table">總表</v-tab>
-                    <v-tab value="loop_report">迴路施工時程</v-tab>
-                    <v-tab value="project_report">案場施工時程</v-tab>
-                  </v-tabs>
-                  <v-window v-model="project_sub">
-                    <v-window-item value="table">
-                      <v-data-table
-                        v-model:expanded="expanded"
-                        :headers="planHeaders"
-                        :items="plans"
-                        item-value="name"
-                        show-expand
-                        class="data-table-fullwidth"
-                        @update:expanded="onExpand"
-                      >
-                        <template v-slot:expanded-row="{ columns, item }">
-                          <tr style="background-color: #fbfffd">
-                            <td :colspan="columns.length">
-                              <div
-                                class="mb-3"
-                                style="
-                                  padding-left: 20px;
-                                  padding-top: 20px;
-                                  display: flex;
-                                  align-items: center;
-                                "
-                              >
-                                <v-icon color="pink">mdi-chevron-down-box</v-icon>
-                                <span class="font-weight-bold ml-2">瀏覽{{ item.name }}案場：</span>
-                              </div>
-                              <v-data-table
-                                :headers="loopHeaders"
-                                :items="item.loops"
-                              ></v-data-table>
-                              <div
-                                class="mb-3"
-                                style="
-                                  padding-left: 20px;
-                                  padding-top: 20px;
-                                  display: flex;
-                                  align-items: center;
-                                "
-                              >
-                                <v-icon color="purple">mdi-chevron-down-box</v-icon>
-                                <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
-                              </div>
-                              <div class="gantt-chart-container">
-                                <GanttChart :chartData="chartData"></GanttChart>
-                              </div>
-                              <v-btn
-                                variant="text"
-                                @click="collapseRow(item)"
-                                block
-                                class="collapse_row"
-                                ><v-icon>mdi-chevron-up</v-icon>收回</v-btn
-                              >
-                              <div class="mb-3"></div>
-                            </td>
-                          </tr>
-                        </template>
-                      </v-data-table>
-                    </v-window-item>
-
-                    <v-window-item value="loop_report">
-                      <div
-                        class="mb-3"
-                        style="
-                          padding-left: 20px;
-                          padding-top: 20px;
-                          display: flex;
-                          align-items: center;
-                        "
-                      >
-                        <v-icon color="purple">mdi-chevron-down-box</v-icon>
-                        <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
-                      </div>
-                      <div class="gantt-chart-container">
-                        <GanttChart :chartData="updateLoopChartData()"></GanttChart>
-                      </div>
-                    </v-window-item>
-
-                    <v-window-item value="project_report">
-                      <div
-                        class="mb-3"
-                        style="
-                          padding-left: 20px;
-                          padding-top: 20px;
-                          display: flex;
-                          align-items: center;
-                        "
-                      >
-                        <v-icon color="purple">mdi-chevron-down-box</v-icon>
-                        <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
-                      </div>
-                      <div class="gantt-chart-container">
-                        <v-col class="py-2 d-flex justify-center">
-                          <v-btn-toggle v-model="toggle_one" mandatory shaped>
-                            <v-btn value="first_half">上半年 </v-btn>
-                            <v-btn value="second_half">下半年 </v-btn>
-                          </v-btn-toggle>
-                        </v-col>
-                        <GanttChart :chartData="updateProjectChartData()"></GanttChart>
-                      </div>
-                    </v-window-item>
-                  </v-window>
-                </v-window-item>
-
-                <v-window-item value="V228K">
-                  <v-tabs
-                    v-model="v228K_sub"
-                    align-tabs="center"
-                    bg-color="teal-darken-3"
-                    slider-color="teal-lighten-3"
-                  >
-                    <v-tab value="table">總表</v-tab>
-                    <v-tab value="report">施工時程</v-tab>
-                  </v-tabs>
-                  <v-window v-model="v228K_sub">
-                    <v-window-item value="table">
-                      <v-data-table
-                        :headers="v228KHeaders"
-                        :items="v228K"
-                        item-value="name"
-                        class="data-table-fullwidth"
-                      >
-                      </v-data-table>
-                    </v-window-item>
-
-                    <v-window-item value="report">
-                      <div
-                        class="mb-3"
-                        style="
-                          padding-left: 20px;
-                          padding-top: 20px;
-                          display: flex;
-                          align-items: center;
-                        "
-                      >
-                        <v-icon color="purple">mdi-chevron-down-box</v-icon>
-                        <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
-                      </div>
-                      <div class="gantt-chart-container">
-                        <v-col class="py-2 d-flex justify-center">
-                          <v-btn-toggle v-model="toggle_228k" mandatory shaped>
-                            <v-btn value="civil">土木工程</v-btn>
-                            <v-btn value="cable">電纜工程</v-btn>
-                          </v-btn-toggle>
-                        </v-col>
-                        <GanttChart :chartData="updateV228KChartData()"></GanttChart>
-                      </div>
-                    </v-window-item>
-                  </v-window>
-                </v-window-item>
-
-                <v-window-item value="V161K">
-                  <v-data-table
-                    :headers="v161KHeaders"
-                    :items="v161K"
-                    item-value="name"
-                    class="data-table-fullwidth"
-                  >
-                  </v-data-table>
-                </v-window-item>
-              </v-window>
-            </div>
-          </v-window-item>
-
-          <v-window-item value="information">
-            <v-data-table
-              v-model:expanded="expanded"
-              item-value="name"
-              show-expand
-              :headers="fileHeaders"
-              :items="files"
-            >
-              <template v-slot:[`item.data-table-expand`]="{ item }">
-                <v-btn @click="openUrl(item)" color="orange-darken-1" variant="tonal" elevation="0"
-                  >前往瀏覽</v-btn
+            <v-window-item value="content">
+              <div class="flex-row-container">
+                <v-tabs
+                  v-model="tab_sub"
+                  color="primary"
+                  direction="vertical"
+                  class="tabs-container"
                 >
-              </template>
-            </v-data-table>
-          </v-window-item>
-        </v-window>
-      </v-card-text>
+                  <v-tab value="V161K">161KV</v-tab>
+                  <v-tab value="V228K">22.8KV</v-tab>
+                  <v-tab value="project">案場</v-tab>
+                </v-tabs>
+
+                <v-window v-model="tab_sub" class="window-container">
+                  <v-window-item value="project">
+                    <v-tabs
+                      v-model="project_sub"
+                      align-tabs="center"
+                      bg-color="teal-darken-3"
+                      slider-color="teal-lighten-3"
+                    >
+                      <v-tab value="table">總表</v-tab>
+                      <v-tab value="loop_report">迴路施工時程</v-tab>
+                      <v-tab value="project_report">案場施工時程</v-tab>
+                    </v-tabs>
+                    <v-window v-model="project_sub">
+                      <v-window-item value="table">
+                        <v-data-table
+                          v-model:expanded="expanded"
+                          :headers="planHeaders"
+                          :items="plans"
+                          item-value="name"
+                          show-expand
+                          class="data-table-fullwidth"
+                          @update:expanded="onExpand"
+                        >
+                          <template v-slot:expanded-row="{ columns, item }">
+                            <tr style="background-color: #fbfffd">
+                              <td :colspan="columns.length">
+                                <div
+                                  class="mb-3"
+                                  style="
+                                    padding-left: 20px;
+                                    padding-top: 20px;
+                                    display: flex;
+                                    align-items: center;
+                                  "
+                                >
+                                  <v-icon color="pink">mdi-chevron-down-box</v-icon>
+                                  <span class="font-weight-bold ml-2"
+                                    >瀏覽{{ item.name }}案場：</span
+                                  >
+                                </div>
+                                <v-data-table
+                                  :headers="loopHeaders"
+                                  :items="item.loops"
+                                ></v-data-table>
+                                <div
+                                  class="mb-3"
+                                  style="
+                                    padding-left: 20px;
+                                    padding-top: 20px;
+                                    display: flex;
+                                    align-items: center;
+                                  "
+                                >
+                                  <v-icon color="purple">mdi-chevron-down-box</v-icon>
+                                  <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
+                                </div>
+                                <div class="gantt-chart-container">
+                                  <GanttChart :chartData="chartData"></GanttChart>
+                                </div>
+                                <v-btn
+                                  variant="text"
+                                  @click="collapseRow(item)"
+                                  block
+                                  class="collapse_row"
+                                  ><v-icon>mdi-chevron-up</v-icon>收回</v-btn
+                                >
+                                <div class="mb-3"></div>
+                              </td>
+                            </tr>
+                          </template>
+                        </v-data-table>
+                      </v-window-item>
+
+                      <v-window-item value="loop_report">
+                        <div
+                          class="mb-3"
+                          style="
+                            padding-left: 20px;
+                            padding-top: 20px;
+                            display: flex;
+                            align-items: center;
+                          "
+                        >
+                          <v-icon color="purple">mdi-chevron-down-box</v-icon>
+                          <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
+                        </div>
+                        <div class="gantt-chart-container">
+                          <GanttChart :chartData="updateLoopChartData()"></GanttChart>
+                        </div>
+                      </v-window-item>
+
+                      <v-window-item value="project_report">
+                        <div
+                          class="mb-3"
+                          style="
+                            padding-left: 20px;
+                            padding-top: 20px;
+                            display: flex;
+                            align-items: center;
+                          "
+                        >
+                          <v-icon color="purple">mdi-chevron-down-box</v-icon>
+                          <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
+                        </div>
+                        <div class="gantt-chart-container">
+                          <v-col class="py-2 d-flex justify-center">
+                            <v-btn-toggle v-model="toggle_one" mandatory shaped>
+                              <v-btn value="first_half">上半年 </v-btn>
+                              <v-btn value="second_half">下半年 </v-btn>
+                            </v-btn-toggle>
+                          </v-col>
+                          <GanttChart :chartData="updateProjectChartData()"></GanttChart>
+                        </div>
+                      </v-window-item>
+                    </v-window>
+                  </v-window-item>
+
+                  <v-window-item value="V228K">
+                    <v-tabs
+                      v-model="v228K_sub"
+                      align-tabs="center"
+                      bg-color="teal-darken-3"
+                      slider-color="teal-lighten-3"
+                    >
+                      <v-tab value="table">總表</v-tab>
+                      <v-tab value="report">施工時程</v-tab>
+                    </v-tabs>
+                    <v-window v-model="v228K_sub">
+                      <v-window-item value="table">
+                        <v-data-table
+                          :headers="v228KHeaders"
+                          :items="v228K"
+                          item-value="name"
+                          class="data-table-fullwidth"
+                        >
+                        </v-data-table>
+                      </v-window-item>
+
+                      <v-window-item value="report">
+                        <div
+                          class="mb-3"
+                          style="
+                            padding-left: 20px;
+                            padding-top: 20px;
+                            display: flex;
+                            align-items: center;
+                          "
+                        >
+                          <v-icon color="purple">mdi-chevron-down-box</v-icon>
+                          <span class="font-weight-bold ml-2">瀏覽施工時程：</span>
+                        </div>
+                        <div class="gantt-chart-container">
+                          <v-col class="py-2 d-flex justify-center">
+                            <v-btn-toggle v-model="toggle_228k" mandatory shaped>
+                              <v-btn value="civil">土木工程</v-btn>
+                              <v-btn value="cable">電纜工程</v-btn>
+                            </v-btn-toggle>
+                          </v-col>
+                          <GanttChart :chartData="updateV228KChartData()"></GanttChart>
+                        </div>
+                      </v-window-item>
+                    </v-window>
+                  </v-window-item>
+
+                  <v-window-item value="V161K">
+                    <v-data-table
+                      :headers="v161KHeaders"
+                      :items="v161K"
+                      item-value="name"
+                      class="data-table-fullwidth"
+                    >
+                    </v-data-table>
+                  </v-window-item>
+                </v-window>
+              </div>
+            </v-window-item>
+
+            <v-window-item value="information">
+              <v-data-table
+                v-model:expanded="expanded"
+                item-value="name"
+                show-expand
+                :headers="fileHeaders"
+                :items="files"
+              >
+                <template v-slot:[`item.data-table-expand`]="{ item }">
+                  <v-btn
+                    @click="openUrl(item)"
+                    color="orange-darken-1"
+                    variant="tonal"
+                    elevation="0"
+                    >前往瀏覽</v-btn
+                  >
+                </template>
+              </v-data-table>
+            </v-window-item>
+          </v-window>
+        </v-card-text>
+      </div>
+      <div v-if="selectedPlan !== 1 && selectedPlan !== 4">
+        <v-card-text>
+          <v-window v-model="tab">
+            <v-window-item value="outline">
+              <v-table>
+                <thead>
+                  <tr>
+                    <th class="text-left">計畫名稱</th>
+                    <th class="text-left">預計開始日期</th>
+                    <th class="text-left">預計結束日期</th>
+                    <th class="text-left">實際開始日期</th>
+                    <th class="text-left">實際結束日期</th>
+                    <th class="text-left">計畫狀態</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-left">Phase1</td>
+                    <td class="text-left">2021/01/01</td>
+                    <td class="text-left">2025/12/31</td>
+                    <td class="text-left">-</td>
+                    <td class="text-left">-</td>
+                    <td class="text-left">施工中</td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-window-item>
+
+            <v-window-item value="content">
+              <v-data-table
+                v-model:expanded="expanded"
+                :headers="planHeaders"
+                :items="phase1_plans"
+                item-value="name"
+                show-expand
+                class="data-table-fullwidth"
+                @update:expanded="onExpand"
+              >
+                <template v-slot:expanded-row="{ columns, item }">
+                  <tr style="background-color: #fbfffd">
+                    <td :colspan="columns.length">
+                      <div
+                        class="mb-3"
+                        style="
+                          padding-left: 20px;
+                          padding-top: 20px;
+                          display: flex;
+                          align-items: center;
+                        "
+                      >
+                        <v-icon color="pink">mdi-chevron-down-box</v-icon>
+                        <span class="font-weight-bold ml-2">瀏覽{{ item.name }}案場：</span>
+                      </div>
+                      <v-data-table :headers="loopHeaders" :items="item.loops"></v-data-table>
+                      <v-btn variant="text" @click="collapseRow(item)" block class="collapse_row"
+                        ><v-icon>mdi-chevron-up</v-icon>收回</v-btn
+                      >
+                      <div class="mb-3"></div>
+                    </td>
+                  </tr>
+                </template>
+              </v-data-table>
+            </v-window-item>
+
+            <v-window-item value="information">
+              <v-data-table
+                v-model:expanded="expanded"
+                item-value="name"
+                show-expand
+                :headers="fileHeaders"
+                :items="phase1_files"
+              >
+                <template v-slot:[`item.data-table-expand`]="{ item }">
+                  <v-btn
+                    @click="openUrl(item)"
+                    color="orange-darken-1"
+                    variant="tonal"
+                    elevation="0"
+                    >前往瀏覽</v-btn
+                  >
+                </template>
+              </v-data-table>
+            </v-window-item>
+          </v-window>
+        </v-card-text>
+      </div>
+      <div v-if="selectedPlan !== 1 && selectedPlan !== 3">
+        <v-card-text>
+          <v-window v-model="tab">
+            <v-window-item value="outline">
+              <v-table>
+                <thead>
+                  <tr>
+                    <th class="text-left">計畫名稱</th>
+                    <th class="text-left">預計開始日期</th>
+                    <th class="text-left">預計結束日期</th>
+                    <th class="text-left">實際開始日期</th>
+                    <th class="text-left">實際結束日期</th>
+                    <th class="text-left">計畫狀態</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-left">三小案</td>
+                    <td class="text-left">-</td>
+                    <td class="text-left">2024/6/30</td>
+                    <td class="text-left">-</td>
+                    <td class="text-left">-</td>
+                    <td class="text-left">施工中</td>
+                  </tr>
+                </tbody>
+              </v-table>
+            </v-window-item>
+
+            <v-window-item value="content"> 暫無內容 </v-window-item>
+
+            <v-window-item value="information"> 暫無內容 </v-window-item>
+          </v-window>
+        </v-card-text>
+      </div>
     </v-card>
   </v-container>
 </template>
 
 <script>
 import GanttChart from "@/components/chart/GanttChart.vue";
+import { fetchPlans } from "@/api/planService";
 export default {
   components: {
     GanttChart,
@@ -279,10 +420,14 @@ export default {
     v161K_sub: "table",
     toggle_228k: "civil",
     toggle_one: "first_half",
-    selectedPlan: "Phase 2",
+    allplan: [], //所有計畫
+    project: [], //所有專案
+    selectedPlan: null, //所選中計畫
+    master_planid: null,
     chartData: {},
     loopchartData: {},
     expanded: [],
+
     fileHeaders: [
       { title: "", key: "data-table-expand" },
       {
@@ -1024,9 +1169,523 @@ export default {
         expectedCompletionTime: "2025-12-31",
       },
     ],
+    phase1_plans: [
+      {
+        name: "S02",
+        capacity: 12852,
+        percentage: 10.63,
+        connectionTime: "2023-10-31",
+        expectedConstructionTime: "2022-04-01",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "2-10",
+            capacity: 1719.0,
+            percentage: 0.2135,
+            expectedConstructionTime: "2022-04-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "2-101",
+            capacity: 4347.0,
+            percentage: 0.1108,
+            expectedConstructionTime: "2022-04-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "2-11",
+            capacity: 1575.0,
+            percentage: 0.0674,
+            expectedConstructionTime: "2022-04-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "2-12",
+            capacity: 720.0,
+            percentage: 0.1511,
+            expectedConstructionTime: "2022-04-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "2-30",
+            capacity: 594.0,
+            percentage: 0.153,
+            expectedConstructionTime: "2022-04-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "2-8",
+            capacity: 2358.0,
+            percentage: 0.1134,
+            expectedConstructionTime: "2022-04-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "2-9",
+            capacity: 1539.0,
+            percentage: 0.1908,
+            expectedConstructionTime: "2022-04-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+      {
+        name: "S03",
+        capacity: 15330.72,
+        percentage: 12.68,
+        connectionTime: "2023-09-30",
+        expectedConstructionTime: "2022-09-01",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "3-103",
+            capacity: 2152.32,
+            percentage: 0.140393,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-104",
+            capacity: 802.56,
+            percentage: 0.0523498,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-105",
+            capacity: 747.84,
+            percentage: 0.0487805,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-106",
+            capacity: 528.96,
+            percentage: 0.0345033,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-107",
+            capacity: 684.0,
+            percentage: 0.0446163,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-108",
+            capacity: 1112.64,
+            percentage: 0.0725758,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-15",
+            capacity: 3119.04,
+            percentage: 0.20345,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-16",
+            capacity: 2480.64,
+            percentage: 0.161808,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-17",
+            capacity: 2799.84,
+            percentage: 0.182629,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "3-18",
+            capacity: 902.88,
+            percentage: 0.0588935,
+            expectedConstructionTime: "2022-09-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+      {
+        name: "S04",
+        capacity: 16348.8,
+        percentage: 13.52,
+        connectionTime: "2023-02-31",
+        expectedConstructionTime: "2022-03-01",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "4-13",
+            capacity: 4171.8,
+            percentage: 0.255175,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "4-14",
+            capacity: 2313.0,
+            percentage: 0.141478,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "4-19",
+            capacity: 2394.0,
+            percentage: 0.146433,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "4-20",
+            capacity: 1755.0,
+            percentage: 0.107347,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "4-21",
+            capacity: 1539.0,
+            percentage: 0.0941354,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "4-6",
+            capacity: 2070.0,
+            percentage: 0.126615,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "4-7",
+            capacity: 2106.0,
+            percentage: 0.128817,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+      {
+        name: "S05",
+        capacity: 17036.16,
+        percentage: 14.09,
+        connectionTime: "2023-11-30",
+        expectedConstructionTime: "2022-03-01",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "5-201",
+            capacity: 3210.24,
+            percentage: 0.151619,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "5-202",
+            capacity: 1997.28,
+            percentage: 0.100211,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "5-203",
+            capacity: 1541.28,
+            percentage: 0.0787376,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "5-204",
+            capacity: 1240.32,
+            percentage: 0.241256,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "5-207",
+            capacity: 1495.68,
+            percentage: 0.0666992,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "5-22",
+            capacity: 2927.52,
+            percentage: 0.130145,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "5-23",
+            capacity: 1778.4,
+            percentage: 0.0860582,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "5-24",
+            capacity: 2845.44,
+            percentage: 0.145274,
+            expectedConstructionTime: "2022-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+      {
+        name: "S06",
+        capacity: 14208.96,
+        percentage: 11.75,
+        connectionTime: "2023-12-31",
+        expectedConstructionTime: "2023-03-01",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "6-208",
+            capacity: 2061.12,
+            percentage: 0.1451,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "6-209",
+            capacity: 1422.72,
+            percentage: 0.1001,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "6-210",
+            capacity: 3119.04,
+            percentage: 0.2195,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "6-211",
+            capacity: 1039.68,
+            percentage: 0.0732,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "6-212",
+            capacity: 3237.6,
+            percentage: 0.2279,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "6-213",
+            capacity: 3328.8,
+            percentage: 0.2343,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+      {
+        name: "S07",
+        capacity: 14292,
+        percentage: 11.82,
+        connectionTime: "2023-04-30",
+        expectedConstructionTime: "2022-03-01",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "7-214",
+            capacity: 1584.0,
+            percentage: 0.110831,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "7-25",
+            capacity: 2727.0,
+            percentage: 0.190806,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "7-26",
+            capacity: 3051.0,
+            percentage: 0.213476,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "7-27",
+            capacity: 963.0,
+            percentage: 0.0673804,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "7-28",
+            capacity: 2160.0,
+            percentage: 0.151134,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "7-29",
+            capacity: 2187.0,
+            percentage: 0.153023,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "7-5",
+            capacity: 1620.0,
+            percentage: 0.11335,
+            expectedConstructionTime: "2023-03-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+      {
+        name: "S09",
+        capacity: 14077.44,
+        percentage: 11.64,
+        connectionTime: "2024-01-31",
+        expectedConstructionTime: "2023-01-01",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "9-402A",
+            capacity: 3004.56,
+            percentage: 0.331612,
+            expectedConstructionTime: "2023-10-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "9-402B",
+            capacity: 2246.4,
+            percentage: 0.247934,
+            expectedConstructionTime: "2023-10-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "9-403",
+            capacity: 1937.52,
+            percentage: 0.213843,
+            expectedConstructionTime: "2023-10-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "9-410",
+            capacity: 664.56,
+            percentage: 0.0733471,
+            expectedConstructionTime: "2023-10-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "9-411",
+            capacity: 814.32,
+            percentage: 0.089876,
+            expectedConstructionTime: "2023-10-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "9-412",
+            capacity: 393.12,
+            percentage: 0.0433884,
+            expectedConstructionTime: "2023-10-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+      {
+        name: "S10",
+        capacity: 9060.48,
+        percentage: 7.49,
+        connectionTime: "2024-02-28",
+        expectedConstructionTime: "2023-10-1",
+        expectedCompletionTime: "2023-12-31",
+        loops: [
+          {
+            name: "10-301",
+            capacity: 1095.12,
+            percentage: 0.0778,
+            expectedConstructionTime: "2024-05-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "10-406",
+            capacity: 3042.0,
+            percentage: 0.2161,
+            expectedConstructionTime: "2024-05-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "10-407",
+            capacity: 3472.56,
+            percentage: 0.2467,
+            expectedConstructionTime: "2024-05-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "10-408",
+            capacity: 3023.28,
+            percentage: 0.2148,
+            expectedConstructionTime: "2024-05-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+          {
+            name: "10-409",
+            capacity: 3444.48,
+            percentage: 0.2447,
+            expectedConstructionTime: "2024-05-01",
+            expectedCompletionTime: "2023-12-31",
+          },
+        ],
+      },
+    ],
+    phase1_files: [
+      {
+        name: "Phase1 與成本相關資料",
+        type: "施工進度比例計算的相關文件",
+        updateTime: "2024-05-13",
+        url: "https://docs.google.com/spreadsheets/d/1rvzxp4QPyPnj6Q4qe68DKm12xp3EYuSf/edit?usp=sharing&ouid=100002892372171714788&rtpof=true&sd=true",
+      },
+      {
+        name: "向陽-多元案場總彙(農業養殖工程)",
+        type: "建管竣工期限",
+        updateTime: "2024-05-13",
+        url: "https://docs.google.com/spreadsheets/d/1qFUPP2uATG19y4E4lZE1V3IFYO0domH2/edit?usp=sharing&ouid=100002892372171714788&rtpof=true&sd=true",
+      },
+    ],
   }),
-
+  async created() {
+    if (
+      this.$route.query.planId &&
+      this.$route.query.master_planid &&
+      !isNaN(parseInt(this.$route.query.master_planid)) &&
+      !isNaN(parseInt(this.$route.query.planId))
+    ) {
+      this.selectedPlan = parseInt(this.$route.query.planId);
+      this.master_planid = parseInt(this.$route.query.master_planid);
+    } else {
+      this.selectedPlan = null;
+    }
+    await this.fetchData();
+  },
   methods: {
+    async fetchData() {
+      try {
+        const plansResponse = await fetchPlans();
+        console.log("api response:", plansResponse.data);
+        this.allplan = plansResponse.data;
+      } catch (error) {}
+    },
+    navigateToPlanList() {
+      this.$router.push({
+        name: "Master_Plan_List",
+        query: { master_planid: this.master_planid },
+      });
+    },
     onExpand(expanded) {
       if (expanded.length > 1) {
         this.expanded = [expanded[1]];

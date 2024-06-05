@@ -45,11 +45,11 @@
 
       <!-- 第三個區塊 -->
       <div v-if="selectedLoopId && displayMode === 'table'">
-        <v-btn
+        <!-- <v-btn
           :class="projectType === 'engineering' ? 'bank-btn' : 'engineering-btn'"
           @click="toggleProjectType"
           >{{ projectTypeText }}</v-btn
-        >
+        > -->
         <v-btn
           class="overview-btn"
           :class="{ 'btn-active': !showDetails }"
@@ -189,7 +189,7 @@ export default {
       selectedLoopId: null, //所選中之迴路
       timeMode: "week",
       displayMode: "table",
-      projectType: "engineering",
+      projectType: "bank",
       previousTimeMode: null,
       previousShowDetails: null,
       showDetails: false,
@@ -295,8 +295,18 @@ export default {
       const tempMap = new Map();
 
       flatData.forEach((item) => {
-        const { vb_name, date_range, construction_status, actual, expected, year, quarter, week } =
-          item;
+        const {
+          vb_name,
+          date_range,
+          construction_status,
+          actual,
+          expected,
+          year,
+          quarter,
+          week,
+          actual_lag_status,
+          expected_lag_status,
+        } = item;
 
         if (!tempMap.has(vb_name)) {
           tempMap.set(vb_name, { vb_name, construction_status, date_ranges: [] });
@@ -315,6 +325,9 @@ export default {
         if (year !== undefined) dateRangeObj.year = year;
         if (quarter !== undefined) dateRangeObj.quarter = quarter;
         if (week !== undefined) dateRangeObj.week = week;
+        if (actual_lag_status !== undefined) dateRangeObj.actual_lag_status = actual_lag_status;
+        if (expected_lag_status !== undefined)
+          dateRangeObj.expected_lag_status = expected_lag_status;
       });
 
       tempMap.forEach((value) => organizedData.push(value));
@@ -329,7 +342,7 @@ export default {
         return bHasProgress - aHasProgress;
       });
 
-      console.log(organizedData);
+      console.log("organizedData", organizedData);
       return organizedData;
     },
     async fetchLoops() {
