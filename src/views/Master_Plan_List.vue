@@ -28,10 +28,10 @@
         <v-icon class="mr-2">mdi-information</v-icon>
         總體計畫說明
       </v-card-title>
-      <v-tabs v-model="tab" bg-color="primary">
-        <v-tab value="outline">計畫概要</v-tab>
-        <v-tab value="content">計畫內容</v-tab>
-        <v-tab value="information">相關文件</v-tab>
+      <v-tabs v-model="tab" bg-color="primary" color="#ffc107">
+        <v-tab value="outline" class="font-weight-bold">計畫概要</v-tab>
+        <v-tab value="content" class="font-weight-bold">計畫內容</v-tab>
+        <v-tab value="information" class="font-weight-bold">相關文件</v-tab>
       </v-tabs>
 
       <v-card-text>

@@ -150,7 +150,7 @@
     </div>
 
     <v-card v-if="displayMode === 'table'" class="div-container-1" outlined>
-      <v-tabs v-model="tab" bg-color="indigo-darken-2" slider-color="yellow" show-arrows>
+      <v-tabs v-model="tab" bg-color="indigo-darken-2" color="#ffc107" show-arrows>
         <v-tab style="font-weight: bold" value="civil">土木工程</v-tab>
         <v-tab style="font-weight: bold" value="cable">纜線工程</v-tab>
       </v-tabs>
