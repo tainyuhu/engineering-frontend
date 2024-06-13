@@ -21,7 +21,7 @@
 
     <!-- 卡片 -->
     <v-card class="elevated-card" outlined>
-      <v-tabs bg-color="indigo-darken-2" v-model="tab" show-arrows>
+      <v-tabs bg-color="indigo-darken-2" v-model="tab" color="#ffc107" show-arrows>
         <v-tab style="font-weight: bold" value="phase1"> Phase1 </v-tab>
         <v-tab style="font-weight: bold" value="phase2"> Phase2 </v-tab>
       </v-tabs>
