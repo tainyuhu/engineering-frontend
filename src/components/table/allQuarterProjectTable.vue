@@ -106,7 +106,10 @@ export default {
     shouldDisplayNotStarted(item) {
       return (
         item.construction_status === 0 ||
-        item.date_ranges.every((dr) => dr.records.every((r) => r.actual === 0 && r.expected === 0))
+        (item.date_ranges.every((dr) =>
+          dr.records.every((r) => r.actual === 0 && r.expected === 0)
+        ) &&
+          item.construction_status != 1)
       );
     },
     shouldDisplayCompleted(item) {
