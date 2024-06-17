@@ -20,21 +20,21 @@
         <td class="font-weight-bold">{{ item.loop_name }}</td>
         <td>{{ formatPercentage(getPercentage(item.loop_name)) }}</td>
         <td
-          v-if="shouldDisplayNotStarted(item)"
-          :colspan="allDateRanges.length * 2"
-          class="text-center"
-        >
-          未開工
-        </td>
-        <td
-          v-else-if="shouldDisplayCompleted(item)"
+          v-if="shouldDisplayCompleted(item)"
           :colspan="allDateRanges.length * 2"
           class="text-center"
         >
           已完工
         </td>
+        <td
+          v-else-if="shouldDisplayNotStarted(item)"
+          :colspan="allDateRanges.length * 2"
+          class="text-center"
+        >
+          未開工
+        </td>
         <template v-else>
-          <template v-for="dateRange in allDateRanges">
+          <template v-for="dateRange in allDateRanges" :key="dateRange">
             <td
               v-if="
                 getActualData(item.date_ranges, dateRange) > 0 ||
@@ -105,7 +105,10 @@ export default {
     shouldDisplayNotStarted(item) {
       return (
         item.construction_status === 0 ||
-        item.date_ranges.every((dr) => dr.records.every((r) => r.actual === 0 && r.expected === 0))
+        (item.date_ranges.every((dr) =>
+          dr.records.every((r) => r.actual === 0 && r.expected === 0)
+        ) &&
+          item.construction_status != 1)
       );
     },
     shouldDisplayCompleted(item) {

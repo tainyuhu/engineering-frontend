@@ -172,7 +172,9 @@ export default {
               callback: function (value) {
                 return value + "%";
               },
+              stepSize: 10,
             },
+            max: 100,
           },
         },
       },

@@ -33,18 +33,26 @@
     </div> -->
 
     <v-sheet class="mx-auto sheet-card" max-width="99%">
-      <v-slide-group>
-        <v-slide-item v-for="(planGroup, index) in filteredPlanGroups" :key="index">
+      <v-row dense>
+        <v-col
+          v-for="(planGroup, index) in filteredPlanGroups"
+          :key="index"
+          cols="12"
+          sm="6"
+          md="4"
+        >
           <v-card class="mb-5 card-shadow" :color="getColor(planGroup.status)">
             <v-card-title class="d-flex justify-space-between align-center">
-              <span class="plan-title">{{ planGroup.name }}</span>
-              <v-chip
-                style="margin-left: 5px"
-                :color="getMasterProgressColor(planGroup.progress)"
-                variant="flat"
-              >
-                {{ planGroup.progress }}%
-              </v-chip>
+              <div>
+                <span class="plan-title">{{ planGroup.name }}</span>
+                <v-chip
+                  style="margin-left: 5px"
+                  :color="getMasterProgressColor(planGroup.progress)"
+                  variant="flat"
+                >
+                  {{ planGroup.progress }}%
+                </v-chip>
+              </div>
               <v-btn
                 style="margin-left: 5px"
                 variant="tonal"
@@ -57,27 +65,15 @@
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text class="white-background">
-              <v-carousel height="250" hide-delimiters>
-                <template v-slot:prev="{ props }">
-                  <v-btn
-                    density="compact"
-                    :color="getColor(planGroup.status)"
-                    variant="text"
-                    @click="props.onClick"
-                    icon="mdi-chevron-left"
-                  ></v-btn>
-                </template>
-                <template v-slot:next="{ props }">
-                  <v-btn
-                    density="compact"
-                    :color="getColor(planGroup.status)"
-                    variant="text"
-                    @click="props.onClick"
-                    icon="mdi-chevron-right"
-                  ></v-btn>
-                </template>
-                <v-carousel-item v-for="(project, pIndex) in planGroup.projects" :key="pIndex">
-                  <div class="project-container d-flex flex-row flex-wrap justify-center">
+              <v-row dense>
+                <v-col
+                  v-for="(project, pIndex) in planGroup.projects"
+                  :key="pIndex"
+                  cols="12"
+                  sm="6"
+                  md="4"
+                >
+                  <div class="project-container d-flex flex-column align-center">
                     <div class="project-item">
                       <div class="project-title font-weight-bold">
                         <v-icon style="margin-right: 5px" :color="getColor(planGroup.status)">
@@ -98,19 +94,19 @@
                         variant="tonal"
                         block
                         :color="getColor(planGroup.status)"
-                        @click="goToDetail(project)"
+                        @click="goToDetail(project, planGroup.master_id)"
                         style="margin-top: 10px"
                       >
                         瀏覽
                       </v-btn>
                     </div>
                   </div>
-                </v-carousel-item>
-              </v-carousel>
+                </v-col>
+              </v-row>
             </v-card-text>
           </v-card>
-        </v-slide-item>
-      </v-slide-group>
+        </v-col>
+      </v-row>
     </v-sheet>
 
     <div class="detail-card" v-if="selectedPlanGroup">
@@ -156,23 +152,20 @@ export default {
       return "red";
     },
     getMasterProgressColor(progress) {
-      if (progress >= 100) return "green lighten-5";
-      if (progress >= 95) return "blue lighten-5";
+      if (progress >= 100) return "green-lighten-5";
+      if (progress >= 95) return "blue-lighten-5";
       if (progress >= 50) return "orange-lighten-5";
       return "red lighten-5";
     },
     getColor(status) {
       switch (status) {
         case "Active":
-          return "amber-darken-4";
+          return "amber darken-4";
         case "Expired":
           return "green";
         default:
           return "grey darken-3";
       }
-    },
-    getTextColor(index) {
-      return "white";
     },
     goToDetails(planGroup) {
       this.selectedPlanGroup = planGroup;
@@ -184,10 +177,10 @@ export default {
         }
       });
     },
-    goToDetail(project) {
+    goToDetail(project, master_id) {
       this.$router.push({
         name: "Browse_Progress",
-        query: { planId: project.plan_id },
+        query: { planId: project.plan_id, master_planid: master_id },
       });
     },
   },

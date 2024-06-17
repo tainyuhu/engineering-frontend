@@ -1,10 +1,18 @@
 <template>
   <v-container>
     <!-- 瀏覽計畫進度標題 -->
-    <div class="mb-3" style="padding-left: 20px; display: flex; align-items: center">
-      <v-icon color="blue">mdi-chevron-down-box</v-icon>
-      <span class="font-weight-bold ml-2">瀏覽計畫進度：</span>
-      <span class="ml-1 note-span">※在下方選擇一項計畫後，才會顯示計畫內容</span>
+    <div
+      class="mb-3"
+      style="padding-left: 20px; display: flex; align-items: center; justify-content: space-between"
+    >
+      <div>
+        <v-icon color="blue">mdi-chevron-down-box</v-icon>
+        <span class="font-weight-bold ml-2">瀏覽計畫進度：</span>
+        <span class="ml-1 note-span">※在下方選擇一項計畫後，才會顯示計畫內容</span>
+      </div>
+      <v-btn style="margin-right: 40px" color="indigo-darken-4" @click="navigateToPlanList()">
+        前往總體進度
+      </v-btn>
     </div>
 
     <!-- 選擇計畫 -->
@@ -23,7 +31,8 @@
       ></v-select>
     </div>
 
-    <div v-if="selectedPlan !== 3 && selectedPlan !== 4">
+    <div v-if="selectedPlan !== 4">
+      <!-- <div v-if="selectedPlan !== 3 && selectedPlan !== 4"> -->
       <v-row v-if="selectedPlan && filteredProjects.length > 0" class="project-cards-row">
         <v-col cols="12">
           <v-card class="project-card" color="indigo-accent-2" dark>
@@ -58,11 +67,26 @@
             <v-card-title
               class="d-flex font-weight-bold flex-column align-items-center justify-content-center card-title-custom"
             >
-              <v-icon
-                :icon="getProjectCardInfo(project.project_name).icon"
-                class="icon-background mb-2"
-                :color="getProjectCardInfo(project.project_name).color"
-              ></v-icon>
+              <div class="d-flex justify-content-between align-items-center">
+                <v-icon
+                  :icon="getPhaseProjectCardInfo(project.project_name).icon"
+                  class="icon-background mb-2"
+                  :color="getPhaseProjectCardInfo(project.project_name).color"
+                ></v-icon>
+                <v-chip
+                  v-if="
+                    selectedPlan == 3 &&
+                    ['22.8KV', '161KV', '升壓站'].includes(project.project_name)
+                  "
+                  color="green"
+                  prepend-icon="mdi-check-circle"
+                  variant="flat"
+                  size="large"
+                  class="ml-auto"
+                >
+                  已完工
+                </v-chip>
+              </div>
               {{ getProjectCardInfo(project.project_name).title }}
             </v-card-title>
             <v-divider></v-divider>
@@ -253,7 +277,7 @@
       </v-row>
     </div>
 
-    <div v-else>
+    <!-- <div v-else>
       <v-row v-if="selectedPlan && filteredProjects.length > 0" class="project-cards-row">
         <v-col cols="12">
           <v-card class="project-card" color="indigo-accent-2" dark>
@@ -393,7 +417,7 @@
           ></v-alert>
         </v-col>
       </v-row>
-    </div>
+    </div> -->
   </v-container>
 </template>
 
@@ -404,6 +428,7 @@ export default {
     return {
       plan: [], //所有計畫
       project: [], //所有專案
+      master_planid: null,
       selectedPlan: null, //所選中計畫
       currentDialog: null, //顯示當前對話框
     };
@@ -421,6 +446,7 @@ export default {
   async created() {
     if (this.$route.query.planId && !isNaN(parseInt(this.$route.query.planId))) {
       this.selectedPlan = parseInt(this.$route.query.planId);
+      this.master_planid = parseInt(this.$route.query.master_planid);
     } else {
       this.selectedPlan = null;
     }
@@ -441,6 +467,12 @@ export default {
       this.$router.push({
         name: projectRouteName,
         query: { Plan: this.selectedPlan, Project: project },
+      });
+    },
+    navigateToPlanList() {
+      this.$router.push({
+        name: "Browse_Master_Progress",
+        query: { master_planid: this.master_planid },
       });
     },
     navigateToManagement(projectRouteName) {
