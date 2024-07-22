@@ -97,17 +97,6 @@
                   class="mt-auto font-weight-bold btn-custom"
                   @click="
                     navigateToProject(
-                      getProjectCardInfo(project.project_name).routeName3,
-                      project.project_id
-                    )
-                  "
-                  >瀏覽總迴路</v-btn
-                >
-                <v-btn
-                  :color="getProjectCardInfo(project.project_name).color"
-                  class="mt-auto font-weight-bold btn-custom"
-                  @click="
-                    navigateToProject(
                       getProjectCardInfo(project.project_name).routeName2,
                       project.project_id
                     )

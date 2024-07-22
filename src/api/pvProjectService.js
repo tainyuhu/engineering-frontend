@@ -120,6 +120,66 @@ const fetchLoopQuarterChartData = (loopId, project_type) => {
   });
 };
 
+const fetchLoopPVWeekTableData = (project_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_only_pv_loop_progress/${project_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchLoopPVQuarterTableData = (project_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_only_pv_loop_all_quarter_progress/${project_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchLoopPVTableData = (project_id, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_only_pv_loop_all_quarter_progress/${project_id}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
+const fetchLoopPVQuarterChartData = (projectId) => {
+  return apiClient.get(`/api/v1/get_loop_pv_quarter_chart_progress/${projectId}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchLoopPVAllQuarterChartData = (projectId) => {
+  return apiClient.get(`/api/v1/get_loop_pv_all_quarter_chart_progress/${projectId}/`, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+};
+
+const fetchLoopPVWeekChartData = (projectId, currentPage, itemsPerPage) => {
+  return apiClient.get(
+    `/api/v1/get_loop_pv_week_chart_progress/${projectId}/${currentPage}/${itemsPerPage}/`,
+    {
+      headers: {
+        Accept: "application/json",
+      },
+    }
+  );
+};
+
 export {
   fetchWeekTableData,
   fetchQuarterTableData,
@@ -133,4 +193,10 @@ export {
   fetchWeekLoopChartData,
   fetchLoopAllQuarterChartData,
   fetchLoopQuarterChartData,
+  fetchLoopPVWeekTableData,
+  fetchLoopPVQuarterTableData,
+  fetchLoopPVTableData,
+  fetchLoopPVQuarterChartData,
+  fetchLoopPVAllQuarterChartData,
+  fetchLoopPVWeekChartData,
 };

@@ -12,37 +12,37 @@
       <div class="status-and-page-size-selector">
         <span>狀態：</span>
         <v-btn
-          :class="displayMode === 'table' ? 'report-btn' : 'table-btn'"
-          @click="toggleDisplayMode"
-          >{{ displayModeText }}</v-btn
+          :class="endisplayMode === 'table' ? 'report-btn' : 'table-btn'"
+          @click="entoggleDisplayMode"
+          >{{ endisplayModeText }}</v-btn
         >
       </div>
 
       <!-- 第二個區塊 -->
-      <div v-if="showDetails && displayMode === 'table'" class="py-2 d-flex justify-center">
-        <v-btn-toggle mandatory v-model="timeMode" class="time-toggle" variant="outlined">
+      <div v-if="enshowDetails && endisplayMode === 'table'" class="py-2 d-flex justify-center">
+        <v-btn-toggle mandatory v-model="entimeMode" class="time-toggle" variant="outlined">
           <v-btn class="time-btn" value="quarter">季</v-btn>
           <v-btn class="time-btn" value="week">週</v-btn>
         </v-btn-toggle>
       </div>
 
       <!-- 第三個區塊 -->
-      <div v-if="displayMode === 'table'">
+      <div v-if="endisplayMode === 'table'">
         <v-btn
           class="overview-btn"
-          :class="{ 'btn-active': !showDetails }"
+          :class="{ 'btn-active': !enshowDetails }"
           rounded="0"
           variant="outlined"
-          @click="showDetails = false"
+          @click="enshowDetails = false"
         >
           即時
         </v-btn>
         <v-btn
           class="details-btn"
-          :class="{ 'btn-active': showDetails }"
+          :class="{ 'btn-active': enshowDetails }"
           rounded="0"
           variant="outlined"
-          @click="showDetails = true"
+          @click="enshowDetails = true"
         >
           詳情
         </v-btn>
@@ -50,84 +50,87 @@
     </div>
 
     <!-- 周數據展示 -->
-    <div class="div-container" v-if="timeMode === 'week' && showDetails && displayMode === 'table'">
+    <div
+      class="div-container"
+      v-if="entimeMode === 'week' && enshowDetails && endisplayMode === 'table'"
+    >
       <WeekLoopTable
-        :allDateRanges="allDateRanges"
-        :weekTableData="weekTableData"
-        :percentagedata="percentageData"
+        :allDateRanges="enallDateRanges"
+        :enweekenTableData="enweekenTableData"
+        :percentagedata="enpercentageData"
       />
       <!-- 分頁組件 -->
       <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
+        v-model="encurrentPage"
+        :length="entotalPages"
         :total-visible="7"
-        @input="fetchData"
+        @input="enfetchData"
       ></v-pagination>
     </div>
 
     <!-- 季數據展示 -->
     <div
       class="div-container"
-      v-if="timeMode === 'quarter' && showDetails && displayMode === 'table'"
+      v-if="entimeMode === 'quarter' && enshowDetails && endisplayMode === 'table'"
     >
       <AllQuarterLoopTable
-        :allDateRanges="allDateRanges"
-        :quarterSummary="quarterSummary"
-        :quarterTableData="quarterTableData"
-        :percentagedata="percentageData"
+        :allDateRanges="enallDateRanges"
+        :quarterSummary="enquarterSummary"
+        :enquarterenTableData="enquarterenTableData"
+        :percentagedata="enpercentageData"
       />
       <!-- 分頁組件 -->
       <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
+        v-model="encurrentPage"
+        :length="entotalPages"
         :total-visible="7"
-        @input="fetchData"
+        @input="enfetchData"
       ></v-pagination>
     </div>
 
     <!-- 即時數據展示 -->
-    <div class="div-container" v-if="!showDetails && displayMode === 'table'">
+    <div class="div-container" v-if="!enshowDetails && endisplayMode === 'table'">
       <QuarterLoopTable
-        :allDateRanges="allDateRanges"
-        :quarterSummary="quarterSummary"
-        :TableData="TableData"
-        :percentagedata="percentageData"
+        :allDateRanges="enallDateRanges"
+        :quarterSummary="enquarterSummary"
+        :enTableData="enTableData"
+        :percentagedata="enpercentageData"
       />
       <!-- 分頁組件 -->
       <v-pagination
-        v-model="currentPage"
-        :length="totalPages"
+        v-model="encurrentPage"
+        :length="entotalPages"
         :total-visible="7"
-        @input="fetchData"
+        @input="enfetchData"
       ></v-pagination>
     </div>
 
     <!-- 案場即時報表展示 -->
     <div
       class="div-container report-container"
-      v-if="displayMode === 'report' && !showDetails"
+      v-if="endisplayMode === 'report' && !enshowDetails"
       style="background-color: white; display: flex; height: 100%"
     >
-      <SiteSelectionChart :chartData="chartData" />
+      <SiteSelectionChart :enchartData="enchartData" />
     </div>
 
     <!-- 案場所有季報表展示 -->
     <div
       class="div-container report-container"
-      v-if="displayMode === 'report' && showDetails && timeMode === 'quarter'"
+      v-if="endisplayMode === 'report' && enshowDetails && entimeMode === 'quarter'"
       style="background-color: white; display: flex; height: 100%"
     >
-      <SiteSelectionChart :chartData="chartData" />
+      <SiteSelectionChart :enchartData="enchartData" />
     </div>
 
     <!-- 案場所有周報表展示 -->
 
     <div
       class="div-container report-container"
-      v-if="displayMode === 'report' && showDetails && timeMode === 'week'"
+      v-if="endisplayMode === 'report' && enshowDetails && entimeMode === 'week'"
       style="background-color: white; display: flex; height: 100%"
     >
-      <SiteSelectionChart :chartData="chartData" />
+      <SiteSelectionChart :enchartData="enchartData" />
     </div>
   </v-container>
 </template>
@@ -139,9 +142,9 @@ import AllQuarterLoopTable from "@/components/table/allQuarterLoopTable.vue";
 import QuarterLoopTable from "@/components/table/quarterLoopTable.vue";
 import {
   fetchGetProjectPercentageDataView,
-  fetchGLoopWeekTableData,
-  fetchGLoopQuarterTableData,
-  fetchGLoopTableData,
+  fetchGLoopWeekenTableData,
+  fetchGLoopQuarterenTableData,
+  fetchGLoopenTableData,
   fetchGLoopQuarterChartData,
   fetchGLoopAllQuarterChartData,
   fetchGLoopWeekChartData,
@@ -156,55 +159,55 @@ export default {
   },
   data() {
     return {
-      timeMode: "week",
-      displayMode: "table",
       selectedPlan: null,
       selectedProject: null,
-      showDetails: false,
-      weekTableData: [], //周數據
-      quarterTableData: [], //季數據
-      TableData: [],
-      currentPage: 1,
-      perPage: 3,
-      totalPages: 0,
-      itemsPerPage: 3,
-      chartData: {
+      enshowDetails: false,
+      entimeMode: "",
+      endisplayMode: "table",
+      enweekenTableData: [], //周數據
+      enquarterenTableData: [], //季數據
+      enTableData: [],
+      encurrentPage: 1,
+      enperPage: 3,
+      entotalPages: 0,
+      enitemsPerPage: 3,
+      enchartData: {
         labels: [],
         datasets: [],
       },
-      percentageData: [],
+      enpercentageData: [],
     };
   },
   watch: {
-    selectedProject: "fetchData",
-    showDetails: "fetchData",
-    currentPage: "fetchData",
-    timeMode: "fetchData",
+    selectedProject: "enfetchData",
+    enshowDetails: "enfetchData",
+    encurrentPage: "enfetchData",
+    entimeMode: "enfetchData",
   },
   async created() {
     this.selectedPlan = this.$route.query.Plan;
     this.selectedProject = this.$route.query.Project;
   },
   computed: {
-    displayModeText() {
-      return this.displayMode === "table" ? "表格" : "報表";
+    endisplayModeText() {
+      return this.endisplayMode === "table" ? "表格" : "報表";
     },
-    allDateRanges() {
+    enallDateRanges() {
       const ranges = new Set();
-      if (!this.showDetails) {
-        this.TableData.forEach((item) => {
+      if (!this.enshowDetails) {
+        this.enTableData.forEach((item) => {
           item.date_ranges.forEach((range) => {
             ranges.add(range.date_range);
           });
         });
-      } else if (this.timeMode === "week") {
-        this.weekTableData.forEach((item) => {
+      } else if (this.entimeMode === "week") {
+        this.enweekenTableData.forEach((item) => {
           item.date_ranges.forEach((range) => {
             ranges.add(range.date_range);
           });
         });
-      } else if (this.timeMode === "quarter") {
-        this.quarterTableData.forEach((item) => {
+      } else if (this.entimeMode === "quarter") {
+        this.enquarterenTableData.forEach((item) => {
           item.date_ranges.forEach((range) => {
             ranges.add(range.date_range);
           });
@@ -212,8 +215,8 @@ export default {
       }
       return Array.from(ranges);
     },
-    quarterSummary() {
-      let data = this.showDetails ? this.quarterTableData : this.TableData;
+    enquarterSummary() {
+      let data = this.enshowDetails ? this.enquarterenTableData : this.enTableData;
       if (!data.length) return [];
 
       const summaries = new Set();
@@ -239,20 +242,20 @@ export default {
         query: { planId: this.selectedPlan },
       });
     },
-    toggleDisplayMode() {
-      if (this.displayMode === "table") {
-        this.previousTimeMode = this.timeMode;
-        this.previousShowDetails = this.showDetails;
+    entoggleDisplayMode() {
+      if (this.endisplayMode === "table") {
+        this.previousTimeMode = this.entimeMode;
+        this.previousShowDetails = this.enshowDetails;
 
-        this.displayMode = "report";
+        this.endisplayMode = "report";
       } else {
-        this.displayMode = "table";
+        this.endisplayMode = "table";
 
-        this.timeMode = this.previousTimeMode;
-        this.showDetails = this.previousShowDetails;
+        this.entimeMode = this.previousTimeMode;
+        this.enshowDetails = this.previousShowDetails;
       }
     },
-    organizeTableData(flatData) {
+    enorganizeenTableData(flatData) {
       const organizedData = [];
       const tempMap = new Map();
 
@@ -301,56 +304,56 @@ export default {
 
       return organizedData;
     },
-    async fetchData() {
+    async enfetchData() {
       this.isLoading = true;
       try {
         let response;
         let responsechart;
-        let percentageDataresponse;
+        let enpercentageDataresponse;
 
-        percentageDataresponse = await fetchGetProjectPercentageDataView(this.selectedProject);
-        this.percentageData = percentageDataresponse.data;
+        enpercentageDataresponse = await fetchGetProjectPercentageDataView(this.selectedProject);
+        this.enpercentageData = enpercentageDataresponse.data;
 
-        if (!this.showDetails) {
-          response = await fetchGLoopTableData(
+        if (!this.enshowDetails) {
+          response = await fetchGLoopenTableData(
             this.selectedProject,
-            this.currentPage,
-            this.itemsPerPage
+            this.encurrentPage,
+            this.enitemsPerPage
           );
-          this.TableData = this.organizeTableData(response.data.results);
+          this.enTableData = this.enorganizeenTableData(response.data.results);
           responsechart = await fetchGLoopQuarterChartData(this.selectedProject);
-          this.chartData = responsechart.data;
-        } else if (this.showDetails && this.timeMode === "week") {
-          response = await fetchGLoopWeekTableData(
+          this.enchartData = responsechart.data;
+        } else if (this.enshowDetails && this.entimeMode === "week") {
+          response = await fetchGLoopWeekenTableData(
             this.selectedProject,
-            this.currentPage,
-            this.itemsPerPage
+            this.encurrentPage,
+            this.enitemsPerPage
           );
-          this.weekTableData = this.organizeTableData(response.data.results);
+          this.enweekenTableData = this.enorganizeenTableData(response.data.results);
           responsechart = await fetchGLoopWeekChartData(
             this.selectedProject,
-            this.currentPage,
-            this.itemsPerPage
+            this.encurrentPage,
+            this.enitemsPerPage
           );
-          this.chartData = responsechart.data;
-        } else if (this.showDetails && this.timeMode === "quarter") {
-          response = await fetchGLoopQuarterTableData(
+          this.enchartData = responsechart.data;
+        } else if (this.enshowDetails && this.entimeMode === "quarter") {
+          response = await fetchGLoopQuarterenTableData(
             this.selectedProject,
-            this.currentPage,
-            this.itemsPerPage
+            this.encurrentPage,
+            this.enitemsPerPage
           );
-          this.quarterTableData = this.organizeTableData(response.data.results);
+          this.enquarterenTableData = this.enorganizeenTableData(response.data.results);
           responsechart = await fetchGLoopAllQuarterChartData(this.selectedProject);
-          this.chartData = responsechart.data;
+          this.enchartData = responsechart.data;
         } else {
-          console.error("Invalid time mode:", this.timeMode);
+          console.error("Invalid time mode:", this.entimeMode);
           return;
         }
-        this.totalPages = response.data.totalPages;
+        this.entotalPages = response.data.entotalPages;
       } catch (error) {
         console.error("Error fetching data:", error);
-        this.weekTableData = [];
-        this.quarterTableData = [];
+        this.enweekenTableData = [];
+        this.enquarterenTableData = [];
       } finally {
         this.isLoading = false;
       }
