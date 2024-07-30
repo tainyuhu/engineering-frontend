@@ -479,12 +479,10 @@ export default {
       enquarterTableData: [], //季數據
       enTableData: [], //即時數據
       currentPage: 1,
-      perPage: 3,
-      itemsPerPage: 3,
+      itemsPerPage: 4,
       totalPages: 0, // 總頁數
       encurrentPage: 1,
-      enperPage: 3,
-      enitemsPerPage: 3,
+      enitemsPerPage: 4,
       entotalPages: 0, // 總頁數
       chartData: {
         labels: [],

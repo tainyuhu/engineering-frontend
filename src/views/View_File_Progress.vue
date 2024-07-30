@@ -24,6 +24,7 @@
       <v-tabs bg-color="indigo-darken-2" v-model="tab" color="#ffc107" show-arrows>
         <v-tab style="font-weight: bold" value="phase1"> Phase1 </v-tab>
         <v-tab style="font-weight: bold" value="phase2"> Phase2 </v-tab>
+        <v-tab style="font-weight: bold" value="month"> 月報 </v-tab>
       </v-tabs>
 
       <v-card-text>
@@ -209,6 +210,97 @@
               </div>
             </div>
           </v-window-item>
+
+          <v-window-item value="month">
+            <!-- 表格 -->
+            <v-table class="elevated-table" width="100%">
+              <thead>
+                <tr class="table-header">
+                  <th
+                    @click="
+                      sortBy = 'file_name';
+                      sortDesc = !sortDesc;
+                    "
+                    class="font-weight-bold sortable"
+                  >
+                    文件名稱
+                    <v-icon small v-if="sortBy === 'file_name'">
+                      {{ sortDesc ? "mdi-arrow-down" : "mdi-arrow-up" }}
+                    </v-icon>
+                  </th>
+                  <th class="font-weight-bold">更新描述</th>
+                  <th
+                    @click="
+                      sortBy = 'create_at';
+                      sortDesc = !sortDesc;
+                    "
+                    class="font-weight-bold sortable"
+                  >
+                    上傳時間
+                    <v-icon small v-if="sortBy === 'create_at'">
+                      {{ sortDesc ? "mdi-arrow-down" : "mdi-arrow-up" }}
+                    </v-icon>
+                  </th>
+                  <th
+                    @click="
+                      sortBy = 'last_update';
+                      sortDesc = !sortDesc;
+                    "
+                    class="font-weight-bold sortable"
+                  >
+                    更新時間
+                    <v-icon small v-if="sortBy === 'last_update'">
+                      {{ sortDesc ? "mdi-arrow-down" : "mdi-arrow-up" }}
+                    </v-icon>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(file, index) in paginatedFiles"
+                  :key="index"
+                  @click="viewFile(file)"
+                  class="table-row"
+                >
+                  <td>{{ file.file_name }}</td>
+                  <td>{{ file.update_description }}</td>
+                  <td>{{ file.create_at }}</td>
+                  <td>{{ file.last_update }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+
+            <!-- 分頁功能 -->
+            <div class="pagination-container">
+              <div class="select-actions d-none d-md-flex">
+                <span class="font-weight-bold ml-2">每頁顯示：</span>
+                <v-select
+                  density="compact"
+                  variant="outlined"
+                  v-model="itemsPerPage"
+                  :items="itemsPerPageOptions"
+                  class="items-per-page-select"
+                  @change="page = 1"
+                ></v-select>
+              </div>
+              <div class="pagination-actions">
+                <v-btn icon small variant="text" @click="page = 1">
+                  <v-icon>mdi-page-first</v-icon>
+                </v-btn>
+                <v-pagination
+                  v-model="page"
+                  :length="pages"
+                  :total-visible="1"
+                  class="pagination"
+                  active-color="#00b894"
+                  @input="page = $event"
+                ></v-pagination>
+                <v-btn icon small variant="text" @click="page = pages">
+                  <v-icon>mdi-page-last</v-icon>
+                </v-btn>
+              </div>
+            </div>
+          </v-window-item>
         </v-window>
       </v-card-text>
     </v-card>
@@ -216,7 +308,7 @@
 </template>
 
 <script>
-import { fetchFile, fetchFilePhase } from "@/api/planService";
+import { fetchFile, fetchFilePhase, fetchFileMonth } from "@/api/planService";
 export default {
   data() {
     return {
@@ -272,8 +364,10 @@ export default {
     tab(newVal) {
       if (newVal === "phase1") {
         this.fetchFilePhase();
-      } else {
+      } else if (newVal === "phase2") {
         this.fetchData();
+      } else {
+        this.fetchFileMonth();
       }
     },
   },
@@ -308,6 +402,18 @@ export default {
     async fetchFilePhase() {
       try {
         const filesResponse = await fetchFilePhase();
+        this.files = filesResponse.data.map((file) => ({
+          ...file,
+          create_at: this.formatDate(file.create_at),
+          last_update: this.formatDate(file.last_update),
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async fetchFileMonth() {
+      try {
+        const filesResponse = await fetchFileMonth();
         this.files = filesResponse.data.map((file) => ({
           ...file,
           create_at: this.formatDate(file.create_at),
