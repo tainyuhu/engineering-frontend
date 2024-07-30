@@ -170,9 +170,8 @@ export default {
       quarterTableData: [], //季數據
       TableData: [],
       currentPage: 1,
-      perPage: 3,
       totalPages: 0,
-      itemsPerPage: 3,
+      itemsPerPage: 4,
       chartData: {
         labels: [],
         datasets: [],

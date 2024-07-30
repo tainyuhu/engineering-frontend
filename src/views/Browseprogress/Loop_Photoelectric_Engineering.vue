@@ -358,7 +358,7 @@ export default {
       weekTableData: [], //周數據
       quarterTableData: [], //季數據
       TableData: [], //總數據
-      itemsPerPage: 3, //一次只要顯示兩筆
+      itemsPerPage: 4, //一次只要顯示兩筆
       currentPage: 1, //當前頁面
       totalPages: 0, // 總頁數
       chartData: {}, // 圖表內容
@@ -371,9 +371,8 @@ export default {
       enquarterTableData: [], //季數據
       enTableData: [],
       encurrentPage: 1,
-      enperPage: 3,
       entotalPages: 0,
-      enitemsPerPage: 3,
+      enitemsPerPage: 4,
       enchartData: {
         labels: [],
         datasets: [],

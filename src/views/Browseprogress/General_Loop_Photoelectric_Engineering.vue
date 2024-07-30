@@ -168,9 +168,8 @@ export default {
       enquarterenTableData: [], //季數據
       enTableData: [],
       encurrentPage: 1,
-      enperPage: 3,
       entotalPages: 0,
-      enitemsPerPage: 3,
+      enitemsPerPage: 4,
       enchartData: {
         labels: [],
         datasets: [],

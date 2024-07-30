@@ -12,6 +12,10 @@ const fetchFilePhase = () => {
   return apiClient.get("/api/v1/fileprogressphase/");
 };
 
+const fetchFileMonth = () => {
+  return apiClient.get("/api/v1/fileprogressmonth/");
+};
+
 const fetchPlans = () => {
   return apiClient.get("/api/v1/plans/");
 };
@@ -230,6 +234,7 @@ export {
   fetchFile,
   fetchMeeting,
   fetchFilePhase,
+  fetchFileMonth,
   fetchGetLoopPercentageData,
   fetchGetProjectPercentageDataView,
   fetchGetPlanPercentageDataView,
