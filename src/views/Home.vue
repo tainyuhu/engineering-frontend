@@ -33,7 +33,7 @@
               <v-col cols="12" md="4">
                 <v-card class="info-card">
                   <v-card-title class="pink-bg card-title font-weight-bold">紀錄日期</v-card-title>
-                  <v-card-text class="card-content">2024/07/06</v-card-text>
+                  <v-card-text class="card-content">2024/07/28</v-card-text>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
@@ -45,7 +45,7 @@
               <v-col cols="12" md="4">
                 <v-card class="info-card">
                   <v-card-title class="brown-bg card-title font-weight-bold">紀錄週數</v-card-title>
-                  <v-card-text class="card-content">1</v-card-text>
+                  <v-card-text class="card-content">4</v-card-text>
                 </v-card>
               </v-col>
             </v-row>
@@ -250,7 +250,7 @@ export default {
           project: [
             { projectName: "22.8KV", progress: 100 },
             { projectName: "161KV", progress: 100 },
-            { projectName: "案場", progress: 88.59 },
+            { projectName: "案場", progress: 88.77 },
             { projectName: "升壓站", progress: 100 },
             { projectName: "電業申辦", progress: 85.64 },
           ],
@@ -260,7 +260,7 @@ export default {
           project: [
             { projectName: "22.8KV", progress: 16.81 },
             { projectName: "161KV", progress: 33.17 },
-            { projectName: "案場", progress: 2.84 },
+            { projectName: "案場", progress: 3.57 },
             { projectName: "電業申辦", progress: 42.27 },
           ],
         },
