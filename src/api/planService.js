@@ -24,6 +24,18 @@ const fetchProjects = () => {
   return apiClient.get("/api/v1/projects/");
 };
 
+const fetchIndexweek = () => {
+  return apiClient.get("/api/v1/get-index-week/");
+};
+
+const fetchBillboardList = () => {
+  return apiClient.get("/api/v1/billboard/");
+};
+
+const fetchGetOnePlanProgressData = (master_plan_id) => {
+  return apiClient.get(`/api/v1/get_plan_progress/${master_plan_id}/`);
+};
+
 const fetchCasesByLoop = (loopid) => {
   return apiClient.get(`/api/v1/project-cases/${loopid}/`);
 };
@@ -235,6 +247,7 @@ export {
   fetchMeeting,
   fetchFilePhase,
   fetchFileMonth,
+  fetchIndexweek,
   fetchGetLoopPercentageData,
   fetchGetProjectPercentageDataView,
   fetchGetPlanPercentageDataView,
@@ -257,4 +270,6 @@ export {
   fetchPlanQuarterChartData,
   fetchPlanAllQuarterChartData,
   fetchPlanWeekChartData,
+  fetchBillboardList,
+  fetchGetOnePlanProgressData,
 };
