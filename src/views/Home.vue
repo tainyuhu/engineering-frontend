@@ -33,19 +33,19 @@
               <v-col cols="12" md="4">
                 <v-card class="info-card">
                   <v-card-title class="pink-bg card-title font-weight-bold">紀錄日期</v-card-title>
-                  <v-card-text class="card-content">2024/07/28</v-card-text>
+                  <v-card-text class="card-content">{{ recordDate }}</v-card-text>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="info-card">
                   <v-card-title class="green-bg card-title font-weight-bold">紀錄季度</v-card-title>
-                  <v-card-text class="card-content">3</v-card-text>
+                  <v-card-text class="card-content">{{ recordQuarter }}</v-card-text>
                 </v-card>
               </v-col>
               <v-col cols="12" md="4">
                 <v-card class="info-card">
                   <v-card-title class="brown-bg card-title font-weight-bold">紀錄週數</v-card-title>
-                  <v-card-text class="card-content">4</v-card-text>
+                  <v-card-text class="card-content">{{ recordWeek }}</v-card-text>
                 </v-card>
               </v-col>
             </v-row>
@@ -62,7 +62,7 @@
                   <v-card-title class="green-bg-1 card-title font-weight-bold"
                     >目前天氣</v-card-title
                   >
-                  <v-card-text class="card-content">晴</v-card-text>
+                  <v-card-text class="card-content">{{ weatherDescription }}</v-card-text>
                 </v-card>
               </v-col>
             </v-row>
@@ -99,7 +99,7 @@
                     }}</v-chip>
                   </td>
                   <td class="title-cell">{{ file.file_name }}</td>
-                  <td class="title-cell">{{ file.update }}</td>
+                  <td class="title-cell">{{ formatDate(file.update_date) }}</td>
                 </tr>
               </tbody>
             </v-table>
@@ -130,7 +130,7 @@
         <v-card class="mb-4 info-card">
           <v-card-title class="orange-title font-weight-bold">即時進度</v-card-title>
           <v-card-text>
-            <v-carousel hide-delimiters height="450">
+            <v-carousel hide-delimiters height="450" v-model="currentCarouselIndex">
               <template v-slot:prev="{ props }">
                 <v-btn
                   density="compact"
@@ -155,24 +155,22 @@
                   </v-card-title>
                   <v-card-text class="card-content">
                     <v-row>
-                      <v-col v-for="(project, idx) in phase.project" :key="idx" cols="12" md="6">
+                      <v-col v-for="(project, idx) in phase.projects" :key="idx" cols="12" md="6">
                         <v-card class="mb-4 info-card">
                           <v-card-title
                             class="card-title font-weight-bold"
                             style="text-align: center"
-                            >專案名稱：{{ project.projectName }}</v-card-title
                           >
+                            專案名稱：{{ project.projectName }}
+                          </v-card-title>
                           <v-card-text class="card-content">
                             <v-progress-linear
                               rounded
-                              v-model="project.progress"
+                              :value="project.progress"
                               height="20"
                               :color="getProgressColor(project.progress)"
                             >
-                              <strong
-                                :style="{ color: project.progress > 70 ? '#ffffff' : '#000000' }"
-                                >{{ project.progress }}%</strong
-                              >
+                              <strong>{{ project.progress.toFixed(2) }}%</strong>
                             </v-progress-linear>
                           </v-card-text>
                         </v-card>
@@ -204,9 +202,8 @@
             target="_blank"
             color="blue darken-1"
             text
+            >附件</v-btn
           >
-            附件
-          </v-btn>
           <v-btn color="green darken-1" text @click="dialog = false">關閉</v-btn>
         </v-card-actions>
       </v-card>
@@ -215,56 +212,26 @@
 </template>
 
 <script>
+import { fetchIndexweek, fetchBillboardList, fetchGetOnePlanProgressData } from "@/api/planService";
+import { fetchWeatherData } from "@/api/weatherService";
+import moment from "moment";
+
 export default {
   data() {
     return {
       currentDate: new Date().toLocaleDateString(),
       currentQuarter: this.getQuarter(),
       currentWeek: this.getWeekNumber(new Date()),
-      files: [
-        {
-          file_name: "更新計畫列表細項",
-          content: "建立了計畫列表，可以由此查看計畫的基本資料。",
-          category: "系統更新",
-          update: "2024-05-29",
-          link: "https://docs.google.com/document/d/1ABCDEFG/view",
-        },
-        {
-          file_name: "增加圖表顯示功能",
-          content: "改進了用戶界面，增加了新的圖表顯示功能。",
-          category: "功能新增",
-          update: "2024-05-28",
-        },
-        {
-          file_name: "Q2W06進度已更新",
-          content: "Q2W06進度已更新，部分預計進度已經超過實際進度。",
-          category: "進度更新",
-          update: "2024-05-28",
-        },
-      ],
+      recordDate: "",
+      recordQuarter: "",
+      recordWeek: "",
+      master_plan_id: 1,
+      files: [],
+      weatherDescription: "",
       page: 1,
       itemsPerPage: 5,
-      projects: [
-        {
-          planName: "Phase1",
-          project: [
-            { projectName: "22.8KV", progress: 100 },
-            { projectName: "161KV", progress: 100 },
-            { projectName: "案場", progress: 88.77 },
-            { projectName: "升壓站", progress: 100 },
-            { projectName: "電業申辦", progress: 85.64 },
-          ],
-        },
-        {
-          planName: "Phase2",
-          project: [
-            { projectName: "22.8KV", progress: 16.81 },
-            { projectName: "161KV", progress: 33.17 },
-            { projectName: "案場", progress: 3.57 },
-            { projectName: "電業申辦", progress: 42.27 },
-          ],
-        },
-      ],
+      projects: [],
+      currentCarouselIndex: 0,
       resources: [
         { name: "外部連結1", url: "https://example.com" },
         { name: "外部連結2", url: "https://example.com" },
@@ -274,6 +241,72 @@ export default {
     };
   },
   methods: {
+    async fetchIndexWeekData() {
+      try {
+        const response = await fetchIndexweek();
+        const data = response.data;
+        this.recordDate = moment(data.end_date).format("YYYY/MM/DD");
+        this.recordQuarter = data.quarter;
+        this.recordWeek = data.week;
+      } catch (error) {
+        console.error("Error fetching index week:", error);
+      }
+    },
+    async fetchBillboardListData() {
+      try {
+        const response = await fetchBillboardList();
+        this.files = response.data;
+      } catch (error) {
+        console.error("Error fetching billboard list:", error);
+      }
+    },
+    async fetchOnePlanProgressData() {
+      try {
+        const response = await fetchGetOnePlanProgressData(this.master_plan_id);
+        this.projects = response.data.map((plan) => ({
+          ...plan,
+          projects: plan.projects.map((project) => ({
+            ...project,
+            progress: project.progress * 100,
+            expected: project.expected * 100,
+          })),
+        }));
+      } catch (error) {
+        console.error("Error fetching one plan progress data:", error);
+      }
+    },
+    async fetchWeatherData() {
+      try {
+        const response = await fetchWeatherData();
+        console.log(response.data.records.locations[0].location[0].weatherElement);
+        const weatherElements = response.data.records.locations[0].location[0].weatherElement;
+        const timeNow = moment();
+
+        let closestTime = null;
+        let closestElementValue = "暫無資料";
+
+        weatherElements.forEach((element) => {
+          element.time.forEach((time) => {
+            const forecastTime = moment(time.startTime);
+            if (
+              !closestTime ||
+              Math.abs(timeNow.diff(forecastTime)) < Math.abs(timeNow.diff(closestTime))
+            ) {
+              closestTime = forecastTime;
+              closestElementValue = time.elementValue[0].value;
+            }
+          });
+        });
+
+        this.weatherDescription = closestElementValue;
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+        this.weatherDescription = "暫無資料";
+      }
+    },
+    formatDate(date) {
+      return moment(date).format("YYYY/MM/DD");
+    },
     getProgressColor(progress) {
       if (progress >= 100) return "green";
       if (progress >= 95) return "blue";
@@ -316,6 +349,12 @@ export default {
       const end = start + this.itemsPerPage;
       return this.files.slice(start, end);
     },
+  },
+  async created() {
+    await this.fetchIndexWeekData();
+    await this.fetchBillboardListData();
+    await this.fetchOnePlanProgressData();
+    await this.fetchWeatherData();
   },
 };
 </script>
@@ -462,7 +501,7 @@ export default {
 }
 
 .chip-cell {
-  width: 100px; /* 或者你想要的其他寬度 */
+  width: 100px;
   text-align: left;
 }
 
